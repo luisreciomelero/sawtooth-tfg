@@ -1,0 +1,97 @@
+version: '2.1'
+
+services:
+
+  counter-shell:
+    build:
+      context: .
+      dockerfile: ./shell/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: sawtooth-counter-shell
+    container_name: counter-shell
+    volumes:
+      - .:/project/sawtooth-counter
+    command: |
+      bash -c "
+        if [ ! -f /root/.sawtooth/keys/root.priv ]; then
+          sawtooth keygen
+        fi;
+        cd client
+        npm run-script build
+        cd ../
+        tail -f /dev/null
+      "
+
+  counter-client:
+    build: ./client/
+    image: sawtooth-counter-client
+    container_name: counter-client
+    volumes:
+      - ./client/:/usr/local/apache2/htdocs/
+    expose:
+      - 80
+    ports:
+      - '8000:80'
+    depends_on:
+    - rest-api
+    - counter-shell
+
+  counter-tp:
+    build:
+      context: .
+      dockerfile: ./processor/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: sawtooth-counter-tp
+    container_name: counter-tp
+    depends_on:
+      - counter-shell
+    command: |
+      bash -c "
+        sleep 1
+        counter-tp -vv -C tcp://validator:4004
+      "
+
+  settings-tp:
+    image: hyperledger/sawtooth-settings-tp:1.0
+    container_name: sawtooth-settings-tp
+    depends_on:
+      - validator
+    entrypoint: settings-tp -vv -C tcp://validator:4004
+
+  rest-api:
+    image: hyperledger/sawtooth-rest-api:1.0
+    container_name: sawtooth-rest-api
+    expose:
+      - 8008
+    ports:
+      - '8008:8008'
+    depends_on:
+      - validator
+    entrypoint: sawtooth-rest-api -vv -C tcp://validator:4004 --bind rest-api:8008
+
+  validator:
+    image: hyperledger/sawtooth-validator:1.0
+    container_name: sawtooth-validator
+    expose:
+      - 4004
+    ports:
+      - '4004:4004'
+    command: |
+      bash -c "
+        if [ ! -f /etc/sawtooth/keys/validator.priv ]; then
+          sawadm keygen
+          sawtooth keygen my_key
+          sawset genesis -k /root/.sawtooth/keys/my_key.priv
+          sawadm genesis config-genesis.batch
+        fi;
+        sawtooth-validator -vv \
+          --endpoint tcp://validator:8800 \
+          --bind component:tcp://eth0:4004 \
+          --bind network:tcp://eth0:8800
+      "
