@@ -19,11 +19,11 @@ from sawtooth_sdk.processor.exceptions import InternalError
 import hashlib
 
 
-FAMILY_NAME = 'counter'
+FAMILY_NAME = 'counter-chain'
 NAMESPACE = hashlib.sha512(FAMILY_NAME.encode('utf-8')).hexdigest()[:6]
 
 
-class SimpleSupplyHandler(TransactionHandler):
+class CounterHandler(TransactionHandler):
 
     @property
     def family_name(self):
