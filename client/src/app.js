@@ -44,8 +44,8 @@ session.update = function (action, asset) {
 
 
 $('#registerNumber').on('click', function () {
-  const number = $('#numberInput').val();
-  
+  const n = $('#numberInput').val();
+  const number = n.toString()
   if (number){
     var reg = makeKeyPair();
     session.number.push(reg)

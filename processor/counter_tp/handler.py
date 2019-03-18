@@ -18,7 +18,7 @@ from sawtooth_sdk.processor.exceptions import InternalError
 
 
 from carchain_processor.counter_payload import CounterPayload
-from carchain_processor.counter_state import CarchainState
+from carchain_processor.counter_state import CounterState
 
 import hashlib
 
@@ -45,4 +45,23 @@ class CounterTransactionHandler(TransactionHandler):
         header = transaction.header
         signer = header.signer_public_key
 
-        
+        payload = CounterPayload(transaction.payload)
+        state = CounterState(context)
+
+        LOGGER.info('Handling transaction: %s > %s %s:: %s',
+                    payload.action,
+                    payload.asset)
+
+        if payload.action == 'register':
+            _register_asset(asset=payload.asset,
+                          signer=signer,
+                          state=state)
+
+    def _register_asset(asset, signer, state):
+        if state.get_asset(asset) is not None:
+            raise InvalidTransaction(
+                'Invalid action: Asset already exists: {}'.format(asset))
+        state.set_asset(asset, signer)
+
+
+

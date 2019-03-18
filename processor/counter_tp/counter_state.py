@@ -37,35 +37,35 @@ class CounterState(object):
     def __init__(self, context):
         self._context = context
 
-    def get_asset(self, name):
-        return self._get_state(_get_asset_address(name))
+    def get_asset(self, number):
+        return self._get_state(_get_asset_address(number))
 
-    def get_transfer(self, name):
-        return self._get_state(_get_transfer_address(name))
+    def get_transfer(self, number):
+        return self._get_state(_get_transfer_address(number))
 
-    def set_asset(self, name, owner):
-        address = _get_asset_address(name)
+    def set_asset(self, number, signer):
+        address = _get_asset_address(number)
         state_data = _serialize(
             {
-                "name": name,
-                "owner": owner
+                "number": number,
+                "signer": signer
             })
         return self._context.set_state(
             {address: state_data}, timeout=self.TIMEOUT)
 
-    def set_transfer(self, name, owner):
-        address = _get_transfer_address(name)
+    def set_transfer(self, number):
+        address = _get_transfer_address(number)
         state_data = _serialize(
             {
-                "asset": name,
-                "owner": owner
+                "asset": number
             })
         return self._context.set_state(
             {address: state_data}, timeout=self.TIMEOUT)
 
-    def delete_transfer(self, name):
+
+    def delete_transfer(self, number):
         return self._context.delete_state(
-            [_get_transfer_address(name)],
+            [_get_transfer_address(number)],
             timeout=self.TIMEOUT)
 
     def _get_state(self, address):
