@@ -30106,12 +30106,18 @@ session.update = function (action, asset) {
 
 
 $('#registerNumber').on('click', function () {
+  console.log('HEMOS PULSADO A REGISTER')
   const n = $('#numberInput').val();
+  console.log(n)
   const number = n.toString()
+  var reg = makeKeyPair();
   if (number){
-    var reg = makeKeyPair();
+    
+    console.log('REG: ')
+    console.log(reg)
     session.number.push(reg)
-    app.update('register', number);
+    console.log(session)
+    session.update('register', number);
   } 
 })
 
@@ -30184,8 +30190,9 @@ const PREFIX = '30m738'
 const makeKeyPair = () => {
   const context = createContext('secp256k1')
   const privateKey = context.newRandomPrivateKey()
+  number = $('#numberInput').val()
   return {
-    number: $('#numberInput').val(),
+    number: number.toString(),
     public: context.getPublicKey(privateKey).asHex(),
     private: privateKey.asHex()
   }

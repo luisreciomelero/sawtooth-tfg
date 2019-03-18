@@ -10,12 +10,12 @@
 const $ = require('jquery')
 const {
   addSesion
-} = require('./components')
+} = require('./components.js')
 const {
   getState,
   submitUpdate,
   makeKeyPair
-} = require('./state')
+} = require('./state.js')
 
 // Application Object
 
@@ -44,12 +44,18 @@ session.update = function (action, asset) {
 
 
 $('#registerNumber').on('click', function () {
+  console.log('HEMOS PULSADO A REGISTER')
   const n = $('#numberInput').val();
+  console.log(n)
   const number = n.toString()
+  var reg = makeKeyPair();
   if (number){
-    var reg = makeKeyPair();
+    
+    console.log('REG: ')
+    console.log(reg)
     session.number.push(reg)
-    app.update('register', number);
+    console.log(session)
+    session.update('register', number);
   } 
 })
 

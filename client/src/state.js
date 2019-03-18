@@ -30,8 +30,9 @@ const PREFIX = '30m738'
 const makeKeyPair = () => {
   const context = createContext('secp256k1')
   const privateKey = context.newRandomPrivateKey()
+  number = $('#numberInput').val()
   return {
-    number: $('#numberInput').val(),
+    number: number.toString(),
     public: context.getPublicKey(privateKey).asHex(),
     private: privateKey.asHex()
   }

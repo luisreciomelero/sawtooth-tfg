@@ -17,8 +17,8 @@ from sawtooth_sdk.processor.handler import TransactionHandler
 from sawtooth_sdk.processor.exceptions import InternalError
 
 
-from carchain_processor.counter_payload import CounterPayload
-from carchain_processor.counter_state import CounterState
+from counter_tp.counter_payload import CounterPayload
+from counter_tp.counter_state import CounterState
 
 import hashlib
 
