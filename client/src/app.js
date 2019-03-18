@@ -19,14 +19,14 @@ const {
 
 // Application Object
 
-const session = {number: null, assets:[], transfers:[]}
+const session = {number: [], assets:[], transfers:[]}
 //Este método cargará en el objeto session los elementos de la blockchain
 session.refresh = function () {
   getState(({ assets, transfers }) => {
     this.assets = assets
     this.transfers = transfers
     $('#sesion').empty()
-    if(session.number !== null) addSesion('#sesion', session.number);
+    if(!session.number.isEmpty()) addSesion('#sesion', session.number);
 
     
   })
@@ -55,6 +55,9 @@ $('#registerNumber').on('click', function () {
     console.log(reg)
     session.number.push(reg)
     console.log(session)
+    console.log('number: ')
+    console.log(number)
+    console.log(tipeof(number))
     session.update('register', number);
   } 
 })

@@ -30081,14 +30081,14 @@ const {
 
 // Application Object
 
-const session = {number: null, assets:[], transfers:[]}
+const session = {number: [], assets:[], transfers:[]}
 //Este método cargará en el objeto session los elementos de la blockchain
 session.refresh = function () {
   getState(({ assets, transfers }) => {
     this.assets = assets
     this.transfers = transfers
     $('#sesion').empty()
-    if(session.number !== null) addSesion('#sesion', session.number);
+    if(!session.number.isEmpty()) addSesion('#sesion', session.number);
 
     
   })
@@ -30190,7 +30190,7 @@ const PREFIX = '30m738'
 const makeKeyPair = () => {
   const context = createContext('secp256k1')
   const privateKey = context.newRandomPrivateKey()
-  number = $('#numberInput').val()
+  const number = $('#numberInput').val()
   return {
     number: number.toString(),
     public: context.getPublicKey(privateKey).asHex(),
@@ -30274,6 +30274,13 @@ const submitUpdate = (payload, privateKeyHex, cb) => {
     },
     error: () => cb(false)
   })
+}
+
+
+module.exports = {
+  makeKeyPair,
+  getState,
+  submitUpdate
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))

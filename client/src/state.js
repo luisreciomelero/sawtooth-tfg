@@ -30,7 +30,7 @@ const PREFIX = '30m738'
 const makeKeyPair = () => {
   const context = createContext('secp256k1')
   const privateKey = context.newRandomPrivateKey()
-  number = $('#numberInput').val()
+  const number = $('#numberInput').val()
   return {
     number: number.toString(),
     public: context.getPublicKey(privateKey).asHex(),
@@ -114,4 +114,11 @@ const submitUpdate = (payload, privateKeyHex, cb) => {
     },
     error: () => cb(false)
   })
+}
+
+
+module.exports = {
+  makeKeyPair,
+  getState,
+  submitUpdate
 }
