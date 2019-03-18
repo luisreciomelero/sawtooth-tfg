@@ -50,6 +50,8 @@ services:
         - no_proxy
     image: sawtooth-counter-tp
     container_name: counter-tp
+    volumes:
+      - '.:/project/sawtooth-counter'
     depends_on:
       - counter-shell
     command: |
