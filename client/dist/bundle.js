@@ -30088,7 +30088,7 @@ session.refresh = function () {
     this.assets = assets
     this.transfers = transfers
     $('#sesion').empty()
-    if(!session.number.isEmpty()) addSesion('#sesion', session.number);
+    if(session.number !== []) addSesion('#sesion', session.number);
 
     
   })
@@ -30117,6 +30117,8 @@ $('#registerNumber').on('click', function () {
     console.log(reg)
     session.number.push(reg)
     console.log(session)
+    console.log('number: ')
+    console.log(number)
     session.update('register', number);
   } 
 })
@@ -30182,7 +30184,7 @@ const API_URL = 'http://localhost:8000/api'
 
 const FAMILY = 'counter-chain'
 const VERSION = '0.0'
-const PREFIX = '30m738'
+const PREFIX = '30f738'
 
 
 
@@ -30215,13 +30217,22 @@ const getState = cb => {
 
 // Submit signed Transaction to validator
 const submitUpdate = (payload, privateKeyHex, cb) => {
+  console.log("entramos en submitUpdate")
   // Create signer
   const context = createContext('secp256k1')
+  console.log("context")
+  console.log(context)
   const privateKey = secp256k1.Secp256k1PrivateKey.fromHex(privateKeyHex)
+  console.log("privateKey")
+  console.log(privateKey)
   const signer = new Signer(context, privateKey)
+  console.log("signer")
+  console.log(signer)
 
   // Create the TransactionHeader
   const payloadBytes = Buffer.from(JSON.stringify(payload))
+  console.log("payloadBytes")
+  console.log(payloadBytes)
   const transactionHeaderBytes = protobuf.TransactionHeader.encode({
     familyName: FAMILY,
     familyVersion: VERSION,
@@ -30232,36 +30243,45 @@ const submitUpdate = (payload, privateKeyHex, cb) => {
     dependencies: [],
     payloadSha512: createHash('sha512').update(payloadBytes).digest('hex')
   }).finish()
+  console.log("transactionHeaderBytes")
+  console.log(transactionHeaderBytes)
 
   // Create the Transaction
   const transactionHeaderSignature = signer.sign(transactionHeaderBytes)
+  console.log("transactionHeaderSignature")
+  console.log(transactionHeaderSignature)
 
   const transaction = protobuf.Transaction.create({
     header: transactionHeaderBytes,
     headerSignature: transactionHeaderSignature,
     payload: payloadBytes
   })
-
+  console.log("transaction")
+  console.log(transaction)
   // Create the BatchHeader
   const batchHeaderBytes = protobuf.BatchHeader.encode({
     signerPublicKey: signer.getPublicKey().asHex(),
     transactionIds: [transaction.headerSignature]
   }).finish()
-
+  console.log("batchHeaderBytes")
+  console.log(batchHeaderBytes)
   // Create the Batch
   const batchHeaderSignature = signer.sign(batchHeaderBytes)
-
+  console.log("batchHeaderSignature")
+  console.log(batchHeaderSignature)
   const batch = protobuf.Batch.create({
     header: batchHeaderBytes,
     headerSignature: batchHeaderSignature,
     transactions: [transaction]
   })
-
+  console.log("batch")
+  console.log(batch)
   // Encode the Batch in a BatchList
   const batchListBytes = protobuf.BatchList.encode({
     batches: [batch]
   }).finish()
-
+  console.log("batchListBytes")
+  console.log(batchListBytes)
   // Submit BatchList to Validator
   $.post({
     url: `${API_URL}/batches`,

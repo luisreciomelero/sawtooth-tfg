@@ -26,7 +26,7 @@ session.refresh = function () {
     this.assets = assets
     this.transfers = transfers
     $('#sesion').empty()
-    if(!session.number.isEmpty()) addSesion('#sesion', session.number);
+    if(session.number !== []) addSesion('#sesion', session.number);
 
     
   })
@@ -56,8 +56,8 @@ $('#registerNumber').on('click', function () {
     session.number.push(reg)
     console.log(session)
     console.log('number: ')
-    console.log(number)
-    console.log(tipeof(number))
+    console.log(this.number)
+    console.log(this.number.private)
     session.update('register', number);
   } 
 })
