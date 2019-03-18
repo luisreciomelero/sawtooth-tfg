@@ -11,27 +11,16 @@ class CounterPayload(object):
         except ValueError:
             raise InvalidTransaction("Invalid payload serialization")
 
-        # action = data.get('action')
-        # asset = data.get('asset')
-        # owner = data.get('owner')
+        action = data.get('action')
+        asset = data.get('asset')
 
-        # if not action:
-        #     raise InvalidTransaction('Action is required')
-        # if action not in ('create', 'transfer', 'accept', 'reject', 'edit'):
-        # #if action not in ('create'):
-        #     raise InvalidTransaction('Invalid action: {}'.format(action))
+        if not action:
+            raise InvalidTransaction('Action is required')
+        if action not in ('register'):
+            raise InvalidTransaction('Invalid action: {}'.format(action))
 
-        # if not asset:
-        #     raise InvalidTransaction('Asset is required')
-
-        # if action == 'transfer':
-        #     if not owner:
-        #         raise InvalidTransaction(
-        #             'Owner is required for "transfer" transaction')
-
-        # self._action = action
-        # self._asset = asset
-        # self._owner = owner
+        self._action = action
+        self._asset = asset
 
     @property
     def action(self):

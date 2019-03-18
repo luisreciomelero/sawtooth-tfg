@@ -27,7 +27,7 @@ FAMILY_NAME = 'counter-chain'
 NAMESPACE = hashlib.sha512(FAMILY_NAME.encode('utf-8')).hexdigest()[:6]
 
 
-class CounterHandler(TransactionHandler):
+class CounterTransactionHandler(TransactionHandler):
 
     @property
     def family_name(self):
@@ -42,4 +42,7 @@ class CounterHandler(TransactionHandler):
         return [NAMESPACE]
 
     def apply(self, transaction, context):
-        raise InternalError('Not implemented')
+        header = transaction.header
+        signer = header.signer_public_key
+
+        
