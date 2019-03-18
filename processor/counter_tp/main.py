@@ -49,7 +49,7 @@ def main(args=None):
         init_console_logging(verbose_level=opts.verbose)
 
         processor = TransactionProcessor(url=opts.connect)
-        handler = CounterHandler()
+        handler = CounterTransactionHandler()
         processor.add_handler(handler)
         processor.start()
     except KeyboardInterrupt:
