@@ -1,3 +1,4 @@
+
 # Copyright 2018 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # -----------------------------------------------------------------------------
-
+import logging
 from sawtooth_sdk.processor.handler import TransactionHandler
 from sawtooth_sdk.processor.exceptions import InternalError
 
@@ -26,6 +27,7 @@ import hashlib
 FAMILY_NAME = 'counter-chain'
 NAMESPACE = hashlib.sha512(FAMILY_NAME.encode('utf-8')).hexdigest()[:6]
 
+LOGGER = logging.getLogger(__name__)
 
 class CounterTransactionHandler(TransactionHandler):
 
@@ -41,12 +43,29 @@ class CounterTransactionHandler(TransactionHandler):
     def namespaces(self):
         return [NAMESPACE]
 
+    def _register_asset(asset, signer, state):
+    if state.get_asset(asset) is not None:
+        raise InvalidTransaction(
+            'Invalid action: Asset already exists: {}'.format(asset))
+    state.set_asset(asset, signer)
+
     def apply(self, transaction, context):
+
+        
+
         header = transaction.header
         signer = header.signer_public_key
 
         payload = CounterPayload(transaction.payload)
+        print("PAYLOAD")
+        print(payload)
+        print("payload.action")
+        print(payload.action)
+        print("payload.asset")
+        print(payload.asset)
         state = CounterState(context)
+        print("context")
+        print(context)
 
         LOGGER.info('Handling transaction: %s > %s %s:: %s',
                     payload.action,
@@ -56,12 +75,11 @@ class CounterTransactionHandler(TransactionHandler):
             _register_asset(asset=payload.asset,
                           signer=signer,
                           state=state)
+        else:
+            raise InvalidTransaction('Unhandled action: {}'.format(
+                payload.action))
 
-    def _register_asset(asset, signer, state):
-        if state.get_asset(asset) is not None:
-            raise InvalidTransaction(
-                'Invalid action: Asset already exists: {}'.format(asset))
-        state.set_asset(asset, signer)
+
 
 
 

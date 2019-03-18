@@ -26,17 +26,17 @@ session.refresh = function () {
     this.assets = assets
     this.transfers = transfers
     $('#sesion').empty()
-    if(session.number !== []) addSesion('#sesion', session.number);
+    if(session.number !== []) addSesion('#sesion', session.number[0].number);
 
     
   })
   
 }
 
-session.update = function (action, asset) {
+session.update = function (action, asset, number) {
     submitUpdate(
       {action, asset},
-      this.number.private,
+      number.private,
       success => success ? this.refresh() : null
     )
   
@@ -53,12 +53,19 @@ $('#registerNumber').on('click', function () {
     
     console.log('REG: ')
     console.log(reg)
-    session.number.push(reg)
+    if (session.number.length==0){
+      session.number.push(reg)
+    }else{
+      session.number = []
+      session.number.push(reg)
+    }
+    
     console.log(session)
     console.log('number: ')
-    console.log(this.number)
-    console.log(this.number.private)
-    session.update('register', number);
+    console.log(session.number)
+    console.log(session.number[0].number)
+    console.log(session.number[0].private)
+    session.update('register', session.number[0].number, session.number[0]);
   } 
 })
 
