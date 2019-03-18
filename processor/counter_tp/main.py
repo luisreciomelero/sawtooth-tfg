@@ -19,7 +19,7 @@ import sys
 from sawtooth_sdk.processor.core import TransactionProcessor
 from sawtooth_sdk.processor.log import init_console_logging
 
-from counter_tp.counter_handler import CounterHandler
+from counter_tp.handler import CounterHandler
 
 
 def parse_args(args):

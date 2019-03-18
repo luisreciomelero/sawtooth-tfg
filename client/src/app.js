@@ -25,7 +25,7 @@ session.refresh = function () {
   getState(({ assets, transfers }) => {
     this.assets = assets
     this.transfers = transfers
-
+    $('#sesion').empty()
     if(session.number !== null) addSesion('#sesion', session.number);
 
     
@@ -35,8 +35,8 @@ session.refresh = function () {
 
 session.update = function (action, asset) {
     submitUpdate(
-      { action, asset},
-      this.user.private,
+      {action, asset},
+      this.number.private,
       success => success ? this.refresh() : null
     )
   
