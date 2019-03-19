@@ -57,7 +57,7 @@ services:
     command: |
       bash -c "
         sleep 1
-        counter-tp -vv -C tcp://validator:4004
+        counter-tp -vv -C tcp://validator:4004  
       "
 
   settings-tp:

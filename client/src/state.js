@@ -22,7 +22,7 @@ const API_URL = 'http://localhost:8000/api'
 
 const FAMILY = 'counter-chain'
 const VERSION = '0.0'
-const PREFIX = '30f738'
+const PREFIX = '19d832'
 
 
 

@@ -29,6 +29,28 @@ NAMESPACE = hashlib.sha512(FAMILY_NAME.encode('utf-8')).hexdigest()[:6]
 
 LOGGER = logging.getLogger(__name__)
 
+# _SETTING_MAX_KEY_PARTS = 4
+# _SETTING_ADDRESS_PART_SIZE = 16
+# ALLOWED_SIGNER_SETTING = "sawtooth.identity.allowed_keys"
+
+# def _setting_key_to_address(key):
+#     key_parts = key.split('.', maxsplit=_SETTING_MAX_KEY_PARTS - 1)
+#     addr_parts = [_setting_short_hash(byte_str=x.encode()) for x in key_parts]
+#     addr_parts.extend(
+#         [_SETTING_ADDRESS_PADDING] * (_SETTING_MAX_KEY_PARTS - len(addr_parts))
+#     )
+#     return _SETTING_NAMESPACE + ''.join(addr_parts)
+
+
+
+# def _setting_short_hash(byte_str):
+#      return hashlib.sha256(byte_str).hexdigest()[:_SETTING_ADDRESS_PART_SIZE]
+
+
+# _SETTING_ADDRESS_PADDING = _setting_short_hash(byte_str=b'')
+# ALLOWED_SIGNER_ADDRESS = _setting_key_to_address("sawtooth.identity.allowed_keys")
+
+
 class CounterTransactionHandler(TransactionHandler):
 
     @property
@@ -43,11 +65,7 @@ class CounterTransactionHandler(TransactionHandler):
     def namespaces(self):
         return [NAMESPACE]
 
-    def _register_asset(asset, signer, state):
-    if state.get_asset(asset) is not None:
-        raise InvalidTransaction(
-            'Invalid action: Asset already exists: {}'.format(asset))
-    state.set_asset(asset, signer)
+
 
     def apply(self, transaction, context):
 
@@ -67,7 +85,7 @@ class CounterTransactionHandler(TransactionHandler):
         print("context")
         print(context)
 
-        LOGGER.info('Handling transaction: %s > %s %s:: %s',
+        LOGGER.info('Handling transaction: %s > %s',
                     payload.action,
                     payload.asset)
 
@@ -81,5 +99,10 @@ class CounterTransactionHandler(TransactionHandler):
 
 
 
-
+def _register_asset(asset, signer, state):
+    print("entro en _register")
+    if state.get_asset(asset) is not None:
+        raise InvalidTransaction(
+            'Invalid action: Asset already exists: {}'.format(asset))
+    state.set_asset(asset, signer)
 
