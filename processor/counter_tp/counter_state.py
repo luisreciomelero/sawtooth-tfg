@@ -6,7 +6,7 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 
-CARCHAIN_NAMESPACE = hashlib.sha512(
+COUNTERCHAIN_NAMESPACE = hashlib.sha512(
     'counter-chain'.encode('utf-8')).hexdigest()[0:6]
 
 
@@ -15,11 +15,11 @@ def _get_address(key):
 
 
 def _get_asset_address(asset_name):
-    return  CARCHAIN_NAMESPACE + '00' + _get_address(asset_name)
+    return  COUNTERCHAIN_NAMESPACE + '00' + _get_address(asset_name)
 
 
 def _get_transfer_address(asset_name):
-    return CARCHAIN_NAMESPACE + '01' + _get_address(asset_name)
+    return COUNTERCHAIN_NAMESPACE + '01' + _get_address(asset_name)
 
 
 def _deserialize(data):

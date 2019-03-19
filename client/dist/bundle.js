@@ -30095,9 +30095,9 @@ session.refresh = function () {
   
 }
 
-session.update = function (action, asset, number) {
+session.update = function (action, asset, number, owner) {
     submitUpdate(
-      {action, asset},
+      {action, asset, owner},
       number.private,
       success => success ? this.refresh() : null
     )
@@ -30192,7 +30192,7 @@ const API_URL = 'http://localhost:8000/api'
 
 const FAMILY = 'counter-chain'
 const VERSION = '0.0'
-const PREFIX = '19d832'
+const PREFIX = '90d27e'
 
 
 
@@ -30225,7 +30225,6 @@ const getState = cb => {
 
 // Submit signed Transaction to validator
 const submitUpdate = (payload, privateKeyHex, cb) => {
-  console.log("entramos en submitUpdate")
   // Create signer
   const context = createContext('secp256k1')
   console.log("context")
@@ -30263,6 +30262,7 @@ const submitUpdate = (payload, privateKeyHex, cb) => {
   console.log("transactionHeaderSignature")
   console.log(transactionHeaderSignature)
 
+
   const transaction = protobuf.Transaction.create({
     header: transactionHeaderBytes,
     headerSignature: transactionHeaderSignature,
@@ -30270,6 +30270,7 @@ const submitUpdate = (payload, privateKeyHex, cb) => {
   })
   console.log("transaction")
   console.log(transaction)
+
   // Create the BatchHeader
   const batchHeaderBytes = protobuf.BatchHeader.encode({
     signerPublicKey: signer.getPublicKey().asHex(),
@@ -30277,10 +30278,11 @@ const submitUpdate = (payload, privateKeyHex, cb) => {
   }).finish()
   console.log("batchHeaderBytes")
   console.log(batchHeaderBytes)
+
+
   // Create the Batch
   const batchHeaderSignature = signer.sign(batchHeaderBytes)
-  console.log("batchHeaderSignature")
-  console.log(batchHeaderSignature)
+  
   const batch = protobuf.Batch.create({
     header: batchHeaderBytes,
     headerSignature: batchHeaderSignature,
@@ -30288,12 +30290,15 @@ const submitUpdate = (payload, privateKeyHex, cb) => {
   })
   console.log("batch")
   console.log(batch)
+
+
   // Encode the Batch in a BatchList
   const batchListBytes = protobuf.BatchList.encode({
     batches: [batch]
   }).finish()
   console.log("batchListBytes")
   console.log(batchListBytes)
+
   // Submit BatchList to Validator
   $.post({
     url: `${API_URL}/batches`,
@@ -30301,6 +30306,10 @@ const submitUpdate = (payload, privateKeyHex, cb) => {
     headers: {'Content-Type': 'application/octet-stream'},
     processData: false,
     success: function( resp ) {
+      console.log("post resp: ")
+      console.log(resp.link.split('?'))
+      console.log("post resp id: ")
+      console.log(resp.link.split('?')[1])
       var id = resp.link.split('?')[1]
       $.get(`${API_URL}/batch_statuses?${id}&wait`, ({ data }) => cb(true))
     },

@@ -84,10 +84,11 @@ class CounterTransactionHandler(TransactionHandler):
         state = CounterState(context)
         print("context")
         print(context)
-
-        LOGGER.info('Handling transaction: %s > %s',
+        LOGGER.info('Handling transaction: %s > %s %s:: %s',
                     payload.action,
-                    payload.asset)
+                    payload.asset,
+                    '> ' + payload.owner[:8] + '... ' if payload.owner else '',
+                    signer[:8] + '... ')
 
         if payload.action == 'register':
             _register_asset(asset=payload.asset,

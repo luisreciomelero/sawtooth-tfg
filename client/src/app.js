@@ -33,9 +33,9 @@ session.refresh = function () {
   
 }
 
-session.update = function (action, asset, number) {
+session.update = function (action, asset, number, owner) {
     submitUpdate(
-      {action, asset},
+      {action, asset, owner},
       number.private,
       success => success ? this.refresh() : null
     )

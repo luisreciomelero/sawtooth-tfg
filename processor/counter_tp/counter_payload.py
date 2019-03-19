@@ -13,6 +13,7 @@ class CounterPayload(object):
 
         action = data.get('action')
         asset = data.get('asset')
+        owner = data.get('owner')
 
         if not action:
             raise InvalidTransaction('Action is required')
@@ -21,6 +22,7 @@ class CounterPayload(object):
 
         self._action = action
         self._asset = asset
+        self._owner = owner
 
     @property
     def action(self):
