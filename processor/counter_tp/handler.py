@@ -105,5 +105,8 @@ def _register_asset(asset, signer, state):
     if state.get_asset(asset) is not None:
         raise InvalidTransaction(
             'Invalid action: Asset already exists: {}'.format(asset))
+    print('DIrecciones exitosas añadidas: ')
+    print(set_asset(asset, signer))
     state.set_asset(asset, signer)
+
 
