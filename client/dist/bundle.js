@@ -30106,7 +30106,7 @@ session.update = function (action, asset, number, owner) {
 
 
 $('#registerNumber').on('click', function () {
-  session.refresh()
+  
   const id = session.id
   session.id = session.id +1
   console.log('HEMOS PULSADO A REGISTER')

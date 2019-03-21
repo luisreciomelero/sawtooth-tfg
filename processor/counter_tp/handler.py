@@ -1,4 +1,3 @@
-
 # Copyright 2018 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,7 +90,7 @@ class CounterTransactionHandler(TransactionHandler):
                     signer[:8] + '... ')
 
         if payload.action == 'register':
-            _register_asset(asset=payload.asset,
+            _register_asset(asset=payload.original_number,
                           signer=signer,
                           state=state)
         else:
@@ -109,4 +108,5 @@ def _register_asset(asset, signer, state):
     print(set_asset(asset, signer))
     state.set_asset(asset, signer)
 
-
+def _increase_asset(asset, signer, state, original_number):
+    return
