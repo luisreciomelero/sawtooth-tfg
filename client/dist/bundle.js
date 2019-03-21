@@ -30071,7 +30071,8 @@ module.exports = {"COMPRESSED_TYPE_INVALID":"compressed should be a boolean","EC
 
 const $ = __webpack_require__(32)
 const {
-  addSesion
+  addSesion,
+  addOriginal
 } = __webpack_require__(104)
 const {
   getState,
@@ -30081,24 +30082,27 @@ const {
 
 // Application Object
 
-const session = {number: [], assets:[], transfers:[], id:0 }
+const session = {number:null, original_number:null, keys:null, id:0, assets:[], transfers:[],  }
 //Este método cargará en el objeto session los elementos de la blockchain
 session.refresh = function () {
   getState(({ assets, transfers }) => {
     this.assets = assets
     this.transfers = transfers
     $('#sesion').empty()
-    if(session.number !== []) addSesion('#sesion', session.number[0].number);
+    if(session.number !== null){
+      addSesion('#sesion', session.number.split(',')[0], session.number.split(',')[1]);
+      addOriginal('#sesion',  session.original_number.split(',')[0], session.original_number.split(',')[1]);
+    } 
 
     
   })
   
 }
 
-session.update = function (action, asset, number, owner) {
+session.update = function (action, asset, original_number, private_key, owner) {
     submitUpdate(
-      {action, asset, owner},
-      number.private,
+      {action, asset, original_number, owner},
+      private_key,
       success => success ? this.refresh() : null
     )
   
@@ -30116,24 +30120,61 @@ $('#registerNumber').on('click', function () {
   console.log(n)
   const number = n.toString()
   var reg = makeKeyPair();
+  //CREAMOS LAS VARIABLES QUE ASIGNAREMOS A SESSION
+  const name = reg.number + ',' + id.toString()
+  const original_number = reg.number + ',' + id.toString()
+  const keys = reg.public +','+ reg.private
   if (number){
     
     console.log('REG: ')
     console.log(reg)
-    if (session.number.length==0){
-      session.number.push(reg)
+
+
+    //COMPROBAMOS QUE NO HEMOS INICIADO SESION
+    if (session.number == null){
+      session.number = name
+      session.original_number = original_number
+      session.keys = keys
     }else{
-      session.number = []
-      session.number.push(reg)
+      session.number = null
+      session.original_number = null
+      session.keys = null
+      session.number = name
+      session.original_number = original_number
+      session.keys = keys
     }
-    const payload = session.number[0].number + ',' + id.toString()
+    const public_key = session.keys.split(',')[0]
+    const private_key = session.keys.split(',')[1]
     console.log(session)
     console.log('number: ')
     console.log(session.number)
-    console.log(session.number[0].number)
-    console.log(session.number[0].private)
-    session.update('register', payload, session.number[0]);
+    console.log(session.original_number)
+    console.log(session.number.keys)
+    session.update('register', name, original_number,private_key, public_key);
   } 
+})
+
+$('#increaseNumber').on('click', function(){
+  const number = session.number
+  let increase_number = number.split(',')[0]
+  console.log("number antes")
+  console.log(increase_number)
+  increase_number = parseInt(increase_number)
+  increase_number++
+  console.log("number despues")
+  console.log(increase_number)
+  const current_number = increase_number + ','+number.split(',')[1]
+  console.log("New num,id")
+  console.log(current_number)
+
+  session.number = current_number
+  const public_key = session.keys.split(',')[0]
+  const private_key = session.keys.split(',')[1]
+
+  session.update('increase', current_number, session.original_number, private_key, public_key);
+
+
+
 })
 
 
@@ -30156,15 +30197,22 @@ session.refresh()
 
 const $ = __webpack_require__(32)
 
-const addSesion = (parent, label) => {
+const addSesion = (parent, current_number, current_id) => {
   $(parent).append(`<div>
-    <p>El numero a con el que trabajaremos será <span style='color:red'>${label}</span></p>
+    <p>El numero a con el que trabajaremos será <span style='color:red'>${current_number}</span> con id <span style='color:red'>${current_id}</span></p>
+      </div>`
+  );
+}
+const addOriginal = (parent, original_number, original_id) => {
+  $(parent).append(`<div>
+    <p>El numero original es <span style='color:red'>${original_number}</span> con id <span style='color:red'>${original_id}</span></p>
   </div>`
   );
 }
 
 module.exports = {
-  addSesion
+  addSesion,
+  addOriginal
 }
 
 

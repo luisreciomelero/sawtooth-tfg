@@ -63,9 +63,9 @@ class CounterState(object):
             {address: state_data}, timeout=self.TIMEOUT)
 
 
-    def delete_transfer(self, number):
+    def delete_asset(self, number):
         return self._context.delete_state(
-            [_get_transfer_address(number)],
+            [_get_asset_address(number)],
             timeout=self.TIMEOUT)
 
     def _get_state(self, address):

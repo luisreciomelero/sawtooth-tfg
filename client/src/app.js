@@ -9,7 +9,8 @@
 
 const $ = require('jquery')
 const {
-  addSesion
+  addSesion,
+  addOriginal
 } = require('./components.js')
 const {
   getState,
@@ -26,7 +27,10 @@ session.refresh = function () {
     this.assets = assets
     this.transfers = transfers
     $('#sesion').empty()
-    if(session.number !== []) addSesion('#sesion', session.number[0].number);
+    if(session.number !== null){
+      addSesion('#sesion', session.number.split(',')[0], session.number.split(',')[1]);
+      addOriginal('#sesion',  session.original_number.split(',')[0], session.original_number.split(',')[1]);
+    } 
 
     
   })
@@ -55,17 +59,14 @@ $('#registerNumber').on('click', function () {
   const number = n.toString()
   var reg = makeKeyPair();
   //CREAMOS LAS VARIABLES QUE ASIGNAREMOS A SESSION
-  const name
-  const original_number
-  const keys
+  const name = reg.number + ',' + id.toString()
+  const original_number = reg.number + ',' + id.toString()
+  const keys = reg.public +','+ reg.private
   if (number){
     
     console.log('REG: ')
     console.log(reg)
 
-    name = reg.number + ',' + id.toString()
-    original_number = reg.number + ',' + id.toString()
-    keys = reg.public +','+ reg.private
 
     //COMPROBAMOS QUE NO HEMOS INICIADO SESION
     if (session.number == null){
@@ -76,7 +77,7 @@ $('#registerNumber').on('click', function () {
       session.number = null
       session.original_number = null
       session.keys = null
-      session.number = payload
+      session.number = name
       session.original_number = original_number
       session.keys = keys
     }
@@ -92,6 +93,25 @@ $('#registerNumber').on('click', function () {
 })
 
 $('#increaseNumber').on('click', function(){
+  const number = session.number
+  let increase_number = number.split(',')[0]
+  console.log("number antes")
+  console.log(increase_number)
+  increase_number = parseInt(increase_number)
+  increase_number++
+  console.log("number despues")
+  console.log(increase_number)
+  const current_number = increase_number + ','+number.split(',')[1]
+  console.log("New num,id")
+  console.log(current_number)
+
+  session.number = current_number
+  const public_key = session.keys.split(',')[0]
+  const private_key = session.keys.split(',')[1]
+
+  session.update('increase', current_number, session.original_number, private_key, public_key);
+
+
 
 })
 

@@ -93,6 +93,12 @@ class CounterTransactionHandler(TransactionHandler):
             _register_asset(asset=payload.original_number,
                           signer=signer,
                           state=state)
+
+        elif payload.action == 'increase':
+            _increase_asset(asset=payload.asset,
+                            signer=signer,
+                            state=state,
+                            original_number=payload.original_number)
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
                 payload.action))
@@ -101,12 +107,17 @@ class CounterTransactionHandler(TransactionHandler):
 
 def _register_asset(asset, signer, state):
     print("entro en _register")
+    print(asset)
     if state.get_asset(asset) is not None:
         raise InvalidTransaction(
             'Invalid action: Asset already exists: {}'.format(asset))
-    print('DIrecciones exitosas añadidas: ')
-    print(set_asset(asset, signer))
+    print('DIrecciones exitosas anadidas: ')
+    print(state.set_asset(asset, signer))
     state.set_asset(asset, signer)
 
 def _increase_asset(asset, signer, state, original_number):
-    return
+    if state.get_asset(original_number) is not None:
+        raise InvalidTransaction(
+            'Invalid action: Asset not exists: {}'.format(original_number))
+    state.set_asset(asset, signer)
+    state.delete_asset(original_number)
