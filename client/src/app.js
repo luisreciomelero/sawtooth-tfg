@@ -1,17 +1,12 @@
 
 /*
-*  Sawtooth Counter for practise with Hyperledger Sawtooth -> app.js
 *  Author: 
-*     Luis Recio 
+*     Luis Recio - lreciog@gmail.com
 */
 
 'use strict'
 
 const $ = require('jquery')
-const {
-  addSesion,
-  addOriginal
-} = require('./components.js')
 const {
   getState,
   submitUpdate,
@@ -20,9 +15,11 @@ const {
 
 // Application Object
 
-const session = {number:null, original_number:null, keys:null, id:0, assets:[], transfers:[],  }
-//Este método cargará en el objeto session los elementos de la blockchain
-session.refresh = function () {
+const users = {coches:[], DNIs:[], emails:[], phones:[] }
+const user = {DNI:null, coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:null}
+const invitaciones_pendientes = []
+
+/*users.refresh = function () {
   getState(({ assets, transfers }) => {
     this.assets = assets
     this.transfers = transfers
@@ -35,11 +32,11 @@ session.refresh = function () {
     
   })
   
-}
+}*/
 
-session.update = function (action, asset, original_number, private_key, owner) {
+users.update = function (action, asset, private_key, owner) {
     submitUpdate(
-      {action, asset, original_number, owner},
+      {action, asset, owner},
       private_key,
       success => success ? this.refresh() : null
     )
@@ -47,73 +44,85 @@ session.update = function (action, asset, original_number, private_key, owner) {
 }
 
 
-$('#registerNumber').on('click', function () {
+$('#registerUser').on('click', function () {
+  const action = 'register'
+  console.log("pulso registro")
+
+  const nombre = $('#nameInputR').val();
+  const dni = $('#dniInputR').val();
+  const psw = $('#passInputR').val();
+  const telefono = $('#tfnInputR').val();
+  const rol = $('[name="roleSelect"]').val();
+  const keys = makeKeyPair();
+ // const asset = [nombre, dni, psw, telefono, rol];
+  const asset = [nombre, dni]
+  console.log("Asset")
+  console.log(asset.join())
+  console.log("private")
+  console.log(keys.private)
+  //$('#login').attr('style', '')
+  //$('#register').attr('style', 'display:none')
+
+  console.log("Accion")
+  console.log(action)
+
+  users.update(action,asset.join(), keys.private, keys.public)
+})
+
+$('#loginButton').on('click', function () {
+  const dni = $('#dniInputL').val();
+  const psw = $('#passInputL').val();
+
+  $('#login').attr('style', 'display:none');
+  switch (user.rol) {
+    case 'Invitado':
+      $('#mainInvitado').attr('style', '')
+      break;
+    case 'Usuario':
+      $('#mainUser').attr('style', '')
+      break;
+    default:
+       $('#mainAdmin').attr('style', '')
+  }
+
+})
+
+$('#goToRegister').on('click', function () {
+
+  $('#register').attr('style', '')
+  $('#login').attr('style', 'display:none')
+})
+
+
+$('#createCocheRC').on('click', function () {
+  const matricula = $('#matriculaRC').val();
+  const model = $('#modelRC').val();
+  $('#regCoche').attr('style', 'display:none')
+  $('#mainUser').attr('style', '')
+
   
-  const id = session.id
-  session.id = session.id +1
-  console.log('HEMOS PULSADO A REGISTER')
-  console.log("ASSETSSSSSS:   ")
-  console.log(session.assets)
-  const n = $('#numberInput').val();
-  console.log(n)
-  const number = n.toString()
-  var reg = makeKeyPair();
-  //CREAMOS LAS VARIABLES QUE ASIGNAREMOS A SESSION
-  const name = reg.number + ',' + id.toString()
-  const original_number = reg.number + ',' + id.toString()
-  const keys = reg.public +','+ reg.private
-  if (number){
-    
-    console.log('REG: ')
-    console.log(reg)
-
-
-    //COMPROBAMOS QUE NO HEMOS INICIADO SESION
-    if (session.number == null){
-      session.number = name
-      session.original_number = original_number
-      session.keys = keys
-    }else{
-      session.number = null
-      session.original_number = null
-      session.keys = null
-      session.number = name
-      session.original_number = original_number
-      session.keys = keys
-    }
-    const public_key = session.keys.split(',')[0]
-    const private_key = session.keys.split(',')[1]
-    console.log(session)
-    console.log('number: ')
-    console.log(session.number)
-    console.log(session.original_number)
-    console.log(session.number.keys)
-    session.update('register', name, original_number,private_key, public_key);
-  } 
 })
 
-$('#increaseNumber').on('click', function(){
-  const number = session.number
-  let increase_number = number.split(',')[0]
-  console.log("number antes")
-  console.log(increase_number)
-  increase_number = parseInt(increase_number)
-  increase_number++
-  console.log("number despues")
-  console.log(increase_number)
-  const current_number = increase_number + ','+number.split(',')[1]
-  console.log("New num,id")
-  console.log(current_number)
+$('#createCocheMU').on('click', function () {
+  $('#mainUser').attr('style', 'display:none')
+  $('#regCoche').attr('style', '')
+})
 
-  session.number = current_number
-  const public_key = session.keys.split(',')[0]
-  const private_key = session.keys.split(',')[1]
+$('#publicarInv').on('click', function () {
+  const precio = $('#precioMU').val();
+})
 
-  session.update('increase', current_number, session.original_number, private_key, public_key);
-
-
+$('#solicitarInv').on('click', function () {
+  const matricula = $('#matriculaSI').val();
+  const modelo = $('#modelSI').val();
+  $('#solicitarInvitacion').attr('style', 'display:none')
+  $('#mainInvitado').attr('style', '')
 
 })
 
 
-session.refresh()
+/////FALTA EL ACCEPT O REJECT INVITACIONES SI LAS HAY. DESPUES DE DEFINIR ESA TP
+
+
+
+//users.refresh()

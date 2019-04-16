@@ -23,7 +23,7 @@ from counter_tp.counter_state import CounterState
 import hashlib
 
 
-FAMILY_NAME = 'counter-chain'
+FAMILY_NAME = 'user-chain'
 NAMESPACE = hashlib.sha512(FAMILY_NAME.encode('utf-8')).hexdigest()[:6]
 
 LOGGER = logging.getLogger(__name__)
@@ -90,18 +90,14 @@ class CounterTransactionHandler(TransactionHandler):
                     signer[:8] + '... ')
 
         if payload.action == 'register':
-            _register_asset(asset=payload.original_number,
+            _register_asset(asset=payload.asset,
                           signer=signer,
                           state=state)
-
-        elif payload.action == 'increase':
-            _increase_asset(asset=payload.asset,
-                            signer=signer,
-                            state=state,
-                            original_number=payload.original_number)
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
                 payload.action))
+
+
 
 
 
@@ -115,9 +111,3 @@ def _register_asset(asset, signer, state):
     print(state.set_asset(asset, signer))
     state.set_asset(asset, signer)
 
-def _increase_asset(asset, signer, state, original_number):
-    if state.get_asset(original_number) is not None:
-        raise InvalidTransaction(
-            'Invalid action: Asset not exists: {}'.format(original_number))
-    state.set_asset(asset, signer)
-    state.delete_asset(original_number)

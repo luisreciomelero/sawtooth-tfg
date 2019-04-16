@@ -4,7 +4,7 @@
   "description": "a first example of complete app based on Hyperledger Sawtooth",
   "main": "",
   "scripts": {
-  	"build":"./node_modules/webpack/bin/webpack.js",
+    "build": "./node_modules/webpack/bin/webpack.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

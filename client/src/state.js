@@ -1,9 +1,4 @@
 
-/*
-*  Sawtooth Counter for practise with Hyperledger Sawtooth -> app.js
-*  Author: 
-*     Luis Recio 
-*/
 
 'use strict'
 
@@ -17,28 +12,22 @@ const {
 const secp256k1 = require('sawtooth-sdk/signing/secp256k1')
 
 // Config variables
-const KEY_NAME = 'counter-chain.keys'
+const KEY_NAME = 'users-chain.keys'
 const API_URL = 'http://localhost:8000/api'
 
-const FAMILY = 'counter-chain'
+
+const FAMILY = 'user-chain'
 const VERSION = '0.0'
-const PREFIX = '90d27e'
-
-
-
+const PREFIX = '714183'
 
 const makeKeyPair = () => {
   const context = createContext('secp256k1')
   const privateKey = context.newRandomPrivateKey()
-  const number = $('#numberInput').val()
   return {
-    number: number.toString(),
     public: context.getPublicKey(privateKey).asHex(),
     private: privateKey.asHex()
   }
 }
-
-
 
 const getState = cb => {
   $.get(`${API_URL}/state?address=${PREFIX}`, ({ data }) => {
@@ -146,6 +135,7 @@ const submitUpdate = (payload, privateKeyHex, cb) => {
     error: () => cb(false)
   })
 }
+
 
 
 module.exports = {
