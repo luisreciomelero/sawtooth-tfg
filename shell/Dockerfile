@@ -44,10 +44,10 @@ RUN pip3 install \
     pylint \
     pycodestyle
 
-WORKDIR /project/sawtooth-counter
+WORKDIR /project/sawtooth-user
 
-COPY client/package.json /project/sawtooth-counter/client/
+COPY client/package.json /project/sawtooth-user/client/
 
 RUN cd client/ && npm install
 
-ENV PATH $PATH:/project/sawtooth-counter/bin
+ENV PATH $PATH:/project/sawtooth-user/bin

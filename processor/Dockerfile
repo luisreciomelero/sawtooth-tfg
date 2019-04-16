@@ -29,8 +29,8 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 8AA7AF1F10
 
 RUN apt-get install -y -q python3-sawtooth-sdk
 
-WORKDIR /project/sawtooth-counter
+WORKDIR /project/sawtooth-user
 
-ENV PATH $PATH:/project/sawtooth-counter/bin
+ENV PATH $PATH:/project/sawtooth-user/bin
 
-CMD ['counter-tp']
+CMD ['user-tp']

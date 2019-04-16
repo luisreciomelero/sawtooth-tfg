@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
 
-  counter-shell:
+  user-shell:
     build:
       context: .
       dockerfile: ./shell/Dockerfile
@@ -10,11 +10,11 @@ services:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: sawtooth-counter-shell
-    container_name: counter-shell
+    image: sawtooth-user-shell
+    container_name: user-shell
     volumes:
-      - .:/project/sawtooth-counter
-      - /project/sawtooth-counter/client/node_modules
+      - .:/project/sawtooth-user
+      - /project/sawtooth-user/client/node_modules
     command: |
       bash -c "
         if [ ! -f /root/.sawtooth/keys/root.priv ]; then
@@ -26,10 +26,10 @@ services:
         tail -f /dev/null
       "
 
-  counter-client:
+  user-client:
     build: ./client/
-    image: sawtooth-counter-client
-    container_name: counter-client
+    image: sawtooth-user-client
+    container_name: user-client
     volumes:
       - ./client/:/usr/local/apache2/htdocs/
     expose:
@@ -38,9 +38,9 @@ services:
       - '8000:80'
     depends_on:
     - rest-api
-    - counter-shell
+    - user-shell
 
-  counter-tp:
+  user-tp:
     build:
       context: .
       dockerfile: ./processor/Dockerfile
@@ -48,16 +48,16 @@ services:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: sawtooth-counter-tp
-    container_name: counter-tp
+    image: sawtooth-user-tp
+    container_name: user-tp
     volumes:
-      - '.:/project/sawtooth-counter'
+      - '.:/project/sawtooth-user'
     depends_on:
-      - counter-shell
+      - user-shell
     command: |
       bash -c "
         sleep 1
-        counter-tp -vv -C tcp://validator:4004  
+        user-tp -vv -C tcp://validator:4004  
       "
 
   settings-tp:

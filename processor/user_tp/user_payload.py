@@ -3,7 +3,7 @@ import json
 from sawtooth_sdk.processor.exceptions import InvalidTransaction
 
 
-class CounterPayload(object):
+class UserPayload(object):
 
     def __init__(self, payload):
         try:

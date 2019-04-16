@@ -16,9 +16,11 @@ import logging
 from sawtooth_sdk.processor.handler import TransactionHandler
 from sawtooth_sdk.processor.exceptions import InternalError
 
+from sawtooth_sdk.processor.exceptions import InvalidTransaction
 
-from counter_tp.counter_payload import CounterPayload
-from counter_tp.counter_state import CounterState
+
+from user_tp.user_payload import UserPayload
+from user_tp.user_state import UserState
 
 import hashlib
 
@@ -50,7 +52,7 @@ LOGGER = logging.getLogger(__name__)
 # ALLOWED_SIGNER_ADDRESS = _setting_key_to_address("sawtooth.identity.allowed_keys")
 
 
-class CounterTransactionHandler(TransactionHandler):
+class UserTransactionHandler(TransactionHandler):
 
     @property
     def family_name(self):
@@ -73,14 +75,14 @@ class CounterTransactionHandler(TransactionHandler):
         header = transaction.header
         signer = header.signer_public_key
 
-        payload = CounterPayload(transaction.payload)
+        payload = UserPayload(transaction.payload)
         print("PAYLOAD")
         print(payload)
         print("payload.action")
         print(payload.action)
         print("payload.asset")
         print(payload.asset)
-        state = CounterState(context)
+        state = UserState(context)
         print("context")
         print(context)
         LOGGER.info('Handling transaction: %s > %s %s:: %s',

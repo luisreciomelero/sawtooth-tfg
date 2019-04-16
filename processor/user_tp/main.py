@@ -19,7 +19,7 @@ import sys
 from sawtooth_sdk.processor.core import TransactionProcessor
 from sawtooth_sdk.processor.log import init_console_logging
 
-from counter_tp.handler import CounterTransactionHandler
+from user_tp.handler import UserTransactionHandler
 
 
 def parse_args(args):
@@ -49,7 +49,7 @@ def main(args=None):
         init_console_logging(verbose_level=opts.verbose)
 
         processor = TransactionProcessor(url=opts.connect)
-        handler = CounterTransactionHandler()
+        handler = UserTransactionHandler()
         processor.add_handler(handler)
         processor.start()
     except KeyboardInterrupt:

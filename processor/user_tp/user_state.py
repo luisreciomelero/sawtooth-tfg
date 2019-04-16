@@ -6,7 +6,7 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 
-COUNTERCHAIN_NAMESPACE = hashlib.sha512(
+USERCHAIN_NAMESPACE = hashlib.sha512(
     'user-chain'.encode('utf-8')).hexdigest()[0:6]
 
 
@@ -15,11 +15,11 @@ def _get_address(key):
 
 
 def _get_asset_address(asset_name):
-    return  COUNTERCHAIN_NAMESPACE + '00' + _get_address(asset_name)
+    return  USERCHAIN_NAMESPACE + '00' + _get_address(asset_name)
 
 
 def _get_transfer_address(asset_name):
-    return COUNTERCHAIN_NAMESPACE + '01' + _get_address(asset_name)
+    return USERCHAIN_NAMESPACE + '01' + _get_address(asset_name)
 
 
 def _deserialize(data):
@@ -30,7 +30,7 @@ def _serialize(data):
     return json.dumps(data, sort_keys=True).encode('utf-8')
 
 
-class CounterState(object):
+class UserState(object):
 
     TIMEOUT = 3
 
