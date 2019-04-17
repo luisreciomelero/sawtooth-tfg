@@ -5,16 +5,16 @@ services:
   user-shell:
     build:
       context: .
-      dockerfile: ./shell/users/Dockerfile
+      dockerfile: ./shell/cars/Dockerfile
       args:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: sawtooth-user-shell
-    container_name: user-shell
+    image: sawtooth-cars-shell
+    container_name: cars-shell
     volumes:
-      - .:/project/sawtooth-user
-      - /project/sawtooth-user/client/node_modules
+      - .:/project/sawtooth-cars
+      - /project/sawtooth-cars/client/node_modules
     command: |
       bash -c "
         if [ ! -f /root/.sawtooth/keys/root.priv ]; then
@@ -26,10 +26,10 @@ services:
         tail -f /dev/null
       "
 
-  user-client:
-    build: ./client/user_image_docker
-    image: sawtooth-user-client
-    container_name: user-client
+  cars-client:
+    build: ./client/
+    image: sawtooth-cars-client
+    container_name: cars-client
     volumes:
       - ./client/:/usr/local/apache2/htdocs/
     expose:
@@ -38,27 +38,28 @@ services:
       - '8000:80'
     depends_on:
     - rest-api
-    - user-shell
+    - cars-shell
 
-  user-tp:
+  cars-tp:
     build:
       context: .
-      dockerfile: ./processor/user_tp/Dockerfile
+      dockerfile: ./processor/cars_tp/Dockerfile
       args:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: sawtooth-user-tp
-    container_name: user-tp
+    image: sawtooth-cars-tp
+    container_name: cars-tp
     volumes:
-      - '.:/project/sawtooth-user'
+      - '.:/project/sawtooth-cars'
     depends_on:
-      - user-shell
+      - cars-shell
     command: |
       bash -c "
         sleep 1
         user-tp -vv -C tcp://validator:4004
       "
+      
   settings-tp:
     image: hyperledger/sawtooth-settings-tp:1.0
     container_name: sawtooth-settings-tp

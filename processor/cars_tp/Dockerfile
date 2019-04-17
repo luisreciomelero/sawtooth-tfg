@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Copyright 2018 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# El primer y segundo RUN agrega un repositorio estable y actualiza las listas y instala Sawtooth
+#
+# WORKDIR establece el directorio de trabajo
+#
+# ENV establece la variable de entorno PATH
+#
+# CMD proporciona el nombre del tp para el contenedor
 # -----------------------------------------------------------------------------
 
-import os
-import sys
+FROM ubuntu:16.04
 
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 8AA7AF1F1091A5FD && \
+ echo 'deb http://repo.sawtooth.me/ubuntu/1.0/stable xenial universe' >> /etc/apt/sources.list && \
+ apt-get update
 
-TOP_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.insert(0, os.path.join(TOP_DIR, 'processor'))
+RUN apt-get install -y -q python3-sawtooth-sdk
 
-from main import main
+WORKDIR /project/sawtooth-cars
 
-if __name__ == '__main__':
-    main()
+ENV PATH $PATH:/project/sawtooth-cars/bin
+
+CMD ['cars-tp']

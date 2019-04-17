@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Copyright 2018 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-import os
-import sys
+FROM httpd:2.4
 
-
-TOP_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.insert(0, os.path.join(TOP_DIR, 'processor'))
-
-from main import main
-
-if __name__ == '__main__':
-    main()
+RUN echo "\
+LoadModule proxy_module modules/mod_proxy.so\n\
+LoadModule proxy_http_module modules/mod_proxy_http.so\n\
+ProxyPass /api http://rest-api:8008\n\
+ProxyPassReverse /api http://rest-api:8008\n\
+" >>/usr/local/apache2/conf/httpd.conf
