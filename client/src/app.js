@@ -17,8 +17,9 @@ const {
 
 // Application Object
 
-const users = {assets:[], coches:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[]}
+const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[]}
 const user = {DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:null, signer:null}
+const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
 const invitaciones_pendientes = []
 
 const addCategory = (categ, val) =>{
@@ -105,6 +106,21 @@ users.update = function (action, asset, private_key, owner) {
   
 }
 
+coches.update = function(action, asset, private_key, owner){
+  submitUpdateCars(
+      {action, asset, owner},
+      private_key,
+      success => success ? this.refresh() : null
+    )
+}
+
+coches.refresh = function() {
+  getStateCars(({assets, transfers}) => {
+    this.assets = assets;
+    console.log(this.assets)
+  })
+}
+
 
 $('#registerUser').on('click', function () {
   const action = 'register'
@@ -162,6 +178,8 @@ $('#goToRegister').on('click', function () {
 $('#createCocheRC').on('click', function () {
   const matricula = $('#matriculaRC').val();
   const model = $('#modelRC').val();
+  const keys = makeKeyPair();
+  coches.update("register", matricula, keys.private, keys.public)
   $('#regCoche').attr('style', 'display:none')
   $('#mainUser').attr('style', '')
 

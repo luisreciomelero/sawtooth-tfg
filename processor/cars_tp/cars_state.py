@@ -15,11 +15,11 @@ def _get_address(key):
 
 
 def _get_asset_address(asset_name):
-    return  USERCHAIN_NAMESPACE + '00' + _get_address(asset_name)
+    return  CARSCHAIN_NAMESPACE + '00' + _get_address(asset_name)
 
 
 def _get_transfer_address(asset_name):
-    return USERCHAIN_NAMESPACE + '01' + _get_address(asset_name)
+    return CARSCHAIN_NAMESPACE + '01' + _get_address(asset_name)
 
 
 def _deserialize(data):

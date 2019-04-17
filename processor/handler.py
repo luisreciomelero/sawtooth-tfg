@@ -98,7 +98,7 @@ class UserTransactionHandler(TransactionHandler):
                     signer[:8] + '... ')
 
         if payload.action == 'register':
-            _register_asset_user(asset=payload.asset,
+            _register_asset(asset=payload.asset,
                           signer=signer,
                           state=state)
         else:
@@ -144,19 +144,19 @@ class CarsTransactionHandler(TransactionHandler):
                     '> ' + payload.owner[:8] + '... ' if payload.owner else '',
                     signer[:8] + '... ')
 
-        # if payload.action == 'register':
-        #     _register_asset(asset=payload.asset,
-        #                   signer=signer,
-        #                   state=state)
-        # else:
-        #     raise InvalidTransaction('Unhandled action: {}'.format(
-        #         payload.action))
+        if payload.action == 'register':
+            _register_asset(asset=payload.asset,
+                          signer=signer,
+                          state=state)
+        else:
+            raise InvalidTransaction('Unhandled action: {}'.format(
+                payload.action))
 
 
 
 
 
-def _register_asset_user(asset, signer, state):
+def _register_asset(asset, signer, state):
     print("entro en _register")
     print(asset)
     if state.get_asset(asset) is not None:
