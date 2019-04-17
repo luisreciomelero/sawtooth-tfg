@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
 
-  user-shell:
+  cars-shell:
     build:
       context: .
       dockerfile: ./shell/cars/Dockerfile
@@ -27,7 +27,7 @@ services:
       "
 
   cars-client:
-    build: ./client/
+    build: ./client/cars_image_docker
     image: sawtooth-cars-client
     container_name: cars-client
     volumes:

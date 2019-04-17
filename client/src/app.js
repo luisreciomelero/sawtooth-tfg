@@ -8,9 +8,11 @@
 
 const $ = require('jquery')
 const {
-  getState,
-  submitUpdate,
-  makeKeyPair
+  getStateUser,
+  submitUpdateUser,
+  makeKeyPair,
+  getStateCars,
+  submitUpdateCars
 } = require('./state.js')
 
 // Application Object
@@ -70,7 +72,7 @@ const separateAssetsUser = (asset, signer) =>{
 
 
 users.refresh = function () {
-  getState(({ assets, transfers }) => {
+  getStateUser(({ assets, transfers }) => {
     this.coches = []
     this.DNIs = []
     this.emailsPsw = []
@@ -95,7 +97,7 @@ users.refresh = function () {
 }
 
 users.update = function (action, asset, private_key, owner) {
-    submitUpdate(
+    submitUpdateUser(
       {action, asset, owner},
       private_key,
       success => success ? this.refresh() : null
