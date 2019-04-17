@@ -30301,24 +30301,84 @@ const {
 
 // Application Object
 
-const users = {coches:[], DNIs:[], emails:[], phones:[] }
-const user = {DNI:null, coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:null}
+const users = {assets:[], coches:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[]}
+const user = {DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:null, signer:null}
 const invitaciones_pendientes = []
 
-/*users.refresh = function () {
+const addCategory = (categ, val) =>{
+  const value = val.toString()
+  const category = categ.toString()
+  const catVal = category+":"+val 
+  console.log("catVal")
+  console.log(catVal)
+  return catVal
+}
+
+const separateAssetsUser = (asset, signer) =>{
+  var nombre = "nombre"
+  var dni = "dni"
+  var emailPsw = "email"
+  var telefono = "telefono"
+  var rol = "rol"
+  
+  var fields = asset.split(",");
+  console.log(fields)
+  for(var i=0; i<fields.length;i++){
+    var field = fields[i].split(":");
+    console.log("FIELD y [0]=>>>>>")
+    console.log(field)
+    console.log(field[0])
+    switch(field[0]){
+      case dni:
+        console.log("DNI => " + field[1].toString())
+        users.DNIs.push(field[1]);
+        console.log(users.DNIs)
+        break;
+      case emailPsw:
+        var mailPsw = []
+        mailPsw.push(field[1])
+        mailPsw.push(field[3])
+        var userMailPsw = mailPsw.join(':')
+        console.log("userMailPsw => " + userMailPsw)
+        users.emailsPsw.push(userMailPsw)
+        break;
+      case telefono: 
+        users.phones.push(field[1])
+        break;
+      /*case dni:
+        dniSigner*/
+    }
+  }
+
+
+  
+}
+
+
+users.refresh = function () {
   getState(({ assets, transfers }) => {
+    this.coches = []
+    this.DNIs = []
+    this.emailsPsw = []
+    this.phones = []
+    this.dniSigners = []
     this.assets = assets
-    this.transfers = transfers
-    $('#sesion').empty()
-    if(session.number !== null){
-      addSesion('#sesion', session.number.split(',')[0], session.number.split(',')[1]);
-      addOriginal('#sesion',  session.original_number.split(',')[0], session.original_number.split(',')[1]);
-    } 
+    console.log("users.assets")
+    for(var i=0; i<assets.length; i++){
+      var asset = assets[i].asset
+      var signer = assets[i].signer
+      console.log(asset)
+      separateAssetsUser(asset, signer)
+      console.log("users")
+      console.log(users)
+    }
+    
+    
 
     
   })
   
-}*/
+}
 
 users.update = function (action, asset, private_key, owner) {
     submitUpdate(
@@ -30334,14 +30394,16 @@ $('#registerUser').on('click', function () {
   const action = 'register'
   console.log("pulso registro")
 
-  const nombre = $('#nameInputR').val();
-  const dni = $('#dniInputR').val();
-  const psw = $('#passInputR').val();
-  const telefono = $('#tfnInputR').val();
-  const rol = $('[name="roleSelect"]').val();
+  const nombre = addCategory("nombre", $('#nameInputR').val());
+  const dni = addCategory("dni", $('#dniInputR').val());
+  const psw =addCategory("psw", $('#passInputR').val());
+  const email = addCategory("email", $('#emailInputR').val());
+  var emailPsw = addCategory(email,psw)
+  const telefono = addCategory("telefono", $('#tfnInputR').val());
+  const rol = addCategory("rol", $('[name="roleSelect"]').val());
   const keys = makeKeyPair();
  // const asset = [nombre, dni, psw, telefono, rol];
-  const asset = [nombre, dni]
+  const asset = [nombre, dni, emailPsw, telefono, rol]
   console.log("Asset")
   console.log(asset.join())
   console.log("private")
@@ -30353,6 +30415,7 @@ $('#registerUser').on('click', function () {
   console.log(action)
 
   users.update(action,asset.join(), keys.private, keys.public)
+  users.refresh()
 })
 
 $('#loginButton').on('click', function () {
@@ -30411,7 +30474,7 @@ $('#solicitarInv').on('click', function () {
 
 
 
-//users.refresh()
+users.refresh()
 
 
 /***/ }),
