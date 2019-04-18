@@ -106,7 +106,7 @@ users.update = function (action, asset, private_key, owner) {
   
 }
 
-coches.update = function(action, asset, private_key, owner){
+coches.actualizar = function(action, asset, private_key, owner){
   submitUpdateCars(
       {action, asset, owner},
       private_key,
@@ -179,7 +179,7 @@ $('#createCocheRC').on('click', function () {
   const matricula = $('#matriculaRC').val();
   const model = $('#modelRC').val();
   const keys = makeKeyPair();
-  coches.update("register", matricula, keys.private, keys.public)
+  coches.actualizar("register", matricula, keys.private, keys.public)
   $('#regCoche').attr('style', 'display:none')
   $('#mainUser').attr('style', '')
 

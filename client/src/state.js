@@ -80,6 +80,7 @@ const submitUpdateUser = (payload, privateKeyHex, cb) => {
   const payloadBytes = Buffer.from(JSON.stringify(payload))
   console.log("payloadBytes")
   console.log(payloadBytes)
+
   const transactionHeaderBytes = protobuf.TransactionHeader.encode({
     familyName: FAMILY_USER,
     familyVersion: VERSION_USER,
@@ -174,6 +175,8 @@ const submitUpdateCars = (payload, privateKeyHex, cb) => {
   const payloadBytes = Buffer.from(JSON.stringify(payload))
   console.log("payloadBytes")
   console.log(payloadBytes)
+  console.log("PREFIX_CARS")
+  console.log(PREFIX_CARS)
   const transactionHeaderBytes = protobuf.TransactionHeader.encode({
     familyName: FAMILY_CARS,
     familyVersion: VERSION_CARS,

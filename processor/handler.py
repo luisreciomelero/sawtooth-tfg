@@ -36,28 +36,6 @@ NAMESPACE_CARS = hashlib.sha512(FAMILY_NAME_CARS.encode('utf-8')).hexdigest()[:6
 
 LOGGER = logging.getLogger(__name__)
 
-# _SETTING_MAX_KEY_PARTS = 4
-# _SETTING_ADDRESS_PART_SIZE = 16
-# ALLOWED_SIGNER_SETTING = "sawtooth.identity.allowed_keys"
-
-# def _setting_key_to_address(key):
-#     key_parts = key.split('.', maxsplit=_SETTING_MAX_KEY_PARTS - 1)
-#     addr_parts = [_setting_short_hash(byte_str=x.encode()) for x in key_parts]
-#     addr_parts.extend(
-#         [_SETTING_ADDRESS_PADDING] * (_SETTING_MAX_KEY_PARTS - len(addr_parts))
-#     )
-#     return _SETTING_NAMESPACE + ''.join(addr_parts)
-
-
-
-# def _setting_short_hash(byte_str):
-#      return hashlib.sha256(byte_str).hexdigest()[:_SETTING_ADDRESS_PART_SIZE]
-
-
-# _SETTING_ADDRESS_PADDING = _setting_short_hash(byte_str=b'')
-# ALLOWED_SIGNER_ADDRESS = _setting_key_to_address("sawtooth.identity.allowed_keys")
-
-
 class UserTransactionHandler(TransactionHandler):
 
     @property
@@ -128,14 +106,14 @@ class CarsTransactionHandler(TransactionHandler):
         header = transaction.header
         signer = header.signer_public_key
 
-        payload = UserPayload(transaction.payload)
+        payload = CarsPayload(transaction.payload)
         print("PAYLOAD")
         print(payload)
         print("payload.action")
         print(payload.action)
         print("payload.asset")
         print(payload.asset)
-        state = UserState(context)
+        state = CarsState(context)
         print("context")
         print(context)
         LOGGER.info('Handling transaction: %s > %s %s:: %s',

@@ -39,6 +39,7 @@ services:
     depends_on:
     - rest-api
     - user-shell
+    - cars-shell
 
   user-tp:
     build:
