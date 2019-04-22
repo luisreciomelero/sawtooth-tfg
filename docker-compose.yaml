@@ -27,7 +27,7 @@ services:
       "
 
   user-client:
-    build: ./client/user_image_docker
+    build: ./client
     image: sawtooth-user-client
     container_name: user-client
     volumes:
@@ -84,20 +84,6 @@ services:
         cd ../
         tail -f /dev/null
       "
-
-  # cars-client:
-  #   build: ./client/cars_image_docker
-  #   image: sawtooth-cars-client
-  #   container_name: cars-client
-  #   volumes:
-  #     - ./client/:/usr/local/apache2/htdocs/
-  #   expose:
-  #     - 80
-  #   ports:
-  #     - '8000:80'
-  #   depends_on:
-  #   - rest-api
-  #   - cars-shell
 
   cars-tp:
     build:
