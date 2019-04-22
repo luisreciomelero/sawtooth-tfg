@@ -21,6 +21,8 @@ from sawtooth_sdk.processor.log import init_console_logging
 
 from handler import UserTransactionHandler
 from handler import CarsTransactionHandler
+from handler import InvitationsTransactionHandler
+
 
 def parse_args(args):
     parser = argparse.ArgumentParser(
@@ -51,8 +53,12 @@ def main(args=None):
         processor = TransactionProcessor(url=opts.connect)
         handler_user = UserTransactionHandler()
         handler_cars = CarsTransactionHandler()
+        handler_invitations = InvitationsTransactionHandler()
+        
         processor.add_handler(handler_user)
         processor.add_handler(handler_cars)
+        processor.add_handler(handler_invitations)
+
         processor.start()
     except KeyboardInterrupt:
         pass

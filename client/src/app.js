@@ -12,14 +12,17 @@ const {
   submitUpdateUser,
   makeKeyPair,
   getStateCars,
-  submitUpdateCars
+  submitUpdateCars,
+  getStateInvitations,
+  submitUpdateInvitations
 } = require('./state.js')
 
 // Application Object
 
 const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[]}
-const user = {DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:null, signer:null}
+const user = {DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:20 , signer:null}
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
+const invitaciones = {assets:[]}
 const invitaciones_pendientes = []
 
 const addCategory = (categ, val) =>{
@@ -106,7 +109,7 @@ users.update = function (action, asset, private_key, owner) {
   
 }
 
-coches.actualizar = function(action, asset, private_key, owner){
+coches.update = function(action, asset, private_key, owner){
   submitUpdateCars(
       {action, asset, owner},
       private_key,
@@ -120,6 +123,22 @@ coches.refresh = function() {
     console.log(this.assets)
   })
 }
+
+invitaciones.update = function(action, asset, private_key, owner){
+  submitUpdateInvitations(
+      {action, asset, owner},
+      private_key,
+      success => success ? this.refresh() : null
+    )
+}
+
+invitaciones.refresh =  function() {
+  getStateInvitations(({assets, transfers}) => {
+    this.assets = assets;
+    console.log(this.assets)
+  })
+}
+
 
 
 $('#registerUser').on('click', function () {
@@ -179,7 +198,7 @@ $('#createCocheRC').on('click', function () {
   const matricula = $('#matriculaRC').val();
   const model = $('#modelRC').val();
   const keys = makeKeyPair();
-  coches.actualizar("register", matricula, keys.private, keys.public)
+  coches.update("register", matricula, keys.private, keys.public)
   $('#regCoche').attr('style', 'display:none')
   $('#mainUser').attr('style', '')
 
@@ -192,7 +211,14 @@ $('#createCocheMU').on('click', function () {
 })
 
 $('#publicarInv').on('click', function () {
+  const action = 'register'
   const precio = $('#precioMU').val();
+  console.log("PRECIO ====>")
+  console.log(precio)
+  const keys = makeKeyPair();
+  invitaciones.update("register", precio, keys.private, keys.public)
+
+
 })
 
 $('#solicitarInv').on('click', function () {
@@ -209,3 +235,5 @@ $('#solicitarInv').on('click', function () {
 
 
 users.refresh()
+coches.refresh()
+invitaciones.refresh()

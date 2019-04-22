@@ -40,6 +40,7 @@ services:
     - rest-api
     - user-shell
     - cars-shell
+    - invitations-shell
 
   user-tp:
     build:
@@ -99,6 +100,50 @@ services:
       - '.:/project/sawtooth-cars'
     depends_on:
       - cars-shell
+    command: |
+      bash -c "
+        sleep 1
+        user-tp -vv -C tcp://validator:4004
+      "
+
+  invitations-shell:
+    build:
+      context: .
+      dockerfile: ./shell/invitations/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: sawtooth-invitations-shell
+    container_name: invitations-shell
+    volumes:
+      - .:/project/sawtooth-invitations
+      - /project/sawtooth-invitations/client/node_modules
+    command: |
+      bash -c "
+        if [ ! -f /root/.sawtooth/keys/root.priv ]; then
+          sawtooth keygen
+        fi;
+        cd client
+        npm run-script build
+        cd ../
+        tail -f /dev/null
+      "
+
+  invitations-tp:
+    build:
+      context: .
+      dockerfile: ./processor/invitations_tp/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: sawtooth-invitations-tp
+    container_name: invitations-tp
+    volumes:
+      - '.:/project/sawtooth-invitations'
+    depends_on:
+      - invitations-shell
     command: |
       bash -c "
         sleep 1

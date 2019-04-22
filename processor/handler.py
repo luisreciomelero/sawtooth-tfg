@@ -25,6 +25,9 @@ from user_tp.user_state import UserState
 from cars_tp.cars_payload import CarsPayload
 from cars_tp.cars_state import CarsState
 
+from invitations_tp.invitations_payload import InvitationsPayload
+from invitations_tp.invitations_state import InvitationsState
+
 import hashlib
 
 
@@ -33,6 +36,9 @@ NAMESPACE_USER = hashlib.sha512(FAMILY_NAME_USER.encode('utf-8')).hexdigest()[:6
 
 FAMILY_NAME_CARS = 'cars-chain'
 NAMESPACE_CARS = hashlib.sha512(FAMILY_NAME_CARS.encode('utf-8')).hexdigest()[:6]
+
+FAMILY_NAME_INVITATIONS = 'invitations-chain'
+NAMESPACE_INVITATIONS = hashlib.sha512(FAMILY_NAME_INVITATIONS.encode('utf-8')).hexdigest()[:6]
 
 LOGGER = logging.getLogger(__name__)
 
@@ -130,6 +136,53 @@ class CarsTransactionHandler(TransactionHandler):
             raise InvalidTransaction('Unhandled action: {}'.format(
                 payload.action))
 
+
+class InvitationsTransactionHandler(TransactionHandler):
+
+    @property
+    def family_name(self):
+        return FAMILY_NAME_INVITATIONS
+
+    @property
+    def family_versions(self):
+        return ['0.0']
+
+    @property
+    def namespaces(self):
+        return [NAMESPACE_INVITATIONS]
+
+
+
+    def apply(self, transaction, context):
+
+        
+
+        header = transaction.header
+        signer = header.signer_public_key
+
+        payload = InvitationsPayload(transaction.payload)
+        print("PAYLOAD")
+        print(payload)
+        print("payload.action")
+        print(payload.action)
+        print("payload.asset")
+        print(payload.asset)
+        state = InvitationsState(context)
+        print("context")
+        print(context)
+        LOGGER.info('Handling transaction: %s > %s %s:: %s',
+                    payload.action,
+                    payload.asset,
+                    '> ' + payload.owner[:8] + '... ' if payload.owner else '',
+                    signer[:8] + '... ')
+
+        if payload.action == 'register':
+            _register_asset(asset=payload.asset,
+                          signer=signer,
+                          state=state)
+        else:
+            raise InvalidTransaction('Unhandled action: {}'.format(
+                payload.action))
 
 
 

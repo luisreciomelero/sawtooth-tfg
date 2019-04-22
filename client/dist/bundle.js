@@ -30298,14 +30298,17 @@ const {
   submitUpdateUser,
   makeKeyPair,
   getStateCars,
-  submitUpdateCars
+  submitUpdateCars,
+  getStateInvitations,
+  submitUpdateInvitations
 } = __webpack_require__(104)
 
 // Application Object
 
 const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[]}
-const user = {DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:null, signer:null}
+const user = {DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:20 , signer:null}
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
+const invitaciones = {assets:[]}
 const invitaciones_pendientes = []
 
 const addCategory = (categ, val) =>{
@@ -30392,7 +30395,7 @@ users.update = function (action, asset, private_key, owner) {
   
 }
 
-coches.actualizar = function(action, asset, private_key, owner){
+coches.update = function(action, asset, private_key, owner){
   submitUpdateCars(
       {action, asset, owner},
       private_key,
@@ -30406,6 +30409,22 @@ coches.refresh = function() {
     console.log(this.assets)
   })
 }
+
+invitaciones.update = function(action, asset, private_key, owner){
+  submitUpdateInvitations(
+      {action, asset, owner},
+      private_key,
+      success => success ? this.refresh() : null
+    )
+}
+
+invitaciones.refresh =  function() {
+  getStateInvitations(({assets, transfers}) => {
+    this.assets = assets;
+    console.log(this.assets)
+  })
+}
+
 
 
 $('#registerUser').on('click', function () {
@@ -30465,7 +30484,7 @@ $('#createCocheRC').on('click', function () {
   const matricula = $('#matriculaRC').val();
   const model = $('#modelRC').val();
   const keys = makeKeyPair();
-  coches.actualizar("register", matricula, keys.private, keys.public)
+  coches.update("register", matricula, keys.private, keys.public)
   $('#regCoche').attr('style', 'display:none')
   $('#mainUser').attr('style', '')
 
@@ -30478,7 +30497,14 @@ $('#createCocheMU').on('click', function () {
 })
 
 $('#publicarInv').on('click', function () {
+  const action = 'register'
   const precio = $('#precioMU').val();
+  console.log("PRECIO ====>")
+  console.log(precio)
+  const keys = makeKeyPair();
+  invitaciones.update("register", precio, keys.private, keys.public)
+
+
 })
 
 $('#solicitarInv').on('click', function () {
@@ -30495,6 +30521,8 @@ $('#solicitarInv').on('click', function () {
 
 
 users.refresh()
+coches.refresh()
+invitaciones.refresh()
 
 
 /***/ }),
@@ -30528,6 +30556,10 @@ const FAMILY_CARS = 'cars-chain'
 const VERSION_CARS = '0.0'
 const PREFIX_CARS = '812fb5'
 
+const FAMILY_INVITATIONS = 'invitations-chain'
+const VERSION_INVITATIONS = '0.0'
+const PREFIX_INVITATIONS = '1a7335'
+
 const makeKeyPair = () => {
   const context = createContext('secp256k1')
   const privateKey = context.newRandomPrivateKey()
@@ -30552,6 +30584,19 @@ const getStateUser = cb => {
 
 const getStateCars = cb => {
   $.get(`${API_URL}/state?address=${PREFIX_CARS}`, ({ data }) => {
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        if (datum.address[7] === '0') processed.assets.push(parsed)
+        if (datum.address[7] === '1') processed.transfers.push(parsed)
+      }
+      return processed
+    }, {assets: [], transfers: []}))
+  })
+}
+
+const getStateInvitations = cb => {
+  $.get(`${API_URL}/state?address=${PREFIX_INVITATIONS}`, ({ data }) => {
     cb(data.reduce((processed, datum) => {
       if (datum.data !== '') {
         const parsed = JSON.parse(atob(datum.data))
@@ -30754,13 +30799,109 @@ const submitUpdateCars = (payload, privateKeyHex, cb) => {
   })
 }
 
+const submitUpdateInvitations = (payload, privateKeyHex, cb) => {
+  // Create signer
+  const context = createContext('secp256k1')
+  console.log("context")
+  console.log(context)
+  console.log("privateKeyHex")
+  console.log(privateKeyHex)
+  console.log("payload")
+  console.log(payload)
+  const privateKey = secp256k1.Secp256k1PrivateKey.fromHex(privateKeyHex)
+  console.log("privateKey")
+  console.log(privateKey)
+  const signer = new Signer(context, privateKey)
+  console.log("signer")
+  console.log(signer)
+
+  // Create the TransactionHeader
+  const payloadBytes = Buffer.from(JSON.stringify(payload))
+  console.log("payloadBytes")
+  console.log(payloadBytes)
+  console.log("PREFIX_INVITATIONS")
+  console.log(PREFIX_INVITATIONS)
+  const transactionHeaderBytes = protobuf.TransactionHeader.encode({
+    familyName: FAMILY_INVITATIONS,
+    familyVersion: VERSION_INVITATIONS,
+    inputs: [PREFIX_INVITATIONS],
+    outputs: [PREFIX_INVITATIONS],
+    signerPublicKey: signer.getPublicKey().asHex(),
+    batcherPublicKey: signer.getPublicKey().asHex(),
+    dependencies: [],
+    payloadSha512: createHash('sha512').update(payloadBytes).digest('hex')
+  }).finish()
+  console.log("transactionHeaderBytes")
+  console.log(transactionHeaderBytes)
+
+  // Create the Transaction
+  const transactionHeaderSignature = signer.sign(transactionHeaderBytes)
+  console.log("transactionHeaderSignature")
+  console.log(transactionHeaderSignature)
+
+
+  const transaction = protobuf.Transaction.create({
+    header: transactionHeaderBytes,
+    headerSignature: transactionHeaderSignature,
+    payload: payloadBytes
+  })
+  console.log("transaction")
+  console.log(transaction)
+
+  // Create the BatchHeader
+  const batchHeaderBytes = protobuf.BatchHeader.encode({
+    signerPublicKey: signer.getPublicKey().asHex(),
+    transactionIds: [transaction.headerSignature]
+  }).finish()
+  console.log("batchHeaderBytes")
+  console.log(batchHeaderBytes)
+
+
+  // Create the Batch
+  const batchHeaderSignature = signer.sign(batchHeaderBytes)
+  
+  const batch = protobuf.Batch.create({
+    header: batchHeaderBytes,
+    headerSignature: batchHeaderSignature,
+    transactions: [transaction]
+  })
+  console.log("batch")
+  console.log(batch)
+
+
+  // Encode the Batch in a BatchList
+  const batchListBytes = protobuf.BatchList.encode({
+    batches: [batch]
+  }).finish()
+  console.log("batchListBytes")
+  console.log(batchListBytes)
+
+  // Submit BatchList to Validator
+  $.post({
+    url: `${API_URL}/batches`,
+    data: batchListBytes,
+    headers: {'Content-Type': 'application/octet-stream'},
+    processData: false,
+    success: function( resp ) {
+      console.log("post resp: ")
+      console.log(resp.link.split('?'))
+      console.log("post resp id: ")
+      console.log(resp.link.split('?')[1])
+      var id = resp.link.split('?')[1]
+      $.get(`${API_URL}/batch_statuses?${id}&wait`, ({ data }) => cb(true))
+    },
+    error: () => cb(false)
+  })
+}
 
 module.exports = {
   makeKeyPair,
   getStateUser,
   getStateCars,
+  getStateInvitations,
   submitUpdateUser,
-  submitUpdateCars
+  submitUpdateCars,
+  submitUpdateInvitations
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
@@ -33918,7 +34059,7 @@ module.exports.makeKey = makeKey
 /* 150 */
 /***/ (function(module, exports) {
 
-module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-cars/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-cars/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
+module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-invitations/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-invitations/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
 
 /***/ }),
 /* 151 */

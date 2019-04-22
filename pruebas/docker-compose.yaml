@@ -2,19 +2,19 @@ version: '2.1'
 
 services:
 
-  cars-shell:
+  invitations-shell:
     build:
       context: .
-      dockerfile: ./shell/cars/Dockerfile
+      dockerfile: ./shell/invitations/Dockerfile
       args:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: sawtooth-cars-shell
-    container_name: cars-shell
+    image: sawtooth-invitations-shell
+    container_name: invitations-shell
     volumes:
-      - .:/project/sawtooth-cars
-      - /project/sawtooth-cars/client/node_modules
+      - .:/project/sawtooth-invitations
+      - /project/sawtooth-invitations/client/node_modules
     command: |
       bash -c "
         if [ ! -f /root/.sawtooth/keys/root.priv ]; then
@@ -26,34 +26,20 @@ services:
         tail -f /dev/null
       "
 
-  cars-client:
-    build: ./client/cars_image_docker
-    image: sawtooth-cars-client
-    container_name: cars-client
-    volumes:
-      - ./client/:/usr/local/apache2/htdocs/
-    expose:
-      - 80
-    ports:
-      - '8000:80'
-    depends_on:
-    - rest-api
-    - cars-shell
-
-  cars-tp:
+  invitations-tp:
     build:
       context: .
-      dockerfile: ./processor/cars_tp/Dockerfile
+      dockerfile: ./processor/invitations_tp/Dockerfile
       args:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: sawtooth-cars-tp
-    container_name: cars-tp
+    image: sawtooth-invitations-tp
+    container_name: invitations-tp
     volumes:
-      - '.:/project/sawtooth-cars'
+      - '.:/project/sawtooth-invitations'
     depends_on:
-      - cars-shell
+      - invitations-shell
     command: |
       bash -c "
         sleep 1
