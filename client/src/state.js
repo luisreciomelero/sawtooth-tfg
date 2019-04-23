@@ -15,6 +15,17 @@ const secp256k1 = require('sawtooth-sdk/signing/secp256k1')
 const KEY_NAME_USER = 'users-chain.keys'
 const API_URL = 'http://localhost:8000/api'
 
+/*
+    FAMILY_USER,
+    VERSION_USER,
+    PREFIX_USER,
+    FAMILY_CARS,
+    PREFIX_CARS,
+    FAMILY_INVITATIONS,
+    PREFIX_INVITATIONS
+
+
+*/
 
 const FAMILY_USER = 'user-chain'
 const VERSION_USER = '0.0'
@@ -77,44 +88,28 @@ const getStateInvitations = cb => {
 }
 
 // Submit signed Transaction to validator
-const submitUpdateUser = (payload, privateKeyHex, cb) => {
+const submitUpdate = (payload, privateKeyHex, family, version, prefix, cb) => {
   // Create signer
   const context = createContext('secp256k1')
-  console.log("context")
-  console.log(context)
-  console.log("privateKeyHex")
-  console.log(privateKeyHex)
-  console.log("payload")
-  console.log(payload)
   const privateKey = secp256k1.Secp256k1PrivateKey.fromHex(privateKeyHex)
-  console.log("privateKey")
-  console.log(privateKey)
   const signer = new Signer(context, privateKey)
-  console.log("signer")
-  console.log(signer)
 
   // Create the TransactionHeader
   const payloadBytes = Buffer.from(JSON.stringify(payload))
-  console.log("payloadBytes")
-  console.log(payloadBytes)
 
   const transactionHeaderBytes = protobuf.TransactionHeader.encode({
-    familyName: FAMILY_USER,
-    familyVersion: VERSION_USER,
-    inputs: [PREFIX_USER],
-    outputs: [PREFIX_USER],
+    familyName: family,
+    familyVersion: version,
+    inputs: [prefix],
+    outputs: [prefix],
     signerPublicKey: signer.getPublicKey().asHex(),
     batcherPublicKey: signer.getPublicKey().asHex(),
     dependencies: [],
     payloadSha512: createHash('sha512').update(payloadBytes).digest('hex')
   }).finish()
-  console.log("transactionHeaderBytes")
-  console.log(transactionHeaderBytes)
 
   // Create the Transaction
   const transactionHeaderSignature = signer.sign(transactionHeaderBytes)
-  console.log("transactionHeaderSignature")
-  console.log(transactionHeaderSignature)
 
 
   const transaction = protobuf.Transaction.create({
@@ -122,17 +117,12 @@ const submitUpdateUser = (payload, privateKeyHex, cb) => {
     headerSignature: transactionHeaderSignature,
     payload: payloadBytes
   })
-  console.log("transaction")
-  console.log(transaction)
 
   // Create the BatchHeader
   const batchHeaderBytes = protobuf.BatchHeader.encode({
     signerPublicKey: signer.getPublicKey().asHex(),
     transactionIds: [transaction.headerSignature]
   }).finish()
-  console.log("batchHeaderBytes")
-  console.log(batchHeaderBytes)
-
 
   // Create the Batch
   const batchHeaderSignature = signer.sign(batchHeaderBytes)
@@ -142,16 +132,11 @@ const submitUpdateUser = (payload, privateKeyHex, cb) => {
     headerSignature: batchHeaderSignature,
     transactions: [transaction]
   })
-  console.log("batch")
-  console.log(batch)
-
 
   // Encode the Batch in a BatchList
   const batchListBytes = protobuf.BatchList.encode({
     batches: [batch]
   }).finish()
-  console.log("batchListBytes")
-  console.log(batchListBytes)
 
   // Submit BatchList to Validator
   $.post({
@@ -160,10 +145,6 @@ const submitUpdateUser = (payload, privateKeyHex, cb) => {
     headers: {'Content-Type': 'application/octet-stream'},
     processData: false,
     success: function( resp ) {
-      console.log("post resp: ")
-      console.log(resp.link.split('?'))
-      console.log("post resp id: ")
-      console.log(resp.link.split('?')[1])
       var id = resp.link.split('?')[1]
       $.get(`${API_URL}/batch_statuses?${id}&wait`, ({ data }) => cb(true))
     },
@@ -172,202 +153,20 @@ const submitUpdateUser = (payload, privateKeyHex, cb) => {
 }
 
 
-const submitUpdateCars = (payload, privateKeyHex, cb) => {
-  // Create signer
-  const context = createContext('secp256k1')
-  console.log("context")
-  console.log(context)
-  console.log("privateKeyHex")
-  console.log(privateKeyHex)
-  console.log("payload")
-  console.log(payload)
-  const privateKey = secp256k1.Secp256k1PrivateKey.fromHex(privateKeyHex)
-  console.log("privateKey")
-  console.log(privateKey)
-  const signer = new Signer(context, privateKey)
-  console.log("signer")
-  console.log(signer)
 
-  // Create the TransactionHeader
-  const payloadBytes = Buffer.from(JSON.stringify(payload))
-  console.log("payloadBytes")
-  console.log(payloadBytes)
-  console.log("PREFIX_CARS")
-  console.log(PREFIX_CARS)
-  const transactionHeaderBytes = protobuf.TransactionHeader.encode({
-    familyName: FAMILY_CARS,
-    familyVersion: VERSION_CARS,
-    inputs: [PREFIX_CARS],
-    outputs: [PREFIX_CARS],
-    signerPublicKey: signer.getPublicKey().asHex(),
-    batcherPublicKey: signer.getPublicKey().asHex(),
-    dependencies: [],
-    payloadSha512: createHash('sha512').update(payloadBytes).digest('hex')
-  }).finish()
-  console.log("transactionHeaderBytes")
-  console.log(transactionHeaderBytes)
-
-  // Create the Transaction
-  const transactionHeaderSignature = signer.sign(transactionHeaderBytes)
-  console.log("transactionHeaderSignature")
-  console.log(transactionHeaderSignature)
-
-
-  const transaction = protobuf.Transaction.create({
-    header: transactionHeaderBytes,
-    headerSignature: transactionHeaderSignature,
-    payload: payloadBytes
-  })
-  console.log("transaction")
-  console.log(transaction)
-
-  // Create the BatchHeader
-  const batchHeaderBytes = protobuf.BatchHeader.encode({
-    signerPublicKey: signer.getPublicKey().asHex(),
-    transactionIds: [transaction.headerSignature]
-  }).finish()
-  console.log("batchHeaderBytes")
-  console.log(batchHeaderBytes)
-
-
-  // Create the Batch
-  const batchHeaderSignature = signer.sign(batchHeaderBytes)
-  
-  const batch = protobuf.Batch.create({
-    header: batchHeaderBytes,
-    headerSignature: batchHeaderSignature,
-    transactions: [transaction]
-  })
-  console.log("batch")
-  console.log(batch)
-
-
-  // Encode the Batch in a BatchList
-  const batchListBytes = protobuf.BatchList.encode({
-    batches: [batch]
-  }).finish()
-  console.log("batchListBytes")
-  console.log(batchListBytes)
-
-  // Submit BatchList to Validator
-  $.post({
-    url: `${API_URL}/batches`,
-    data: batchListBytes,
-    headers: {'Content-Type': 'application/octet-stream'},
-    processData: false,
-    success: function( resp ) {
-      console.log("post resp: ")
-      console.log(resp.link.split('?'))
-      console.log("post resp id: ")
-      console.log(resp.link.split('?')[1])
-      var id = resp.link.split('?')[1]
-      $.get(`${API_URL}/batch_statuses?${id}&wait`, ({ data }) => cb(true))
-    },
-    error: () => cb(false)
-  })
-}
-
-const submitUpdateInvitations = (payload, privateKeyHex, cb) => {
-  // Create signer
-  const context = createContext('secp256k1')
-  console.log("context")
-  console.log(context)
-  console.log("privateKeyHex")
-  console.log(privateKeyHex)
-  console.log("payload")
-  console.log(payload)
-  const privateKey = secp256k1.Secp256k1PrivateKey.fromHex(privateKeyHex)
-  console.log("privateKey")
-  console.log(privateKey)
-  const signer = new Signer(context, privateKey)
-  console.log("signer")
-  console.log(signer)
-
-  // Create the TransactionHeader
-  const payloadBytes = Buffer.from(JSON.stringify(payload))
-  console.log("payloadBytes")
-  console.log(payloadBytes)
-  console.log("PREFIX_INVITATIONS")
-  console.log(PREFIX_INVITATIONS)
-  const transactionHeaderBytes = protobuf.TransactionHeader.encode({
-    familyName: FAMILY_INVITATIONS,
-    familyVersion: VERSION_INVITATIONS,
-    inputs: [PREFIX_INVITATIONS],
-    outputs: [PREFIX_INVITATIONS],
-    signerPublicKey: signer.getPublicKey().asHex(),
-    batcherPublicKey: signer.getPublicKey().asHex(),
-    dependencies: [],
-    payloadSha512: createHash('sha512').update(payloadBytes).digest('hex')
-  }).finish()
-  console.log("transactionHeaderBytes")
-  console.log(transactionHeaderBytes)
-
-  // Create the Transaction
-  const transactionHeaderSignature = signer.sign(transactionHeaderBytes)
-  console.log("transactionHeaderSignature")
-  console.log(transactionHeaderSignature)
-
-
-  const transaction = protobuf.Transaction.create({
-    header: transactionHeaderBytes,
-    headerSignature: transactionHeaderSignature,
-    payload: payloadBytes
-  })
-  console.log("transaction")
-  console.log(transaction)
-
-  // Create the BatchHeader
-  const batchHeaderBytes = protobuf.BatchHeader.encode({
-    signerPublicKey: signer.getPublicKey().asHex(),
-    transactionIds: [transaction.headerSignature]
-  }).finish()
-  console.log("batchHeaderBytes")
-  console.log(batchHeaderBytes)
-
-
-  // Create the Batch
-  const batchHeaderSignature = signer.sign(batchHeaderBytes)
-  
-  const batch = protobuf.Batch.create({
-    header: batchHeaderBytes,
-    headerSignature: batchHeaderSignature,
-    transactions: [transaction]
-  })
-  console.log("batch")
-  console.log(batch)
-
-
-  // Encode the Batch in a BatchList
-  const batchListBytes = protobuf.BatchList.encode({
-    batches: [batch]
-  }).finish()
-  console.log("batchListBytes")
-  console.log(batchListBytes)
-
-  // Submit BatchList to Validator
-  $.post({
-    url: `${API_URL}/batches`,
-    data: batchListBytes,
-    headers: {'Content-Type': 'application/octet-stream'},
-    processData: false,
-    success: function( resp ) {
-      console.log("post resp: ")
-      console.log(resp.link.split('?'))
-      console.log("post resp id: ")
-      console.log(resp.link.split('?')[1])
-      var id = resp.link.split('?')[1]
-      $.get(`${API_URL}/batch_statuses?${id}&wait`, ({ data }) => cb(true))
-    },
-    error: () => cb(false)
-  })
-}
 
 module.exports = {
   makeKeyPair,
   getStateUser,
   getStateCars,
   getStateInvitations,
-  submitUpdateUser,
-  submitUpdateCars,
-  submitUpdateInvitations
+  submitUpdate,
+  FAMILY_USER,
+  VERSION_USER,
+  PREFIX_USER,
+  FAMILY_CARS,
+  PREFIX_CARS,
+  FAMILY_INVITATIONS,
+  PREFIX_INVITATIONS
+
 }

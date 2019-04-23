@@ -9,12 +9,17 @@
 const $ = require('jquery')
 const {
   getStateUser,
-  submitUpdateUser,
   makeKeyPair,
   getStateCars,
-  submitUpdateCars,
   getStateInvitations,
-  submitUpdateInvitations
+  submitUpdate,
+  FAMILY_USER,
+  VERSION_USER,
+  PREFIX_USER,
+  FAMILY_CARS,
+  PREFIX_CARS,
+  FAMILY_INVITATIONS,
+  PREFIX_INVITATIONS
 } = require('./state.js')
 
 // Application Object
@@ -24,6 +29,7 @@ const user = {DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null,
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
 const invitaciones = {assets:[]}
 const invitaciones_pendientes = []
+const version = VERSION_USER
 
 const addCategory = (categ, val) =>{
   const value = val.toString()
@@ -101,18 +107,24 @@ users.refresh = function () {
 }
 
 users.update = function (action, asset, private_key, owner) {
-    submitUpdateUser(
+    submitUpdate(
       {action, asset, owner},
       private_key,
+      FAMILY_USER,
+      version,
+      PREFIX_USER,
       success => success ? this.refresh() : null
     )
   
 }
 
 coches.update = function(action, asset, private_key, owner){
-  submitUpdateCars(
+  submitUpdate(
       {action, asset, owner},
       private_key,
+      FAMILY_CARS,
+      version,
+      PREFIX_CARS,
       success => success ? this.refresh() : null
     )
 }
@@ -125,9 +137,12 @@ coches.refresh = function() {
 }
 
 invitaciones.update = function(action, asset, private_key, owner){
-  submitUpdateInvitations(
+  submitUpdate(
       {action, asset, owner},
       private_key,
+      FAMILY_INVITATIONS,
+      version,
+      PREFIX_INVITATIONS,
       success => success ? this.refresh() : null
     )
 }
