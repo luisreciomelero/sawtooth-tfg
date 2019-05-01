@@ -84,7 +84,8 @@ class UserTransactionHandler(TransactionHandler):
         if payload.action == 'register':
             _register_asset(asset=payload.asset,
                           signer=signer,
-                          state=state)
+                          state=state,
+                          owner= payload.owner)
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
                 payload.action))
@@ -131,7 +132,8 @@ class CarsTransactionHandler(TransactionHandler):
         if payload.action == 'register':
             _register_asset(asset=payload.asset,
                           signer=signer,
-                          state=state)
+                          state=state,
+                          owner= payload.owner)
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
                 payload.action))
@@ -179,7 +181,8 @@ class InvitationsTransactionHandler(TransactionHandler):
         if payload.action == 'register':
             _register_asset(asset=payload.asset,
                           signer=signer,
-                          state=state)
+                          state=state,
+                          owner= payload.owner)
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
                 payload.action))
@@ -187,13 +190,13 @@ class InvitationsTransactionHandler(TransactionHandler):
 
 
 
-def _register_asset(asset, signer, state):
+def _register_asset(asset, signer, state, owner):
     print("entro en _register")
     print(asset)
-    if state.get_asset(asset) is not None:
+    if state.get_asset(asset, owner) is not None:
         raise InvalidTransaction(
             'Invalid action: Asset already exists: {}'.format(asset))
     print('DIrecciones exitosas anadidas: ')
-    print(state.set_asset(asset, signer))
-    state.set_asset(asset, signer)
+    print(state.set_asset(asset, signer, owner))
+    state.set_asset(asset, signer, owner)
 

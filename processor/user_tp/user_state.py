@@ -11,15 +11,15 @@ USERCHAIN_NAMESPACE = hashlib.sha512(
 
 
 def _get_address(key):
-    return hashlib.sha512(key.encode('utf-8')).hexdigest()[:62]
+    return hashlib.sha512(key.encode('utf-8')).hexdigest()[:30]
 
 
-def _get_asset_address(asset_name):
-    return  USERCHAIN_NAMESPACE + '00' + _get_address(asset_name)
+def _get_asset_address(asset_name, owner):
+    return  USERCHAIN_NAMESPACE +owner+ '00' + _get_address(asset_name)
 
 
 def _get_transfer_address(asset_name):
-    return USERCHAIN_NAMESPACE + '01' + _get_address(asset_name)
+    return USERCHAIN_NAMESPACE +owner+ '01' + _get_address(asset_name)
 
 
 def _deserialize(data):
@@ -37,14 +37,14 @@ class UserState(object):
     def __init__(self, context):
         self._context = context
 
-    def get_asset(self, asset):
-        return self._get_state(_get_asset_address(asset))
+    def get_asset(self, asset, owner):
+        return self._get_state(_get_asset_address(asset, owner))
 
     # def get_transfer(self, asset):
     #     return self._get_state(_get_transfer_address(asset))
 
-    def set_asset(self, asset, signer):
-        address = _get_asset_address(asset)
+    def set_asset(self, asset, signer, owner):
+        address = _get_asset_address(asset, owner)
         state_data = _serialize(
             {
                 "asset": asset,
@@ -63,9 +63,9 @@ class UserState(object):
     #         {address: state_data}, timeout=self.TIMEOUT)
 
 
-    def delete_asset(self, asset):
+    def delete_asset(self, asset, owner):
         return self._context.delete_state(
-            [_get_asset_address(asset)],
+            [_get_asset_address(asset, owner)],
             timeout=self.TIMEOUT)
 
     def _get_state(self, address):
