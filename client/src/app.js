@@ -50,6 +50,15 @@ const getHashUser = (email, password) =>{
   const hashUP32 = hashUP70.substr(0,32)
   return hashUP32
 }
+
+/*const getBatch = (address) =>{
+  const datBat;
+  $.get(`${API_URL}/state?address=${PREFIX_USER}`, ({ data }) => {
+    datBat = data
+  })
+
+  return datBat
+}*/
 /*
 const separateAssetsUser = (asset, signer) =>{
   var dni = "dni"
@@ -180,14 +189,12 @@ $('#registerUser').on('click', function () {
 
   const nombre = addCategory("nombre", $('#nameInputR').val());
   const dni = addCategory("dni", $('#dniInputR').val());
-  const psw =addCategory("psw", $('#passInputR').val());
-  const email = addCategory("email", $('#emailInputR').val());
-  var emailPsw = addCategory(email,psw)
+  const hashUP32 = getHashUser($('#emailInputR').val(),$('#passInputR').val());
   const telefono = addCategory("telefono", $('#tfnInputR').val());
   const rol = addCategory("rol", $('[name="roleSelect"]').val());
   const keys = makeKeyPair();
  // const asset = [nombre, dni, psw, telefono, rol];
-  const asset = [nombre, dni, emailPsw, telefono, rol]
+  const asset = [nombre, dni, hashUP32, telefono, rol]
   console.log("Asset")
   console.log(asset.join())
   console.log("private")
@@ -198,12 +205,9 @@ $('#registerUser').on('click', function () {
   console.log("Accion")
   console.log(action)
 
-  console.log("PRUEBA hashUP")
-  const hashUP = getHashUser($('#emailInputR').val(),$('#passInputR').val());
-  console.log(hashUP)
 
 
-  users.update(action,asset.join(), keys.private, keys.public)
+  users.update(action,asset.join(), keys.private, hashUP32)
   users.refresh()
 })
 
@@ -212,7 +216,13 @@ $('#loginButton').on('click', function () {
   const psw = addCategory('psw',$('#passInputL').val());
   const mailPsw = addCategory(mail, psw)
   //for users.assets()
-
+  const hashUP32 = getHashUser($('#mailInputL').val(), $('#passInputL').val());
+  const address = PREFIX_USER + hashUP32;
+  console.log("ADDRESS")
+  console.log(address)
+  //const data = getBatch(address);
+  //console.log("DATA TRAS DESCARGA")
+  //console.log(data)
 
 
 
