@@ -24,18 +24,18 @@
           <input type="text" id="emailInputR" placeholder="Enter your email" class="form-control" required>
           <input type="number" id="tfnInputR" placeholder="Enter your phone number" class="form-control" required>
           <label>Select Role</label>
-                <select  name="roleSelect">
+                <select  id="roles" name="roleSelect">
                   <option value="none" selected>Select role...</option>
                   <option value="Invitado">Invitado</option>
                   <option value="Usuario">Usuario</option>
-                  <option value="Admin">Admin</option>
+                  <option value='Admin' id="AdminOp">Admin</option>
                 </select>
           <button type="submit" id="registerUser" class="btn btn-primary">Register</button>
       </div>
 
       <div id="login" style="display:none"> LOGIN
-        <input type="number" id="dniInputL"placeholder="Enter your DNI" class="form-control"required>
-        <input type="text" id="passInputL"placeholder="Enter a password" class="form-control" required>
+        <input type="text" id="mailInputL"placeholder="Enter your mail" class="form-control" required>
+        <input type="text" id="passInputL"placeholder="Enter your password" class="form-control" required>
         <button type="submit" id="loginButton">Login</button>
         <button type="submit" id="goToRegister">Registrarse</button>
       </div>

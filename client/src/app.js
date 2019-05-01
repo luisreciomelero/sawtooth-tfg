@@ -5,7 +5,7 @@
 */
 
 'use strict'
-
+const {createHash} = require('crypto')
 const $ = require('jquery')
 const {
   getStateUser,
@@ -22,9 +22,13 @@ const {
   PREFIX_INVITATIONS
 } = require('./state.js')
 
+const {
+  deleteOptionAdmin
+}=require('./components')
+
 // Application Object
 
-const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[]}
+const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[], admin:0}
 const user = {DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:20 , signer:null}
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
 const invitaciones = {assets:[]}
@@ -40,14 +44,21 @@ const addCategory = (categ, val) =>{
   return catVal
 }
 
+const getHashUser = (email, password) =>{
+  const stringUP = addCategory(email, password);
+  const hashUP70 = createHash('sha512').update(stringUP).digest('hex')
+  const hashUP32 = hashUP70.substr(0,32)
+  return hashUP32
+}
+/*
 const separateAssetsUser = (asset, signer) =>{
-  var nombre = "nombre"
   var dni = "dni"
   var emailPsw = "email"
   var telefono = "telefono"
   var rol = "rol"
   
   var fields = asset.split(",");
+  console.log("CAMPOS")
   console.log(fields)
   for(var i=0; i<fields.length;i++){
     var field = fields[i].split(":");
@@ -71,19 +82,25 @@ const separateAssetsUser = (asset, signer) =>{
       case telefono: 
         users.phones.push(field[1])
         break;
-      /*case dni:
-        dniSigner*/
+      case rol:
+        if(field[1]=="Admin"){
+          users.admin = 1
+          console.log(users)
+          deleteOptionAdmin()
+        }
+
+        
     }
   }
 
 
   
-}
+}*/
 
 
 users.refresh = function () {
   getStateUser(({ assets, transfers }) => {
-    this.coches = []
+    this.matriculas = []
     this.DNIs = []
     this.emailsPsw = []
     this.phones = []
@@ -157,6 +174,7 @@ invitaciones.refresh =  function() {
 
 
 $('#registerUser').on('click', function () {
+
   const action = 'register'
   console.log("pulso registro")
 
@@ -174,19 +192,29 @@ $('#registerUser').on('click', function () {
   console.log(asset.join())
   console.log("private")
   console.log(keys.private)
-  //$('#login').attr('style', '')
-  //$('#register').attr('style', 'display:none')
+ /* $('#login').attr('style', '')
+  $('#register').attr('style', 'display:none')*/
 
   console.log("Accion")
   console.log(action)
+
+  console.log("PRUEBA hashUP")
+  const hashUP = getHashUser($('#emailInputR').val(),$('#passInputR').val());
+  console.log(hashUP)
+
 
   users.update(action,asset.join(), keys.private, keys.public)
   users.refresh()
 })
 
 $('#loginButton').on('click', function () {
-  const dni = $('#dniInputL').val();
-  const psw = $('#passInputL').val();
+  const mail = addCategory('email',$('#mailInputL').val());
+  const psw = addCategory('psw',$('#passInputL').val());
+  const mailPsw = addCategory(mail, psw)
+  //for users.assets()
+
+
+
 
   $('#login').attr('style', 'display:none');
   switch (user.rol) {

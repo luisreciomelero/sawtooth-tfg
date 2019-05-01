@@ -21,8 +21,12 @@ const addOriginal = (parent, original_number, original_id) => {
   </div>`
   );
 }
+const deleteOptionAdmin = () =>{
+  $(".roleSelect option[value='Admin']").remove();
+}
 
 module.exports = {
   addSesion,
-  addOriginal
+  addOriginal,
+  deleteOptionAdmin
 }

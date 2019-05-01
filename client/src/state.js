@@ -39,6 +39,10 @@ const FAMILY_INVITATIONS = 'invitations-chain'
 const VERSION_INVITATIONS = '0.0'
 const PREFIX_INVITATIONS = '1a7335'
 
+const getRandomArbitrary = (min, max) => {
+  return Math.random() * (max - min) + min;
+}
+
 const makeKeyPair = () => {
   const context = createContext('secp256k1')
   const privateKey = context.newRandomPrivateKey()
@@ -49,7 +53,11 @@ const makeKeyPair = () => {
 }
 
 const getStateUser = cb => {
+  console.log("Visualizacion data:")
+  
   $.get(`${API_URL}/state?address=${PREFIX_USER}`, ({ data }) => {
+    console.log(JSON.parse(atob(data[0].data)))
+    console.log("FIN Visualizacion")
     cb(data.reduce((processed, datum) => {
       if (datum.data !== '') {
         const parsed = JSON.parse(atob(datum.data))
