@@ -30291,6 +30291,8 @@ module.exports = {"COMPRESSED_TYPE_INVALID":"compressed should be a boolean","EC
 */
 
 
+const API_URL = 'http://localhost:8000/api'
+
 const {createHash} = __webpack_require__(32)
 const $ = __webpack_require__(46)
 const {
@@ -30336,15 +30338,14 @@ const getHashUser = (email, password) =>{
   const hashUP32 = hashUP70.substr(0,32)
   return hashUP32
 }
-
-/*const getBatch = (address) =>{
-  const datBat;
-  $.get(`${API_URL}/state?address=${PREFIX_USER}`, ({ data }) => {
-    datBat = data
+const getBatch = (address) =>{
+  console.log(address)
+  var datBat="";
+  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
+    console.log(JSON.parse(atob(data[0].data)))
   })
 
-  return datBat
-}*/
+}
 /*
 const separateAssetsUser = (asset, signer) =>{
   var dni = "dni"
@@ -30505,14 +30506,13 @@ $('#loginButton').on('click', function () {
   const hashUP32 = getHashUser($('#mailInputL').val(), $('#passInputL').val());
   const address = PREFIX_USER + hashUP32;
   console.log("ADDRESS")
-  console.log(address)
-  //const data = getBatch(address);
-  //console.log("DATA TRAS DESCARGA")
-  //console.log(data)
+  const data = getBatch(address);
+  console.log("DATA TRAS DESCARGA")
+  console.log(data)
 
 
 
-  $('#login').attr('style', 'display:none');
+  /*$('#login').attr('style', 'display:none');
   switch (user.rol) {
     case 'Invitado':
       $('#mainInvitado').attr('style', '')
@@ -30522,7 +30522,7 @@ $('#loginButton').on('click', function () {
       break;
     default:
        $('#mainAdmin').attr('style', '')
-  }
+  }*/
 
 })
 
