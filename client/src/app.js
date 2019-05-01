@@ -175,17 +175,19 @@ invitaciones.refresh =  function() {
 
 $('#registerUser').on('click', function () {
 
-  const action = 'registerUsuario'
+  const action = 'register'
   console.log("pulso registro")
 
   const nombre = addCategory("nombre", $('#nameInputR').val());
-  const hashUP32 = getHashUser($('#emailInputR').val(),$('#passInputR').val());
   const dni = addCategory("dni", $('#dniInputR').val());
+  const psw =addCategory("psw", $('#passInputR').val());
+  const email = addCategory("email", $('#emailInputR').val());
+  var emailPsw = addCategory(email,psw)
   const telefono = addCategory("telefono", $('#tfnInputR').val());
   const rol = addCategory("rol", $('[name="roleSelect"]').val());
   const keys = makeKeyPair();
  // const asset = [nombre, dni, psw, telefono, rol];
-  const asset = [nombre, dni, hashUP32, telefono, rol]
+  const asset = [nombre, dni, emailPsw, telefono, rol]
   console.log("Asset")
   console.log(asset.join())
   console.log("private")
@@ -193,7 +195,15 @@ $('#registerUser').on('click', function () {
  /* $('#login').attr('style', '')
   $('#register').attr('style', 'display:none')*/
 
-  users.update(action, asset.join(), keys.private, hashUP32)
+  console.log("Accion")
+  console.log(action)
+
+  console.log("PRUEBA hashUP")
+  const hashUP = getHashUser($('#emailInputR').val(),$('#passInputR').val());
+  console.log(hashUP)
+
+
+  users.update(action,asset.join(), keys.private, keys.public)
   users.refresh()
 })
 
@@ -228,11 +238,10 @@ $('#goToRegister').on('click', function () {
 
 
 $('#createCocheRC').on('click', function () {
-  const action = "registerCar"
   const matricula = $('#matriculaRC').val();
   const model = $('#modelRC').val();
   const keys = makeKeyPair();
-  coches.update(action, matricula, keys.private, keys.public)
+  coches.update("register", matricula, keys.private, keys.public)
   $('#regCoche').attr('style', 'display:none')
   $('#mainUser').attr('style', '')
 
@@ -245,12 +254,12 @@ $('#createCocheMU').on('click', function () {
 })
 
 $('#publicarInv').on('click', function () {
-  const action = 'registerInvita'
+  const action = 'register'
   const precio = $('#precioMU').val();
   console.log("PRECIO ====>")
   console.log(precio)
   const keys = makeKeyPair();
-  invitaciones.update(action, precio, keys.private, keys.public)
+  invitaciones.update("register", precio, keys.private, keys.public)
 
 
 })
