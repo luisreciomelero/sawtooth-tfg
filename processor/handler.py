@@ -81,9 +81,9 @@ class UserTransactionHandler(TransactionHandler):
                     '> ' + payload.owner[:8] + '... ' if payload.owner else '',
                     signer[:8] + '... ')
 
-        if payload.action == 'register':
+        if payload.action == 'registerUser':
             _register_asset(asset=payload.asset,
-                          signer=signer,
+                          signer=payload.owner,
                           state=state)
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
@@ -128,7 +128,7 @@ class CarsTransactionHandler(TransactionHandler):
                     '> ' + payload.owner[:8] + '... ' if payload.owner else '',
                     signer[:8] + '... ')
 
-        if payload.action == 'register':
+        if payload.action == 'registerCar':
             _register_asset(asset=payload.asset,
                           signer=signer,
                           state=state)

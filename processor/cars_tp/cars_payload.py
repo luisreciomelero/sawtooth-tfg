@@ -17,7 +17,7 @@ class CarsPayload(object):
 
         if not action:
             raise InvalidTransaction('Action is required')
-        if action not in ('register'):
+        if action not in ('registerCar'):
             raise InvalidTransaction('Invalid action: {}'.format(action))
 
         self._action = action

@@ -17,7 +17,7 @@ class UserPayload(object):
 
         if not action:
             raise InvalidTransaction('Action is required')
-        if action not in ('register'):
+        if action not in ('registerUser'):
             raise InvalidTransaction('Invalid action: {}'.format(action))
 
         self._action = action
