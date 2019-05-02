@@ -54,10 +54,44 @@ const getHashUser = (email, password) =>{
 }
 const getBatch = (address) =>{
   console.log(address)
-  var datBat="";
+  var datBat= [];
   $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
-    console.log(JSON.parse(atob(data[0].data)))
+    for(var i=0; i<data.length; i++){
+      console.log(JSON.parse(atob(data[i].data)))
+      datBat.push(JSON.parse(atob(data[i].data)))
+      console.log("datBat antes de salir de la peticion")
+      console.log(datBat)
+    }
+    return datBat
   })
+  return datBat
+}
+
+const separateAssets = (data) =>{
+  const usuarios = []
+  const invitaciones = []
+  const coches =[] 
+  for(var i = 0; i<data.length; i++){
+    var fields = data[i].split(":");
+    switch(fiels[0]){
+      case "nombre":
+        usuarios.push(data[i]);
+        break;
+      case "matricula":
+        coches.push(data[i])
+        break;
+      case "precio":
+        invitaciones.push(data[i])
+        break;
+    }
+  }
+  var results = {
+    usuarios: usuarios,
+    coches: coches,
+    invitaciones: invitaciones
+  }
+
+  return results
 
 }
 /*
@@ -222,8 +256,9 @@ $('#loginButton').on('click', function () {
   console.log("ADDRESS")
   const data = getBatch(address);
   console.log("DATA TRAS DESCARGA")
-  console.log(data)
-
+  console.log("data: ", data)
+  const assets = separateAssets(data)
+  console.log(assets)
 
 
   /*$('#login').attr('style', 'display:none');
