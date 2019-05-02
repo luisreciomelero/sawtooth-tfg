@@ -38,12 +38,12 @@ class CarsState(object):
         self._context = context
 
     def get_asset(self, asset, owner):
-        return self._get_state(_get_asset_address(asset, onwer))
+        return self._get_state(_get_asset_address(asset, owner))
 
     # def get_transfer(self, asset):
     #     return self._get_state(_get_transfer_address(asset))
 
-    def set_asset(self, asset, owner):
+    def set_asset(self, asset, signer, owner):
         address = _get_asset_address(asset, owner)
         state_data = _serialize(
             {

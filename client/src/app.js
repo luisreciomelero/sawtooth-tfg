@@ -31,7 +31,7 @@ const {
 // Application Object
 
 const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[], admin:0}
-const user = {DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:20 , signer:null}
+const user = {owner:null, DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:20 , signer:null}
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
 const invitaciones = {assets:[]}
 const invitaciones_pendientes = []
@@ -59,29 +59,49 @@ const getBatch = (address) =>{
     for(var i=0; i<data.length; i++){
       console.log(JSON.parse(atob(data[i].data)))
       datBat.push(JSON.parse(atob(data[i].data)))
-      console.log("datBat antes de salir de la peticion")
+      console.log("datBat antes de salir del bucle")
       console.log(datBat)
     }
     return datBat
   })
-  return datBat
+  //return datBat
 }
 
+/*const getBatch = (address) =>{
+  console.log(address)
+  var datBat= [];
+  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        if (datum.address[7] === '0') processed.assets.push(parsed)
+        if (datum.address[7] === '1') processed.transfers.push(parsed)
+      }
+      return processed
+    }, {assets: [], transfers: []}))
+  }
+*/
 const separateAssets = (data) =>{
   const usuarios = []
   const invitaciones = []
   const coches =[] 
+  console.log("ANTES DEL BUCLE FIELD")
+  console.log("data[0]")
+  
   for(var i = 0; i<data.length; i++){
-    var fields = data[i].split(":");
+    console.log("ENTRO AL BUCLE")
+    var fields = data[i].asset.split(":");
+    console.log("fields: ", fields)
+    console.log(fields)
     switch(fiels[0]){
       case "nombre":
-        usuarios.push(data[i]);
+        usuarios.push(data[i].asset);
         break;
       case "matricula":
-        coches.push(data[i])
+        coches.push(data[i].asset)
         break;
       case "precio":
-        invitaciones.push(data[i])
+        invitaciones.push(data[i].asset)
         break;
     }
   }
@@ -90,7 +110,7 @@ const separateAssets = (data) =>{
     coches: coches,
     invitaciones: invitaciones
   }
-
+  console.log("SALGO DEL BUCLE")
   return results
 
 }
@@ -255,10 +275,14 @@ $('#loginButton').on('click', function () {
   const address = PREFIX_USER + hashUP32;
   console.log("ADDRESS")
   const data = getBatch(address);
+  user.owner = hashUP32
   console.log("DATA TRAS DESCARGA")
   console.log("data: ", data)
-  const assets = separateAssets(data)
-  console.log(assets)
+  //console.log("data[0]: ",data[0])
+  //const assets = separateAssets(data)
+  //console.log(assets)
+
+  console.log("user.owner: ", user.owner)
 
 
   /*$('#login').attr('style', 'display:none');
@@ -283,13 +307,13 @@ $('#goToRegister').on('click', function () {
 
 
 $('#createCocheRC').on('click', function () {
+  console.log("user.owner en create coche: ", user.owner)
   const matricula = $('#matriculaRC').val();
   const model = $('#modelRC').val();
   const keys = makeKeyPair();
-  coches.update("register", matricula, keys.private, keys.public)
+  coches.update("register", matricula, keys.private, user.owner)
   $('#regCoche').attr('style', 'display:none')
   $('#mainUser').attr('style', '')
-
   
 })
 
@@ -299,12 +323,13 @@ $('#createCocheMU').on('click', function () {
 })
 
 $('#publicarInv').on('click', function () {
+  console.log("user.owner en pubINV: ", user.owner)
   const action = 'register'
   const precio = $('#precioMU').val();
   console.log("PRECIO ====>")
   console.log(precio)
   const keys = makeKeyPair();
-  invitaciones.update("register", precio, keys.private, keys.public)
+  invitaciones.update("register", precio, keys.private, user.owner)
 
 
 })

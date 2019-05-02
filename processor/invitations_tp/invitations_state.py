@@ -14,11 +14,11 @@ def _get_address(key):
     return hashlib.sha512(key.encode('utf-8')).hexdigest()[:30]
 
 
-def _get_asset_address(asset_name, hashup32):
+def _get_asset_address(asset_name, owner):
     return  INVITATIONSCHAIN_NAMESPACE + owner+ '00' + _get_address(asset_name)
 
 
-def _get_transfer_address(asset_name, hashup32):
+def _get_transfer_address(asset_name, owner):
     return INVITATIONSCHAIN_NAMESPACE + owner+ '01' + _get_address(asset_name)
 
 
@@ -63,7 +63,7 @@ class InvitationsState(object):
     #         {address: state_data}, timeout=self.TIMEOUT)
 
 
-    def delete_asset(self, asset):
+    def delete_asset(self, asset, owner):
         return self._context.delete_state(
             [_get_asset_address(asset, owner)],
             timeout=self.TIMEOUT)

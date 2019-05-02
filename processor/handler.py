@@ -169,6 +169,8 @@ class InvitationsTransactionHandler(TransactionHandler):
         print(payload.action)
         print("payload.asset")
         print(payload.asset)
+        print("payload.owner")
+        print(payload.owner)
         state = InvitationsState(context)
         print("context")
         print(context)
@@ -193,6 +195,8 @@ class InvitationsTransactionHandler(TransactionHandler):
 def _register_asset(asset, signer, state, owner):
     print("entro en _register")
     print(asset)
+    print("OWNER")
+    print(owner)
     if state.get_asset(asset, owner) is not None:
         raise InvalidTransaction(
             'Invalid action: Asset already exists: {}'.format(asset))
