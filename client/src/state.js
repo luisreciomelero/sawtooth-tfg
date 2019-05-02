@@ -53,11 +53,9 @@ const makeKeyPair = () => {
 }
 
 const getStateUser = cb => {
-  console.log("Visualizacion data:")
-  
+    
   $.get(`${API_URL}/state?address=${PREFIX_USER}`, ({ data }) => {
-    console.log(JSON.parse(atob(data[0].data)))
-    console.log("FIN Visualizacion")
+    
     cb(data.reduce((processed, datum) => {
       if (datum.data !== '') {
         const parsed = JSON.parse(atob(datum.data))

@@ -31,7 +31,7 @@ const {
 // Application Object
 
 const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[], admin:0}
-const user = {owner:null, address:null,  assets:[], DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:20 , signer:null}
+const user = {owner:null, address:null,  assets:[], dni:null, nombre:null, phone:null, rol:null, numInvitaciones:20}
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
 const invitaciones = {assets:[]}
 const invitaciones_pendientes = []
@@ -52,51 +52,6 @@ const getHashUser = (email, password) =>{
   const hashUP32 = hashUP70.substr(0,32)
   return hashUP32
 }
-/*const getBatch = (address) =>{
-  console.log(address)
-  var datBat= [];
-  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
-    for(var i=0; i<data.length; i++){
-      console.log(JSON.parse(atob(data[i].data)))
-      datBat.push(JSON.parse(atob(data[i].data)))
-      console.log("datBat antes de salir del bucle")
-      console.log(datBat)
-    }
-    return datBat
-  })
-  //return datBat
-}
-*/
-/*const getBatch = (address) =>{
-  console.log(address)
-  var datBat= [];
-  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
-    cb(data.reduce((processed, datum) => {
-      if (datum.data !== '') {
-        const parsed = JSON.parse(atob(datum.data))
-        if (datum.address[7] === '0') processed.assets.push(parsed)
-        if (datum.address[7] === '1') processed.transfers.push(parsed)
-      }
-      return processed
-    }, {assets: [], transfers: []}))
-  }
-*/
-/*
-const getBatch = cb => {
-  console.log("Visualizacion data:")
-  
-  $.get(`${API_URL}/state?address=${PREFIX_USER}`, ({ data }) => {
-    console.log(JSON.parse(atob(data[0].data)))
-    console.log("FIN Visualizacion")
-    cb(data.reduce((processed, datum) => {
-      if (datum.data !== '') {
-        const parsed = JSON.parse(atob(datum.data))
-        processed.assets.push(parsed)
-      }
-      return processed
-    }, {assets: []}))
-  })
-}*/
 
 user.refresh = function () {
   getBatchUser(({ assets }) => {
@@ -105,6 +60,10 @@ user.refresh = function () {
     this.assets = assets
     console.log("user.assets")
     console.log(user.assets)
+    for(var i=0; i<user.assets.length; i++){
+      var asset = assets[i].asset
+      processAsset(asset)
+    }
     
   })
   
@@ -113,7 +72,7 @@ const getBatchUser = cb => {
   console.log("Visualizacion data:")
   
   $.get(`${API_URL}/state?address=${user.address}`, ({ data }) => {
-    console.log(JSON.parse(atob(data[0].data)))
+    
     console.log("FIN Visualizacion")
     cb(data.reduce((processed, datum) => {
       if (datum.data !== '') {
@@ -127,58 +86,46 @@ const getBatchUser = cb => {
   })
 }
 
-const processAsset = (data) => {
-  const arrayData
-}
-/*
-const separateAssetsUser = (asset, signer) =>{
-  var dni = "dni"
-  var emailPsw = "email"
-  var telefono = "telefono"
-  var rol = "rol"
-  
-  var fields = asset.split(",");
-  console.log("CAMPOS")
-  console.log(fields)
-  for(var i=0; i<fields.length;i++){
-    var field = fields[i].split(":");
-    console.log("FIELD y [0]=>>>>>")
-    console.log(field)
-    console.log(field[0])
-    switch(field[0]){
-      case dni:
-        console.log("DNI => " + field[1].toString())
-        users.DNIs.push(field[1]);
-        console.log(users.DNIs)
-        break;
-      case emailPsw:
-        var mailPsw = []
-        mailPsw.push(field[1])
-        mailPsw.push(field[3])
-        var userMailPsw = mailPsw.join(':')
-        console.log("userMailPsw => " + userMailPsw)
-        users.emailsPsw.push(userMailPsw)
-        break;
-      case telefono: 
-        users.phones.push(field[1])
-        break;
-      case rol:
-        if(field[1]=="Admin"){
-          users.admin = 1
-          console.log(users)
-          deleteOptionAdmin()
-        }
-
-        
+const compruebaCampos = (fields) =>{
+  var comprueba = 1
+  console.log("ENTRA EN COMPRUEBA CAMPOS")
+  for (var i=0; i<fields.length; i++){
+    if(fields[i]=="" || fields[i]== "none"){
+      comprueba = 0
+      alert("Debe Introducir todos los campos");
+      return comprueba;
     }
   }
+  return comprueba
+}
+
+const processAsset = (data) => {
+  console.log("DATA EN processAsset: ", data)
+  const arrayDataComas = data.split(',');
+  for(var i=0; i<arrayDataComas.length;i++){
+    var field = arrayDataComas[i].split(":");
+    console.log("field", field)
+    switch(field[0]){
+      case "dni":
+        user.dni = field[1];
+        break;
+      case "telefono":
+        user.phone = field[1];
+        break;
+      case "rol": 
+        user.rol=field[1];
+        break;
+      case "nombre": 
+        user.nombre = field[1];
+        break;
+
+    }
+  }
+  console.log("user: ", user)
+}
 
 
-  
-}*/
-
-
-users.refresh = function () {
+/*users.refresh = function () {
   getStateUser(({ assets, transfers }) => {
     this.matriculas = []
     this.DNIs = []
@@ -201,7 +148,7 @@ users.refresh = function () {
     
   })
   
-}
+}*/
 
 users.update = function (action, asset, private_key, owner) {
     submitUpdate(
@@ -266,6 +213,11 @@ $('#registerUser').on('click', function () {
   const keys = makeKeyPair();
  // const asset = [nombre, dni, psw, telefono, rol];
   const asset = [nombre, dni, hashUP32, telefono, rol]
+  const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
+                  $('#passInputR').val(), $('#tfnInputR').val(), $('[name="roleSelect"]').val()]
+
+  var comprueba = compruebaCampos(campos)
+  if (comprueba == 0) return;
   console.log("Asset")
   console.log(asset.join())
   console.log("private")
@@ -279,7 +231,7 @@ $('#registerUser').on('click', function () {
 
 
   users.update(action,asset.join(), keys.private, hashUP32)
-  users.refresh()
+  //users.refresh()
 })
 
 $('#loginButton').on('click', function () {
@@ -327,7 +279,7 @@ $('#goToRegister').on('click', function () {
 
 
 $('#createCocheRC').on('click', function () {
-  console.log("user.owner en create coche: ", user.owner)
+  console.log("user.assets en create coche: ", user.assets)
   const matricula = $('#matriculaRC').val();
   const model = $('#modelRC').val();
   const keys = makeKeyPair();
