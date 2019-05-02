@@ -31,7 +31,7 @@ const {
 // Application Object
 
 const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[], admin:0}
-const user = {owner:null, DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:20 , signer:null}
+const user = {owner:null, address:null,  assets:[], DNI:null, nombre:[], coches:[], email:null, phone:null, pass:null, rol:null, numInvitaciones:20 , signer:null}
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
 const invitaciones = {assets:[]}
 const invitaciones_pendientes = []
@@ -52,7 +52,7 @@ const getHashUser = (email, password) =>{
   const hashUP32 = hashUP70.substr(0,32)
   return hashUP32
 }
-const getBatch = (address) =>{
+/*const getBatch = (address) =>{
   console.log(address)
   var datBat= [];
   $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
@@ -66,7 +66,7 @@ const getBatch = (address) =>{
   })
   //return datBat
 }
-
+*/
 /*const getBatch = (address) =>{
   console.log(address)
   var datBat= [];
@@ -81,38 +81,54 @@ const getBatch = (address) =>{
     }, {assets: [], transfers: []}))
   }
 */
-const separateAssets = (data) =>{
-  const usuarios = []
-  const invitaciones = []
-  const coches =[] 
-  console.log("ANTES DEL BUCLE FIELD")
-  console.log("data[0]")
+/*
+const getBatch = cb => {
+  console.log("Visualizacion data:")
   
-  for(var i = 0; i<data.length; i++){
-    console.log("ENTRO AL BUCLE")
-    var fields = data[i].asset.split(":");
-    console.log("fields: ", fields)
-    console.log(fields)
-    switch(fiels[0]){
-      case "nombre":
-        usuarios.push(data[i].asset);
-        break;
-      case "matricula":
-        coches.push(data[i].asset)
-        break;
-      case "precio":
-        invitaciones.push(data[i].asset)
-        break;
-    }
-  }
-  var results = {
-    usuarios: usuarios,
-    coches: coches,
-    invitaciones: invitaciones
-  }
-  console.log("SALGO DEL BUCLE")
-  return results
+  $.get(`${API_URL}/state?address=${PREFIX_USER}`, ({ data }) => {
+    console.log(JSON.parse(atob(data[0].data)))
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        processed.assets.push(parsed)
+      }
+      return processed
+    }, {assets: []}))
+  })
+}*/
 
+user.refresh = function () {
+  getBatchUser(({ assets }) => {
+    console.log("ASSETS RECUPERADOS")
+    console.log(assets)
+    this.assets = assets
+    console.log("user.assets")
+    console.log(user.assets)
+    
+  })
+  
+}
+const getBatchUser = cb => {
+  console.log("Visualizacion data:")
+  
+  $.get(`${API_URL}/state?address=${user.address}`, ({ data }) => {
+    console.log(JSON.parse(atob(data[0].data)))
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.assets.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {assets: []}))
+  })
+}
+
+const processAsset = (data) => {
+  const arrayData
 }
 /*
 const separateAssetsUser = (asset, signer) =>{
@@ -274,16 +290,20 @@ $('#loginButton').on('click', function () {
   const hashUP32 = getHashUser($('#mailInputL').val(), $('#passInputL').val());
   const address = PREFIX_USER + hashUP32;
   console.log("ADDRESS")
-  const data = getBatch(address);
   user.owner = hashUP32
-  console.log("DATA TRAS DESCARGA")
-  console.log("data: ", data)
+  user.address = address
+  //const data = getBatch(address);
+  console.log("user.assets fuera de peticion")
+  console.log(user.assets)
+  //console.log("DATA TRAS DESCARGA")
+  //console.log("data: ", data)
   //console.log("data[0]: ",data[0])
   //const assets = separateAssets(data)
   //console.log(assets)
 
   console.log("user.owner: ", user.owner)
-
+  user.refresh()
+  console.log("user.assets fuera de refresh: ", user.assets)
 
   /*$('#login').attr('style', 'display:none');
   switch (user.rol) {
@@ -345,8 +365,8 @@ $('#solicitarInv').on('click', function () {
 
 /////FALTA EL ACCEPT O REJECT INVITACIONES SI LAS HAY. DESPUES DE DEFINIR ESA TP
 
-
-
-users.refresh()
-coches.refresh()
-invitaciones.refresh()
+if(user.assets != []) user.refresh()
+ 
+//users.refresh()
+//coches.refresh()
+//invitaciones.refresh()
