@@ -34,7 +34,7 @@ const {
 // Application Object
 
 const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[], admin:0}
-const user = {owner:null, address:null, signer: [],  assets:[], dni:null, nombre:null, phone:null, rol:null, numInvitaciones:20}
+const user = {owner:null, address:null, keys:{public_key:null, private_key:null},  assets:[], dni:null, nombre:null, phone:null, rol:null, numInvitaciones:null}
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
 const invitaciones = {assets:[]}
 const invitaciones_pendientes = []
@@ -77,6 +77,14 @@ const processAsset = (data) => {
       case "nombre": 
         user.nombre = field[1];
         break;
+      case "private":
+        user.keys.private_key = field[1]
+        break;
+      case "public":
+        user.keys.public_key = field[1]
+        break;
+      case "numInvitaciones":
+        user.numInvitaciones = field[1]
 
     }
   }
@@ -94,8 +102,7 @@ user.refresh = function () {
     for(var i=0; i<user.assets.length; i++){
       var asset = assets[i].asset
       processAsset(asset)
-      var signer = addCategory(user.nombre, assets[i].signer)
-      user.signer.push(signer)
+      
     }
   })
 }
@@ -179,7 +186,10 @@ $('#registerUser').on('click', function () {
   const telefono = addCategory("telefono", $('#tfnInputR').val());
   const rol = addCategory("rol", $('[name="roleSelect"]').val());
   const keys = makeKeyPair();
-  const asset = [nombre, dni, hashUP32, telefono, rol]
+  const private_key = addCategory("private", keys.private)
+  const public_key = addCategory("public", keys.public)
+  const invitaciones = addCategory("numInvitaciones", "20")
+  const asset = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones]
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
                   $('#passInputR').val(), $('#tfnInputR').val(), $('[name="roleSelect"]').val()]
 
@@ -249,7 +259,7 @@ $('#createCocheRC').on('click', function () {
   const matricula = $('#matriculaRC').val();
   const model = $('#modelRC').val();
   const keys = makeKeyPair();
-  coches.update("register", matricula, keys.private, user.owner)
+  coches.update("register", matricula, user.keys.private_key, user.owner)
   $('#regCoche').attr('style', 'display:none')
   $('#mainUser').attr('style', '')
   
@@ -262,12 +272,10 @@ $('#createCocheMU').on('click', function () {
 
 $('#publicarInv').on('click', function () {
   console.log("user.owner en pubINV: ", user.owner)
-  const action = 'register'
-  const propiedad = addCategory("invitacion_de", user.signer)
   const keys = makeKeyPair();
-  invitaciones.update("register", propiedad, keys.private, user.owner)
-
-
+  console.log("KEY VALIDA: ", keys.private)
+  const propiedad = addCategory("invitacion_de", user.keys.public_key).toString()
+  invitaciones.update("register", propiedad, user.keys.private_key, user.owner)
 })
 
 $('#solicitarInv').on('click', function () {

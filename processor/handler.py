@@ -204,3 +204,16 @@ def _register_asset(asset, signer, state, owner):
     print(state.set_asset(asset, signer, owner))
     state.set_asset(asset, signer, owner)
 
+def _delete_asset(asset, signer, state, owner):
+    print("entro en _delete_asset")
+    print(asset)
+    print("OWNER")
+    print(owner)
+    if state.get_asset(asset, owner) is None:
+        raise InvalidTransaction(
+            'Invalid action: Asset not exists: {}'.format(asset))
+    print('DIrecciones exitosas eliminadas: ')
+    print(state.set_asset(asset, signer, owner))
+    state.delete_asset(asset, signer, owner)
+
+
