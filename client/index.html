@@ -17,7 +17,7 @@
   </header>
   <div id="sesion"> </div>
 
-      <div id="register" style="">  REGISTRO
+      <div id="register" style="display:none">  REGISTRO
           <input type="text" id="nameInputR" placeholder="Enter your complete name" class="form-control" required>
           <input type="text" id="dniInputR" placeholder="Enter your DNI" class="form-control"required>
           <input type="text" id="emailInputR" placeholder="Enter your email" class="form-control" required>
@@ -34,14 +34,15 @@
           <button type="submit" id="registerUser" class="btn btn-primary">Register</button>
       </div>
 
-      <div id="login" > LOGIN
+      <div id="login" style=""> LOGIN
         <input type="text" id="mailInputL"placeholder="Enter your mail" class="form-control" required>
         <input type="text" id="passInputL"placeholder="Enter your password" class="form-control" required>
-        <button type="submit" id="loginButton">Login</button>
+        <button type="submit" id="loginButton1">Login</button>
+        <button type="submit" id="loginButton" style="display:none">Login</button>
         <button type="submit" id="goToRegister">Registrarse</button>
       </div>
 
-      <div id="regCoche" > REGISTRAR COCHE
+      <div id="regCoche" style="display:none"> REGISTRAR COCHE
         <input type="text" id="matriculaRC" placeholder="Enter the enrollment" class="form-control"required>
         <input type="text" id="modelRC" placeholder="Enter the model" class="form-control"required>
         <button type="submit" id="createCocheRC">Registrar coche</button>
@@ -56,14 +57,13 @@
         <button type="submit" id="rejectCocheAC">Rechazar coche</button>
       </div>
 
-      <div id="mainUser" > PRINCIPAL USUARIO
+      <div id="mainUser" style="display:none"> PRINCIPAL USUARIO
         <label id="userMU">Nombre del usuario: </label>
         <label id="userMU">DNI del usuario: </label>
         <div id="cochesMU">Coches del usuario: </div>
         <button type="submit" id="createCocheMU">Registrar coche</button>
         <label id="numeroInvitacionesMU">El usuario dispone de:</label>
         <div id="publicarInvitacionMU">
-          <input type="number" id="precioMU" placeholder="Precio de tu invitacion" class="form-control"required>
           <button type="submit" id="publicarInv">Publicar</button>
         </div>
         

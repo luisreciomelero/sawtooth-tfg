@@ -34,7 +34,7 @@ const {
 // Application Object
 
 const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[], admin:0}
-const user = {owner:null, address:null,  assets:[], dni:null, nombre:null, phone:null, rol:null, numInvitaciones:20}
+const user = {owner:null, address:null, signer: [],  assets:[], dni:null, nombre:null, phone:null, rol:null, numInvitaciones:20}
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
 const invitaciones = {assets:[]}
 const invitaciones_pendientes = []
@@ -94,6 +94,8 @@ user.refresh = function () {
     for(var i=0; i<user.assets.length; i++){
       var asset = assets[i].asset
       processAsset(asset)
+      var signer = addCategory(user.nombre, assets[i].signer)
+      user.signer.push(signer)
     }
   })
 }
@@ -121,10 +123,10 @@ users.refresh = function () {
 users.update = function (action, asset, private_key, owner) {
     submitUpdate(
       {action, asset, owner},
-      private_key,
       FAMILY_USER,
       version,
       PREFIX_USER,
+      private_key,
       success => success ? this.refresh() : null
     )
   
@@ -133,10 +135,10 @@ users.update = function (action, asset, private_key, owner) {
 coches.update = function(action, asset, private_key, owner){
   submitUpdate(
       {action, asset, owner},
-      private_key,
       FAMILY_CARS,
       version,
       PREFIX_CARS,
+      private_key,
       success => success ? this.refresh() : null
     )
 }
@@ -151,10 +153,10 @@ coches.refresh = function() {
 invitaciones.update = function(action, asset, private_key, owner){
   submitUpdate(
       {action, asset, owner},
-      private_key,
       FAMILY_INVITATIONS,
       version,
       PREFIX_INVITATIONS,
+      private_key,
       success => success ? this.refresh() : null
     )
 }
@@ -185,16 +187,18 @@ $('#registerUser').on('click', function () {
   if (comprueba == 0) return;
   console.log("Asset")
   console.log(asset.join())
-  console.log("private")
+  console.log("keys.private")
   console.log(keys.private)
- /* $('#login').attr('style', '')
-  $('#register').attr('style', 'display:none')*/
+  $('#login').attr('style', '')
+  $('#register').attr('style', 'display:none')
 
   users.update(action,asset.join(), keys.private, hashUP32)
   //users.refresh()
 })
 
-$('#loginButton').on('click', function () {
+
+
+$('#loginButton1').on('click', function () {
   const mail = addCategory('email',$('#mailInputL').val());
   const psw = addCategory('psw',$('#passInputL').val());
   const mailPsw = addCategory(mail, psw)
@@ -210,9 +214,16 @@ $('#loginButton').on('click', function () {
 
   console.log("user.owner: ", user.owner)
   user.refresh()
-  console.log("user.assets fuera de refresh: ", user.assets)
+  $('#loginButton1').attr('style', 'display:none')
+  $('#loginButton').attr('style', '')
+  //$('#loginButton').click()
+})
 
-  /*$('#login').attr('style', 'display:none');
+$('#loginButton').on('click', function () {
+  
+  console.log("user.rol fuera de refresh: ", user.rol)
+
+  $('#login').attr('style', 'display:none');
   switch (user.rol) {
     case 'Invitado':
       $('#mainInvitado').attr('style', '')
@@ -222,7 +233,7 @@ $('#loginButton').on('click', function () {
       break;
     default:
        $('#mainAdmin').attr('style', '')
-  }*/
+  }
 
 })
 
@@ -252,11 +263,9 @@ $('#createCocheMU').on('click', function () {
 $('#publicarInv').on('click', function () {
   console.log("user.owner en pubINV: ", user.owner)
   const action = 'register'
-  const precio = $('#precioMU').val();
-  console.log("PRECIO ====>")
-  console.log(precio)
+  const propiedad = addCategory("invitacion_de", user.signer)
   const keys = makeKeyPair();
-  invitaciones.update("register", precio, keys.private, user.owner)
+  invitaciones.update("register", propiedad, keys.private, user.owner)
 
 
 })

@@ -95,7 +95,7 @@ const getStateInvitations = cb => {
 }
 
 // Submit signed Transaction to validator
-const submitUpdate = (payload, privateKeyHex, family, version, prefix, cb) => {
+const submitUpdate = (payload, family, version, prefix, privateKeyHex, cb) => {
   // Create signer
   const context = createContext('secp256k1')
   const privateKey = secp256k1.Secp256k1PrivateKey.fromHex(privateKeyHex)
