@@ -36,7 +36,7 @@ const {
 const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[], admin:0}
 const user = {owner:null, address:null, keys:{public_key:null, private_key:null},  assets:[], dni:null, nombre:null, phone:null, rol:null, numInvitaciones:null}
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
-const invitaciones = {assets:[]}
+const invitaciones = {assets:[], address:null}
 const invitaciones_pendientes = []
 const version = VERSION_USER
 
@@ -44,6 +44,22 @@ const getBatchUser = cb => {
   console.log("Visualizacion data:")
   
   $.get(`${API_URL}/state?address=${user.address}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.assets.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {assets: []}))
+  })
+}
+
+const getBatchInv = cb =>{
+  $.get(`${API_URL}/state?address=${invitaciones.address}`, ({ data }) => {
     
     console.log("FIN Visualizacion")
     cb(data.reduce((processed, datum) => {
@@ -107,6 +123,22 @@ user.refresh = function () {
   })
 }
 
+invitaciones.refresh = function () {
+  getBatchInv(({ assets }) => {
+    console.log("ASSETS RECUPERADOS")
+    console.log(assets)
+    this.assets = assets
+    console.log("invitaciones.assets")
+    console.log(invitaciones.asset)
+    for(var i=0; i<invitaciones.assets.length; i++){
+      var asset = assets[i].asset
+      processAsset(asset)
+      
+    }
+  })
+}
+
+
 users.refresh = function () {
   getStateUser(({ assets, transfers }) => {
     this.matriculas = []
@@ -168,12 +200,12 @@ invitaciones.update = function(action, asset, private_key, owner){
     )
 }
 
-invitaciones.refresh =  function() {
+/*invitaciones.refresh =  function() {
   getStateInvitations(({assets, transfers}) => {
     this.assets = assets;
     console.log(this.assets)
   })
-}
+}*/
 
 $('#registerUser').on('click', function () {
 
@@ -269,14 +301,29 @@ $('#createCocheMU').on('click', function () {
   $('#mainUser').attr('style', 'display:none')
   $('#regCoche').attr('style', '')
 })
+const concatString = (var1, var2) =>{
+  const string1 = var1.toString()
+  const string2 = var2.toString().substring(5,10)
+  return string1.concat(string2)
+}
 
 $('#publicarInv').on('click', function () {
   console.log("user.owner en pubINV: ", user.owner)
   const keys = makeKeyPair();
-  console.log("KEY VALIDA: ", keys.private)
-  const propiedad = addCategory("invitacion_de", user.keys.public_key).toString()
+  const publicrand = concatString(user.keys.public_key, keys.private)
+  const propiedad = addCategory("invitacion_de", publicrand)
+  invitaciones.address = PREFIX_INVITATIONS+user.owner;
   invitaciones.update("register", propiedad, user.keys.private_key, user.owner)
+  $('#publicarInv').attr('style', 'display:none')
+  $('#publicarInv2').attr('style', '')
 })
+
+$('#publicarInv2').on('click', function () {
+  invitaciones.refresh();
+  $('#publicarInv2').attr('style', 'display:none')
+  $('#publicarInv').attr('style', '')
+})
+
 
 $('#solicitarInv').on('click', function () {
   const matricula = $('#matriculaSI').val();
