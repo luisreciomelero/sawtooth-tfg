@@ -52,6 +52,7 @@ const makeKeyPair = () => {
   }
 }
 
+
 const getStateUser = cb => {
     
   $.get(`${API_URL}/state?address=${PREFIX_USER}`, ({ data }) => {
@@ -159,8 +160,6 @@ const submitUpdate = (payload, privateKeyHex, family, version, prefix, cb) => {
 }
 
 
-
-
 module.exports = {
   makeKeyPair,
   getStateUser,
@@ -174,5 +173,4 @@ module.exports = {
   PREFIX_CARS,
   FAMILY_INVITATIONS,
   PREFIX_INVITATIONS
-
 }

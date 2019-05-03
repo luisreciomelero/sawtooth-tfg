@@ -5588,7 +5588,7 @@ var elliptic = exports;
 elliptic.version = __webpack_require__(149).version;
 elliptic.utils = __webpack_require__(150);
 elliptic.rand = __webpack_require__(77);
-elliptic.curve = __webpack_require__(29);
+elliptic.curve = __webpack_require__(30);
 elliptic.curves = __webpack_require__(155);
 
 // Protocols
@@ -6865,7 +6865,7 @@ module.exports = CipherBase
 
 /*<replacement>*/
 
-var pna = __webpack_require__(26);
+var pna = __webpack_require__(27);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -8639,6 +8639,110 @@ Namespace._configure = function(Type_, Service_, Enum_) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
+exports.randomBytes = exports.rng = exports.pseudoRandomBytes = exports.prng = __webpack_require__(15)
+exports.createHash = exports.Hash = __webpack_require__(16)
+exports.createHmac = exports.Hmac = __webpack_require__(63)
+
+var algos = __webpack_require__(122)
+var algoKeys = Object.keys(algos)
+var hashes = ['sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'md5', 'rmd160'].concat(algoKeys)
+exports.getHashes = function () {
+  return hashes
+}
+
+var p = __webpack_require__(66)
+exports.pbkdf2 = p.pbkdf2
+exports.pbkdf2Sync = p.pbkdf2Sync
+
+var aes = __webpack_require__(124)
+
+exports.Cipher = aes.Cipher
+exports.createCipher = aes.createCipher
+exports.Cipheriv = aes.Cipheriv
+exports.createCipheriv = aes.createCipheriv
+exports.Decipher = aes.Decipher
+exports.createDecipher = aes.createDecipher
+exports.Decipheriv = aes.Decipheriv
+exports.createDecipheriv = aes.createDecipheriv
+exports.getCiphers = aes.getCiphers
+exports.listCiphers = aes.listCiphers
+
+var dh = __webpack_require__(141)
+
+exports.DiffieHellmanGroup = dh.DiffieHellmanGroup
+exports.createDiffieHellmanGroup = dh.createDiffieHellmanGroup
+exports.getDiffieHellman = dh.getDiffieHellman
+exports.createDiffieHellman = dh.createDiffieHellman
+exports.DiffieHellman = dh.DiffieHellman
+
+var sign = __webpack_require__(147)
+
+exports.createSign = sign.createSign
+exports.Sign = sign.Sign
+exports.createVerify = sign.createVerify
+exports.Verify = sign.Verify
+
+exports.createECDH = __webpack_require__(185)
+
+var publicEncrypt = __webpack_require__(186)
+
+exports.publicEncrypt = publicEncrypt.publicEncrypt
+exports.privateEncrypt = publicEncrypt.privateEncrypt
+exports.publicDecrypt = publicEncrypt.publicDecrypt
+exports.privateDecrypt = publicEncrypt.privateDecrypt
+
+// the least I can do is make error messages for the rest of the node.js/crypto api.
+// ;[
+//   'createCredentials'
+// ].forEach(function (name) {
+//   exports[name] = function () {
+//     throw new Error([
+//       'sorry, ' + name + ' is not implemented yet',
+//       'we accept pull requests',
+//       'https://github.com/crypto-browserify/crypto-browserify'
+//     ].join('\n'))
+//   }
+// })
+
+var rf = __webpack_require__(189)
+
+exports.randomFill = rf.randomFill
+exports.randomFillSync = rf.randomFillSync
+
+exports.createCredentials = function () {
+  throw new Error([
+    'sorry, createCredentials is not implemented yet',
+    'we accept pull requests',
+    'https://github.com/crypto-browserify/crypto-browserify'
+  ].join('\n'))
+}
+
+exports.constants = {
+  'DH_CHECK_P_NOT_SAFE_PRIME': 2,
+  'DH_CHECK_P_NOT_PRIME': 1,
+  'DH_UNABLE_TO_CHECK_GENERATOR': 4,
+  'DH_NOT_SUITABLE_GENERATOR': 8,
+  'NPN_ENABLED': 1,
+  'ALPN_ENABLED': 1,
+  'RSA_PKCS1_PADDING': 1,
+  'RSA_SSLV23_PADDING': 2,
+  'RSA_NO_PADDING': 3,
+  'RSA_PKCS1_OAEP_PADDING': 4,
+  'RSA_X931_PADDING': 5,
+  'RSA_PKCS1_PSS_PADDING': 6,
+  'POINT_CONVERSION_COMPRESSED': 2,
+  'POINT_CONVERSION_UNCOMPRESSED': 4,
+  'POINT_CONVERSION_HYBRID': 6
+}
+
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /* WEBPACK VAR INJECTION */(function(process) {
 
 if (!process.version ||
@@ -8687,7 +8791,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // based on the aes implimentation in triple sec
@@ -8921,7 +9025,7 @@ module.exports.AES = AES
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(0).Buffer
@@ -8972,7 +9076,7 @@ module.exports = EVP_BytesToKey
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8987,7 +9091,7 @@ curve.edwards = __webpack_require__(154);
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var asn1 = __webpack_require__(170)
@@ -9100,7 +9204,7 @@ function decrypt (data, password) {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9307,110 +9411,6 @@ OneOf.d = function decorateOneOf() {
         });
     };
 };
-
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.randomBytes = exports.rng = exports.pseudoRandomBytes = exports.prng = __webpack_require__(15)
-exports.createHash = exports.Hash = __webpack_require__(16)
-exports.createHmac = exports.Hmac = __webpack_require__(63)
-
-var algos = __webpack_require__(122)
-var algoKeys = Object.keys(algos)
-var hashes = ['sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'md5', 'rmd160'].concat(algoKeys)
-exports.getHashes = function () {
-  return hashes
-}
-
-var p = __webpack_require__(66)
-exports.pbkdf2 = p.pbkdf2
-exports.pbkdf2Sync = p.pbkdf2Sync
-
-var aes = __webpack_require__(124)
-
-exports.Cipher = aes.Cipher
-exports.createCipher = aes.createCipher
-exports.Cipheriv = aes.Cipheriv
-exports.createCipheriv = aes.createCipheriv
-exports.Decipher = aes.Decipher
-exports.createDecipher = aes.createDecipher
-exports.Decipheriv = aes.Decipheriv
-exports.createDecipheriv = aes.createDecipheriv
-exports.getCiphers = aes.getCiphers
-exports.listCiphers = aes.listCiphers
-
-var dh = __webpack_require__(141)
-
-exports.DiffieHellmanGroup = dh.DiffieHellmanGroup
-exports.createDiffieHellmanGroup = dh.createDiffieHellmanGroup
-exports.getDiffieHellman = dh.getDiffieHellman
-exports.createDiffieHellman = dh.createDiffieHellman
-exports.DiffieHellman = dh.DiffieHellman
-
-var sign = __webpack_require__(147)
-
-exports.createSign = sign.createSign
-exports.Sign = sign.Sign
-exports.createVerify = sign.createVerify
-exports.Verify = sign.Verify
-
-exports.createECDH = __webpack_require__(185)
-
-var publicEncrypt = __webpack_require__(186)
-
-exports.publicEncrypt = publicEncrypt.publicEncrypt
-exports.privateEncrypt = publicEncrypt.privateEncrypt
-exports.publicDecrypt = publicEncrypt.publicDecrypt
-exports.privateDecrypt = publicEncrypt.privateDecrypt
-
-// the least I can do is make error messages for the rest of the node.js/crypto api.
-// ;[
-//   'createCredentials'
-// ].forEach(function (name) {
-//   exports[name] = function () {
-//     throw new Error([
-//       'sorry, ' + name + ' is not implemented yet',
-//       'we accept pull requests',
-//       'https://github.com/crypto-browserify/crypto-browserify'
-//     ].join('\n'))
-//   }
-// })
-
-var rf = __webpack_require__(189)
-
-exports.randomFill = rf.randomFill
-exports.randomFillSync = rf.randomFillSync
-
-exports.createCredentials = function () {
-  throw new Error([
-    'sorry, createCredentials is not implemented yet',
-    'we accept pull requests',
-    'https://github.com/crypto-browserify/crypto-browserify'
-  ].join('\n'))
-}
-
-exports.constants = {
-  'DH_CHECK_P_NOT_SAFE_PRIME': 2,
-  'DH_CHECK_P_NOT_PRIME': 1,
-  'DH_UNABLE_TO_CHECK_GENERATOR': 4,
-  'DH_NOT_SUITABLE_GENERATOR': 8,
-  'NPN_ENABLED': 1,
-  'ALPN_ENABLED': 1,
-  'RSA_PKCS1_PADDING': 1,
-  'RSA_SSLV23_PADDING': 2,
-  'RSA_NO_PADDING': 3,
-  'RSA_PKCS1_OAEP_PADDING': 4,
-  'RSA_X931_PADDING': 5,
-  'RSA_PKCS1_PSS_PADDING': 6,
-  'POINT_CONVERSION_COMPRESSED': 2,
-  'POINT_CONVERSION_UNCOMPRESSED': 4,
-  'POINT_CONVERSION_HYBRID': 6
-}
 
 
 /***/ }),
@@ -10201,7 +10201,7 @@ exports.PassThrough = __webpack_require__(112);
 
 /*<replacement>*/
 
-var pna = __webpack_require__(26);
+var pna = __webpack_require__(27);
 /*</replacement>*/
 
 module.exports = Writable;
@@ -22965,7 +22965,7 @@ var Namespace = __webpack_require__(25);
 ((Type.prototype = Object.create(Namespace.prototype)).constructor = Type).className = "Type";
 
 var Enum      = __webpack_require__(9),
-    OneOf     = __webpack_require__(31),
+    OneOf     = __webpack_require__(32),
     Field     = __webpack_require__(14),
     MapField  = __webpack_require__(50),
     Service   = __webpack_require__(51),
@@ -24172,7 +24172,7 @@ var Namespace = __webpack_require__(25);
 
 var Field   = __webpack_require__(14),
     Enum    = __webpack_require__(9),
-    OneOf   = __webpack_require__(31),
+    OneOf   = __webpack_require__(32),
     util    = __webpack_require__(4);
 
 var Type,   // cyclic
@@ -24659,7 +24659,7 @@ module.exports = HashBase
 
 /*<replacement>*/
 
-var pna = __webpack_require__(26);
+var pna = __webpack_require__(27);
 /*</replacement>*/
 
 module.exports = Readable;
@@ -25671,7 +25671,7 @@ module.exports = __webpack_require__(35).EventEmitter;
 
 /*<replacement>*/
 
-var pna = __webpack_require__(26);
+var pna = __webpack_require__(27);
 /*</replacement>*/
 
 // undocumented cb() API, needed for core, not for public API
@@ -26692,7 +26692,7 @@ module.exports = {"aes-128-ecb":{"cipher":"AES","key":128,"iv":0,"mode":"ECB","t
 /* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var aes = __webpack_require__(27)
+var aes = __webpack_require__(28)
 var Buffer = __webpack_require__(0).Buffer
 var Transform = __webpack_require__(12)
 var inherits = __webpack_require__(1)
@@ -26815,7 +26815,7 @@ module.exports = StreamCipher
 /* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var aes = __webpack_require__(27)
+var aes = __webpack_require__(28)
 var Buffer = __webpack_require__(0).Buffer
 var Transform = __webpack_require__(12)
 var inherits = __webpack_require__(1)
@@ -30151,7 +30151,7 @@ module.exports = {
 
 
 const secp256k1 = __webpack_require__(212)
-const { createHash, randomBytes } = __webpack_require__(32)
+const { createHash, randomBytes } = __webpack_require__(26)
 
 const { PrivateKey, PublicKey, Context, ParseError } = __webpack_require__(100)
 
@@ -30293,7 +30293,7 @@ module.exports = {"COMPRESSED_TYPE_INVALID":"compressed should be a boolean","EC
 
 const API_URL = 'http://localhost:8000/api'
 
-const {createHash} = __webpack_require__(32)
+const {createHash} = __webpack_require__(26)
 const $ = __webpack_require__(46)
 const {
   getStateUser,
@@ -30311,7 +30311,10 @@ const {
 } = __webpack_require__(190)
 
 const {
-  deleteOptionAdmin
+  deleteOptionAdmin,
+  addCategory,
+  getHashUser,
+  compruebaCampos
 }=__webpack_require__(218)
 
 // Application Object
@@ -30323,37 +30326,6 @@ const invitaciones = {assets:[]}
 const invitaciones_pendientes = []
 const version = VERSION_USER
 
-const addCategory = (categ, val) =>{
-  const value = val.toString()
-  const category = categ.toString()
-  const catVal = category+":"+val 
-  console.log("catVal")
-  console.log(catVal)
-  return catVal
-}
-
-const getHashUser = (email, password) =>{
-  const stringUP = addCategory(email, password);
-  const hashUP70 = createHash('sha512').update(stringUP).digest('hex')
-  const hashUP32 = hashUP70.substr(0,32)
-  return hashUP32
-}
-
-user.refresh = function () {
-  getBatchUser(({ assets }) => {
-    console.log("ASSETS RECUPERADOS")
-    console.log(assets)
-    this.assets = assets
-    console.log("user.assets")
-    console.log(user.assets)
-    for(var i=0; i<user.assets.length; i++){
-      var asset = assets[i].asset
-      processAsset(asset)
-    }
-    
-  })
-  
-}
 const getBatchUser = cb => {
   console.log("Visualizacion data:")
   
@@ -30370,19 +30342,6 @@ const getBatchUser = cb => {
       return processed
     }, {assets: []}))
   })
-}
-
-const compruebaCampos = (fields) =>{
-  var comprueba = 1
-  console.log("ENTRA EN COMPRUEBA CAMPOS")
-  for (var i=0; i<fields.length; i++){
-    if(fields[i]=="" || fields[i]== "none"){
-      comprueba = 0
-      alert("Debe Introducir todos los campos");
-      return comprueba;
-    }
-  }
-  return comprueba
 }
 
 const processAsset = (data) => {
@@ -30411,7 +30370,21 @@ const processAsset = (data) => {
 }
 
 
-/*users.refresh = function () {
+user.refresh = function () {
+  getBatchUser(({ assets }) => {
+    console.log("ASSETS RECUPERADOS")
+    console.log(assets)
+    this.assets = assets
+    console.log("user.assets")
+    console.log(user.assets)
+    for(var i=0; i<user.assets.length; i++){
+      var asset = assets[i].asset
+      processAsset(asset)
+    }
+  })
+}
+
+users.refresh = function () {
   getStateUser(({ assets, transfers }) => {
     this.matriculas = []
     this.DNIs = []
@@ -30427,14 +30400,9 @@ const processAsset = (data) => {
       separateAssetsUser(asset, signer)
       console.log("users")
       console.log(users)
-    }
-    
-    
-
-    
+    }  
   })
-  
-}*/
+}
 
 users.update = function (action, asset, private_key, owner) {
     submitUpdate(
@@ -30484,8 +30452,6 @@ invitaciones.refresh =  function() {
   })
 }
 
-
-
 $('#registerUser').on('click', function () {
 
   const action = 'register'
@@ -30497,7 +30463,6 @@ $('#registerUser').on('click', function () {
   const telefono = addCategory("telefono", $('#tfnInputR').val());
   const rol = addCategory("rol", $('[name="roleSelect"]').val());
   const keys = makeKeyPair();
- // const asset = [nombre, dni, psw, telefono, rol];
   const asset = [nombre, dni, hashUP32, telefono, rol]
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
                   $('#passInputR').val(), $('#tfnInputR').val(), $('[name="roleSelect"]').val()]
@@ -30511,11 +30476,6 @@ $('#registerUser').on('click', function () {
  /* $('#login').attr('style', '')
   $('#register').attr('style', 'display:none')*/
 
-  console.log("Accion")
-  console.log(action)
-
-
-
   users.update(action,asset.join(), keys.private, hashUP32)
   //users.refresh()
 })
@@ -30524,20 +30484,15 @@ $('#loginButton').on('click', function () {
   const mail = addCategory('email',$('#mailInputL').val());
   const psw = addCategory('psw',$('#passInputL').val());
   const mailPsw = addCategory(mail, psw)
-  //for users.assets()
+  
   const hashUP32 = getHashUser($('#mailInputL').val(), $('#passInputL').val());
   const address = PREFIX_USER + hashUP32;
   console.log("ADDRESS")
   user.owner = hashUP32
   user.address = address
-  //const data = getBatch(address);
   console.log("user.assets fuera de peticion")
   console.log(user.assets)
-  //console.log("DATA TRAS DESCARGA")
-  //console.log("data: ", data)
-  //console.log("data[0]: ",data[0])
-  //const assets = separateAssets(data)
-  //console.log(assets)
+  
 
   console.log("user.owner: ", user.owner)
   user.refresh()
@@ -30603,7 +30558,7 @@ $('#solicitarInv').on('click', function () {
 
 /////FALTA EL ACCEPT O REJECT INVITACIONES SI LAS HAY. DESPUES DE DEFINIR ESA TP
 
-if(user.assets != []) user.refresh()
+//if(user.assets != []) user.refresh()
  
 //users.refresh()
 //coches.refresh()
@@ -31875,7 +31830,7 @@ var DES = __webpack_require__(125)
 var aes = __webpack_require__(42)
 var aesModes = __webpack_require__(43)
 var desModes = __webpack_require__(140)
-var ebtk = __webpack_require__(28)
+var ebtk = __webpack_require__(29)
 
 function createCipher (suite, password) {
   suite = suite.toLowerCase()
@@ -32700,8 +32655,8 @@ var AuthCipher = __webpack_require__(73)
 var Buffer = __webpack_require__(0).Buffer
 var StreamCipher = __webpack_require__(74)
 var Transform = __webpack_require__(12)
-var aes = __webpack_require__(27)
-var ebtk = __webpack_require__(28)
+var aes = __webpack_require__(28)
+var ebtk = __webpack_require__(29)
 var inherits = __webpack_require__(1)
 
 function Cipher (mode, key, iv) {
@@ -33092,8 +33047,8 @@ var Buffer = __webpack_require__(0).Buffer
 var MODES = __webpack_require__(43)
 var StreamCipher = __webpack_require__(74)
 var Transform = __webpack_require__(12)
-var aes = __webpack_require__(27)
-var ebtk = __webpack_require__(28)
+var aes = __webpack_require__(28)
+var ebtk = __webpack_require__(29)
 var inherits = __webpack_require__(1)
 
 function Decipher (mode, key, iv) {
@@ -33616,7 +33571,7 @@ var createHmac = __webpack_require__(63)
 var crt = __webpack_require__(44)
 var EC = __webpack_require__(5).ec
 var BN = __webpack_require__(2)
-var parseKeys = __webpack_require__(30)
+var parseKeys = __webpack_require__(31)
 var curves = __webpack_require__(86)
 
 function sign (hash, key, hashType, signType, tag) {
@@ -33763,7 +33718,7 @@ module.exports.makeKey = makeKey
 /* 149 */
 /***/ (function(module, exports) {
 
-module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-invitations/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-invitations/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
+module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-cars/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-cars/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
 
 /***/ }),
 /* 150 */
@@ -34281,7 +34236,7 @@ BasePoint.prototype.dblp = function dblp(k) {
 "use strict";
 
 
-var curve = __webpack_require__(29);
+var curve = __webpack_require__(30);
 var elliptic = __webpack_require__(5);
 var BN = __webpack_require__(2);
 var inherits = __webpack_require__(1);
@@ -35225,7 +35180,7 @@ JPoint.prototype.isInfinity = function isInfinity() {
 "use strict";
 
 
-var curve = __webpack_require__(29);
+var curve = __webpack_require__(30);
 var BN = __webpack_require__(2);
 var inherits = __webpack_require__(1);
 var Base = curve.base;
@@ -35412,7 +35367,7 @@ Point.prototype.getX = function getX() {
 "use strict";
 
 
-var curve = __webpack_require__(29);
+var curve = __webpack_require__(30);
 var elliptic = __webpack_require__(5);
 var BN = __webpack_require__(2);
 var inherits = __webpack_require__(1);
@@ -39542,7 +39497,7 @@ module.exports = {"2.16.840.1.101.3.4.1.1":"aes-128-ecb","2.16.840.1.101.3.4.1.2
 var findProc = /Proc-Type: 4,ENCRYPTED[\n\r]+DEK-Info: AES-((?:128)|(?:192)|(?:256))-CBC,([0-9A-H]+)[\n\r]+([0-9A-z\n\r\+\/\=]+)[\n\r]+/m
 var startRegex = /^-----BEGIN ((?:.*? KEY)|CERTIFICATE)-----/m
 var fullRegex = /^-----BEGIN ((?:.*? KEY)|CERTIFICATE)-----([0-9A-z\n\r\+\/\=]+)-----END \1-----$/m
-var evp = __webpack_require__(28)
+var evp = __webpack_require__(29)
 var ciphers = __webpack_require__(42)
 var Buffer = __webpack_require__(0).Buffer
 module.exports = function (okey, password) {
@@ -39578,7 +39533,7 @@ module.exports = function (okey, password) {
 /* WEBPACK VAR INJECTION */(function(Buffer) {// much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
 var BN = __webpack_require__(2)
 var EC = __webpack_require__(5).ec
-var parseKeys = __webpack_require__(30)
+var parseKeys = __webpack_require__(31)
 var curves = __webpack_require__(86)
 
 function verify (sig, hash, key, signType, tag) {
@@ -39812,7 +39767,7 @@ exports.publicDecrypt = function publicDecrypt (key, buf) {
 /* 187 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var parseKeys = __webpack_require__(30)
+var parseKeys = __webpack_require__(31)
 var randomBytes = __webpack_require__(15)
 var createHash = __webpack_require__(16)
 var mgf = __webpack_require__(87)
@@ -39906,7 +39861,7 @@ function nonZero (len) {
 /* 188 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var parseKeys = __webpack_require__(30)
+var parseKeys = __webpack_require__(31)
 var mgf = __webpack_require__(87)
 var xor = __webpack_require__(88)
 var BN = __webpack_require__(2)
@@ -40139,7 +40094,7 @@ function randomFillSync (buf, offset, size) {
 
 
 const $ = __webpack_require__(46)
-const {createHash} = __webpack_require__(32)
+const {createHash} = __webpack_require__(26)
 const protobuf = __webpack_require__(191)
 const {
   createContext,
@@ -40187,6 +40142,7 @@ const makeKeyPair = () => {
     private: privateKey.asHex()
   }
 }
+
 
 const getStateUser = cb => {
     
@@ -40295,8 +40251,6 @@ const submitUpdate = (payload, privateKeyHex, family, version, prefix, cb) => {
 }
 
 
-
-
 module.exports = {
   makeKeyPair,
   getStateUser,
@@ -40310,7 +40264,6 @@ module.exports = {
   PREFIX_CARS,
   FAMILY_INVITATIONS,
   PREFIX_INVITATIONS
-
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
@@ -40483,7 +40436,7 @@ protobuf.Root             = __webpack_require__(54);
 protobuf.Enum             = __webpack_require__(9);
 protobuf.Type             = __webpack_require__(49);
 protobuf.Field            = __webpack_require__(14);
-protobuf.OneOf            = __webpack_require__(31);
+protobuf.OneOf            = __webpack_require__(32);
 protobuf.MapField         = __webpack_require__(50);
 protobuf.Service          = __webpack_require__(51);
 protobuf.Method           = __webpack_require__(52);
@@ -42095,7 +42048,7 @@ var tokenize  = __webpack_require__(99),
     Type      = __webpack_require__(49),
     Field     = __webpack_require__(14),
     MapField  = __webpack_require__(50),
-    OneOf     = __webpack_require__(31),
+    OneOf     = __webpack_require__(32),
     Enum      = __webpack_require__(9),
     Service   = __webpack_require__(51),
     Method    = __webpack_require__(52),
@@ -44301,6 +44254,7 @@ exports.ecdhUnsafe = function (publicKey, privateKey, compressed) {
 
 
 const $ = __webpack_require__(46)
+const {createHash} = __webpack_require__(26)
 
 const addSesion = (parent, current_number, current_id) => {
   $(parent).append(`<div>
@@ -44318,10 +44272,45 @@ const deleteOptionAdmin = () =>{
   $(".roleSelect option[value='Admin']").remove();
 }
 
+const addCategory = (categ, val) =>{
+  const value = val.toString()
+  const category = categ.toString()
+  const catVal = category+":"+val 
+  console.log("catVal")
+  console.log(catVal)
+  return catVal
+}
+
+const getHashUser = (email, password) =>{
+  const stringUP = addCategory(email, password);
+  const hashUP70 = createHash('sha512').update(stringUP).digest('hex')
+  const hashUP32 = hashUP70.substr(0,32)
+  return hashUP32
+}
+
+const compruebaCampos = (fields) =>{
+  var comprueba = 1
+  console.log("ENTRA EN COMPRUEBA CAMPOS")
+  for (var i=0; i<fields.length; i++){
+    if(fields[i]=="" || fields[i]== "none"){
+      comprueba = 0
+      alert("Debe Introducir todos los campos");
+      return comprueba;
+    }
+  }
+  return comprueba
+}
+
+
+
+
 module.exports = {
   addSesion,
   addOriginal,
-  deleteOptionAdmin
+  deleteOptionAdmin,
+  addCategory,
+  getHashUser,
+  compruebaCampos
 }
 
 

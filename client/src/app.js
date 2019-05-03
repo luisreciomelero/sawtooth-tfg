@@ -25,7 +25,10 @@ const {
 } = require('./state.js')
 
 const {
-  deleteOptionAdmin
+  deleteOptionAdmin,
+  addCategory,
+  getHashUser,
+  compruebaCampos
 }=require('./components')
 
 // Application Object
@@ -37,37 +40,6 @@ const invitaciones = {assets:[]}
 const invitaciones_pendientes = []
 const version = VERSION_USER
 
-const addCategory = (categ, val) =>{
-  const value = val.toString()
-  const category = categ.toString()
-  const catVal = category+":"+val 
-  console.log("catVal")
-  console.log(catVal)
-  return catVal
-}
-
-const getHashUser = (email, password) =>{
-  const stringUP = addCategory(email, password);
-  const hashUP70 = createHash('sha512').update(stringUP).digest('hex')
-  const hashUP32 = hashUP70.substr(0,32)
-  return hashUP32
-}
-
-user.refresh = function () {
-  getBatchUser(({ assets }) => {
-    console.log("ASSETS RECUPERADOS")
-    console.log(assets)
-    this.assets = assets
-    console.log("user.assets")
-    console.log(user.assets)
-    for(var i=0; i<user.assets.length; i++){
-      var asset = assets[i].asset
-      processAsset(asset)
-    }
-    
-  })
-  
-}
 const getBatchUser = cb => {
   console.log("Visualizacion data:")
   
@@ -84,19 +56,6 @@ const getBatchUser = cb => {
       return processed
     }, {assets: []}))
   })
-}
-
-const compruebaCampos = (fields) =>{
-  var comprueba = 1
-  console.log("ENTRA EN COMPRUEBA CAMPOS")
-  for (var i=0; i<fields.length; i++){
-    if(fields[i]=="" || fields[i]== "none"){
-      comprueba = 0
-      alert("Debe Introducir todos los campos");
-      return comprueba;
-    }
-  }
-  return comprueba
 }
 
 const processAsset = (data) => {
@@ -125,7 +84,21 @@ const processAsset = (data) => {
 }
 
 
-/*users.refresh = function () {
+user.refresh = function () {
+  getBatchUser(({ assets }) => {
+    console.log("ASSETS RECUPERADOS")
+    console.log(assets)
+    this.assets = assets
+    console.log("user.assets")
+    console.log(user.assets)
+    for(var i=0; i<user.assets.length; i++){
+      var asset = assets[i].asset
+      processAsset(asset)
+    }
+  })
+}
+
+users.refresh = function () {
   getStateUser(({ assets, transfers }) => {
     this.matriculas = []
     this.DNIs = []
@@ -141,14 +114,9 @@ const processAsset = (data) => {
       separateAssetsUser(asset, signer)
       console.log("users")
       console.log(users)
-    }
-    
-    
-
-    
+    }  
   })
-  
-}*/
+}
 
 users.update = function (action, asset, private_key, owner) {
     submitUpdate(
@@ -198,8 +166,6 @@ invitaciones.refresh =  function() {
   })
 }
 
-
-
 $('#registerUser').on('click', function () {
 
   const action = 'register'
@@ -211,7 +177,6 @@ $('#registerUser').on('click', function () {
   const telefono = addCategory("telefono", $('#tfnInputR').val());
   const rol = addCategory("rol", $('[name="roleSelect"]').val());
   const keys = makeKeyPair();
- // const asset = [nombre, dni, psw, telefono, rol];
   const asset = [nombre, dni, hashUP32, telefono, rol]
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
                   $('#passInputR').val(), $('#tfnInputR').val(), $('[name="roleSelect"]').val()]
@@ -225,11 +190,6 @@ $('#registerUser').on('click', function () {
  /* $('#login').attr('style', '')
   $('#register').attr('style', 'display:none')*/
 
-  console.log("Accion")
-  console.log(action)
-
-
-
   users.update(action,asset.join(), keys.private, hashUP32)
   //users.refresh()
 })
@@ -238,20 +198,15 @@ $('#loginButton').on('click', function () {
   const mail = addCategory('email',$('#mailInputL').val());
   const psw = addCategory('psw',$('#passInputL').val());
   const mailPsw = addCategory(mail, psw)
-  //for users.assets()
+  
   const hashUP32 = getHashUser($('#mailInputL').val(), $('#passInputL').val());
   const address = PREFIX_USER + hashUP32;
   console.log("ADDRESS")
   user.owner = hashUP32
   user.address = address
-  //const data = getBatch(address);
   console.log("user.assets fuera de peticion")
   console.log(user.assets)
-  //console.log("DATA TRAS DESCARGA")
-  //console.log("data: ", data)
-  //console.log("data[0]: ",data[0])
-  //const assets = separateAssets(data)
-  //console.log(assets)
+  
 
   console.log("user.owner: ", user.owner)
   user.refresh()
@@ -317,7 +272,7 @@ $('#solicitarInv').on('click', function () {
 
 /////FALTA EL ACCEPT O REJECT INVITACIONES SI LAS HAY. DESPUES DE DEFINIR ESA TP
 
-if(user.assets != []) user.refresh()
+//if(user.assets != []) user.refresh()
  
 //users.refresh()
 //coches.refresh()
