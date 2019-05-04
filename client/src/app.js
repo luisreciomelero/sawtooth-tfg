@@ -40,40 +40,9 @@ const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
 const invitaciones = {assets:[], address:null}
 const invitaciones_adjudicadas = {assets:[], addressInvitaciones:[], coches:[]}
 const version = VERSION_USER
+const admin = {users:[], invitaciones:[], coches:[]}
 
-const getBatchUser = cb => {
-  console.log("Visualizacion data:")
-  
-  $.get(`${API_URL}/state?address=${user.address}`, ({ data }) => {
-    
-    console.log("FIN Visualizacion")
-    cb(data.reduce((processed, datum) => {
-      if (datum.data !== '') {
-        const parsed = JSON.parse(atob(datum.data))
-        console.log("PARSED:", parsed)
-        processed.assets.push(parsed)
-        console.log("processed: ", processed)
-      }
-      return processed
-    }, {assets: []}))
-  })
-}
 
-const getBatchInv = cb =>{
-  $.get(`${API_URL}/state?address=${invitaciones.address}`, ({ data }) => {
-    
-    console.log("FIN Visualizacion")
-    cb(data.reduce((processed, datum) => {
-      if (datum.data !== '') {
-        const parsed = JSON.parse(atob(datum.data))
-        console.log("PARSED:", parsed)
-        processed.assets.push(parsed)
-        console.log("processed: ", processed)
-      }
-      return processed
-    }, {assets: []}))
-  })
-}
 
 const processAsset = (data) => {
   const arrayDataComas = data.split(',');
@@ -110,10 +79,166 @@ const processAsset = (data) => {
   console.log("user: ", user)
 }
 
+const actualizaAdmin = () =>{
+  admin.getUsers();
+  sleep(3000)
+  admin.getInvitaciones();
+  sleep(3000)
+  admin.getCoches();
+}
+
 const concatString = (var1, var2) =>{
   const string1 = var1.toString()
   const string2 = var2.toString().substring(5,10)
   return string1.concat(string2)
+}
+
+const ActualizarAssetUser = () =>{
+  const asset = user.assets[0].asset
+  console.log("ASSET VIEJO: ", asset)
+  var invitacionesActuales = parseInt(user.numInvitaciones)-1;
+  const address = getAddress(asset, user.owner)
+  console.log("QUEREMOS ELIMINAR EL ASSET CON DIRECCION: ", address)
+  //users.update("delete" , asset, user.keys.private_key, user.owner)
+
+  invitacionesActuales=invitacionesActuales.toString()
+  
+
+  const assetNuevo = asset.split(":")
+  console.log("ASSET NUEVO1: ", assetNuevo)
+
+  assetNuevo.pop()
+  assetNuevo.push(invitacionesActuales)
+  
+  console.log("ASSET NUEVO2: ", assetNuevo.join(":"))
+  //console.log("USER ANTES DE CREAR EL USUARIO NUEVO: ", user)
+
+  users.update("register", assetNuevo.join(':'), user.keys.private_key, user.owner)
+  sleep(4000);
+  users.update("delete" , asset, user.keys.private_key, user.owner)
+
+}
+
+const sleep = (ms) => {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > ms) {
+      break;
+  }
+ }
+}
+
+
+const getAddress = (string, owner) =>{
+  //hashlib.sha512(key.encode('utf-8')).hexdigest()[:30]
+  //USERCHAIN_NAMESPACE +owner+ '00' + _get_address(asset_name)
+  var string1 = createHash('sha512').update(string).digest('hex')
+  var devolver = PREFIX_USER + owner + '00'+ string1.substring(0,30)
+  return devolver
+}
+
+const getBatchUser = cb => {
+  console.log("Visualizacion data:")
+  
+  $.get(`${API_URL}/state?address=${user.address}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.assets.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {assets: []}))
+  })
+}
+
+const getBatchInv = cb =>{
+  $.get(`${API_URL}/state?address=${invitaciones.address}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.assets.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {assets: []}))
+  })
+}
+
+const getAllUsers = cb => {
+  console.log("Visualizacion data:")
+  
+  $.get(`${API_URL}/state?address=${PREFIX_USER}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.users.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {users: []}))
+  })
+}
+
+const getAllInvitaciones = cb => {
+  console.log("Visualizacion data:")
+  
+  $.get(`${API_URL}/state?address=${PREFIX_INVITATIONS}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.invitaciones.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {invitaciones: []}))
+  })
+}
+
+const getAllCoches = cb => {
+  console.log("Visualizacion data:")
+  
+  $.get(`${API_URL}/state?address=${PREFIX_CARS}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.coches.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {coches: []}))
+  })
+}
+
+admin.getUsers = function () {
+  getAllUsers((users) =>{
+    this.users = users
+  }) 
+}
+admin.getInvitaciones = function () {
+  getAllInvitaciones((invitaciones) =>{
+    this.invitaciones = invitaciones
+  }) 
+}
+admin.getCoches = function () {
+  getAllCoches((coches) =>{
+    this.coches = coches
+  }) 
 }
 
 user.refresh = function () {
@@ -284,6 +409,7 @@ $('#loginButton').on('click', function () {
       break;
     default:
        $('#mainAdmin').attr('style', '')
+       actualizaAdmin()
   }
 
 })
@@ -313,49 +439,7 @@ $('#createCocheMU').on('click', function () {
 })
 
 
-const ActualizarAssetUser = () =>{
-  const asset = user.assets[0].asset
-  console.log("ASSET VIEJO: ", asset)
-  var invitacionesActuales = parseInt(user.numInvitaciones)-1;
-  const address = getAddress(asset, user.owner)
-  console.log("QUEREMOS ELIMINAR EL ASSET CON DIRECCION: ", address)
-  //users.update("delete" , asset, user.keys.private_key, user.owner)
 
-  invitacionesActuales=invitacionesActuales.toString()
-  
-
-  const assetNuevo = asset.split(":")
-  console.log("ASSET NUEVO1: ", assetNuevo)
-
-  assetNuevo.pop()
-  assetNuevo.push(invitacionesActuales)
-  
-  console.log("ASSET NUEVO2: ", assetNuevo.join(":"))
-  //console.log("USER ANTES DE CREAR EL USUARIO NUEVO: ", user)
-
-  users.update("register", assetNuevo.join(':'), user.keys.private_key, user.owner)
-  sleep(4000);
-  users.update("delete" , asset, user.keys.private_key, user.owner)
-
-}
-
-const sleep = (ms) => {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > ms) {
-      break;
-  }
- }
-}
-
-
-const getAddress = (string, owner) =>{
-  //hashlib.sha512(key.encode('utf-8')).hexdigest()[:30]
-  //USERCHAIN_NAMESPACE +owner+ '00' + _get_address(asset_name)
-  var string1 = createHash('sha512').update(string).digest('hex')
-  var devolver = PREFIX_USER + owner + '00'+ string1.substring(0,30)
-  return devolver
-}
 
 
 $('#publicarInv').on('click', function () {
@@ -400,6 +484,19 @@ $('#solicitarInv').on('click', function () {
   $('#mainInvitado').attr('style', '')
 
 })
+
+
+$('#verUsuarios').on('click', function () {
+  console.log("TODOS LOS USUARIOS REGISTRADOS: ", admin.users)
+})
+
+$('#verCoches').on('click', function () {
+  console.log("TODOS LOS COCHES REGISTRADOS: ", admin.coches)
+})
+$('#verInvitaciones').on('click', function () {
+  console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
+})
+
 
 
 /////FALTA EL ACCEPT O REJECT INVITACIONES SI LAS HAY. DESPUES DE DEFINIR ESA TP
