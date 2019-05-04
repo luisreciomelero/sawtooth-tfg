@@ -34,10 +34,11 @@ const {
 // Application Object
 
 const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[], admin:0}
-const user = {owner:null, address:null, keys:{public_key:null, private_key:null},  assets:[], dni:null, nombre:null, phone:null, rol:null, numInvitaciones:null}
+const user = {owner:null, address:null, keys:{public_key:null, private_key:null},  assets:[], dni:null, 
+              nombre:null, phone:null, rol:null, numInvitaciones:null, wallet:null}
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
 const invitaciones = {assets:[], address:null}
-const invitaciones_pendientes = []
+const invitaciones_adjudicadas = {assets:[], addressInvitaciones:[], coches:[]}
 const version = VERSION_USER
 
 const getBatchUser = cb => {
@@ -101,7 +102,11 @@ const processAsset = (data) => {
         break;
       case "numInvitaciones":
         user.numInvitaciones = field[1]
-
+        break;
+      /*case "wallet":
+        user.wallet = field[1]
+        break;
+*/
     }
   }
   console.log("user: ", user)
@@ -228,7 +233,10 @@ $('#registerUser').on('click', function () {
   const private_key = addCategory("private", keys.private)
   const public_key = addCategory("public", keys.public)
   const invitaciones = addCategory("numInvitaciones", "20")
+  //const wallet = addCategory("wallet", "0")
+  //const asset = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones, wallet]
   const asset = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones]
+  
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
                   $('#passInputR').val(), $('#tfnInputR').val(), $('[name="roleSelect"]').val()]
 
@@ -295,10 +303,11 @@ $('#goToRegister').on('click', function () {
 
 $('#createCocheRC').on('click', function () {
   console.log("user.assets en create coche: ", user.assets)
-  const matricula = $('#matriculaRC').val();
-  const model = $('#modelRC').val();
-  const keys = makeKeyPair();
-  coches.update("register", matricula, user.keys.private_key, user.owner)
+  const matricula = addCategory("matricula", $('#matriculaRC').val());
+  const model = addCategory("modelo", $('#modelRC').val());
+  const propietario = addCategory("propietario", user.owner);
+  const asset = [matricula, model, propietario]
+  coches.update("register", asset.join(), user.keys.private_key, user.owner)
   $('#regCoche').attr('style', 'display:none')
   $('#mainUser').attr('style', '')
   
@@ -329,20 +338,22 @@ const ActualizarAssetUser = () =>{
   
   console.log("ASSET NUEVO2: ", assetNuevo.join(":"))
 
-  //users.update("register", assetNuevo.join(':'), user.keys.private_key, user.owner)
+  users.update("register", assetNuevo.join(':'), user.keys.private_key, user.owner)
 
 }
 const getAddress = (string, owner) =>{
   //hashlib.sha512(key.encode('utf-8')).hexdigest()[:30]
   //USERCHAIN_NAMESPACE +owner+ '00' + _get_address(asset_name)
   var string1 = createHash('sha512').update(string).digest('hex')
-  var devolver = PREFIX_USER + owner + '00'+ string1
+  var devolver = PREFIX_USER + owner + '00'+ string1.substring(0,30)
   return devolver
 }
 
 
 $('#publicarInv').on('click', function () {
   console.log("user.owner en pubINV: ", user.owner)
+  var currentDate = new Date();
+  console.log("TIMESTAMP: ", currentDate)
   const keys = makeKeyPair();
   const publicrand = concatString(user.keys.public_key, keys.private)
   const propiedad = addCategory("invitacion_de", publicrand)
@@ -360,7 +371,7 @@ $('#publicarInv2').on('click', function () {
   $('#publicarInv3').attr('style', '')
 })
 $('#publicarInv3').on('click', function () {
-  
+  console.log("INVITACIONES: ", invitaciones)
   user.refresh()
   $('#publicarInv3').attr('style', 'display:none')
   $('#publicarInv').attr('style', '')
@@ -370,6 +381,7 @@ $('#publicarInv3').on('click', function () {
 $('#solicitarInv').on('click', function () {
   const matricula = $('#matriculaSI').val();
   const modelo = $('#modelSI').val();
+  //getRandomInvitation
   $('#solicitarInvitacion').attr('style', 'display:none')
   $('#mainInvitado').attr('style', '')
 
