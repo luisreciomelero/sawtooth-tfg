@@ -76,11 +76,9 @@ const getBatchInv = cb =>{
 }
 
 const processAsset = (data) => {
-  console.log("DATA EN processAsset: ", data)
   const arrayDataComas = data.split(',');
   for(var i=0; i<arrayDataComas.length;i++){
     var field = arrayDataComas[i].split(":");
-    console.log("field", field)
     switch(field[0]){
       case "dni":
         user.dni = field[1];
@@ -139,7 +137,7 @@ invitaciones.refresh = function () {
     console.log(assets)
     this.assets = assets
     console.log("invitaciones.assets")
-    console.log(invitaciones.asset)
+    console.log(invitaciones.assets)
     for(var i=0; i<invitaciones.assets.length; i++){
       var asset = assets[i].asset
       processAsset(asset)
@@ -265,11 +263,7 @@ $('#loginButton1').on('click', function () {
   console.log("ADDRESS")
   user.owner = hashUP32
   user.address = address
-  console.log("user.assets fuera de peticion")
-  console.log(user.assets)
   
-
-  console.log("user.owner: ", user.owner)
   user.refresh()
   $('#loginButton1').attr('style', 'display:none')
   $('#loginButton').attr('style', '')
@@ -325,7 +319,7 @@ const ActualizarAssetUser = () =>{
   var invitacionesActuales = parseInt(user.numInvitaciones)-1;
   const address = getAddress(asset, user.owner)
   console.log("QUEREMOS ELIMINAR EL ASSET CON DIRECCION: ", address)
-  users.update("delete" , asset, user.keys.private_key, user.owner)
+  //users.update("delete" , asset, user.keys.private_key, user.owner)
 
   invitacionesActuales=invitacionesActuales.toString()
   
@@ -337,10 +331,24 @@ const ActualizarAssetUser = () =>{
   assetNuevo.push(invitacionesActuales)
   
   console.log("ASSET NUEVO2: ", assetNuevo.join(":"))
+  //console.log("USER ANTES DE CREAR EL USUARIO NUEVO: ", user)
 
   users.update("register", assetNuevo.join(':'), user.keys.private_key, user.owner)
+  sleep(3000);
+  users.update("delete" , asset, user.keys.private_key, user.owner)
 
 }
+
+const sleep = (ms) => {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > ms) {
+      break;
+  }
+ }
+}
+
+
 const getAddress = (string, owner) =>{
   //hashlib.sha512(key.encode('utf-8')).hexdigest()[:30]
   //USERCHAIN_NAMESPACE +owner+ '00' + _get_address(asset_name)
