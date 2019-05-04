@@ -334,7 +334,7 @@ const ActualizarAssetUser = () =>{
   //console.log("USER ANTES DE CREAR EL USUARIO NUEVO: ", user)
 
   users.update("register", assetNuevo.join(':'), user.keys.private_key, user.owner)
-  sleep(3000);
+  sleep(4000);
   users.update("delete" , asset, user.keys.private_key, user.owner)
 
 }
@@ -359,14 +359,20 @@ const getAddress = (string, owner) =>{
 
 
 $('#publicarInv').on('click', function () {
+  if (user.numInvitaciones==0){
+    alert("No le quedan invitaciones al usuario")
+    return; 
+  }
   console.log("user.owner en pubINV: ", user.owner)
   var currentDate = new Date();
   console.log("TIMESTAMP: ", currentDate)
   const keys = makeKeyPair();
   const publicrand = concatString(user.keys.public_key, keys.private)
   const propiedad = addCategory("invitacion_de", publicrand)
+  const fecha = addCategory("timestamp", currentDate)
+  const asset = [propiedad, fecha]
   invitaciones.address = PREFIX_INVITATIONS+user.owner;
-  invitaciones.update("register", propiedad, user.keys.private_key, user.owner)
+  invitaciones.update("register", asset.join(), user.keys.private_key, user.owner)
   
   $('#publicarInv').attr('style', 'display:none')
   $('#publicarInv2').attr('style', '')
