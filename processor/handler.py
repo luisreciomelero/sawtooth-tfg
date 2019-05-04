@@ -185,6 +185,11 @@ class InvitationsTransactionHandler(TransactionHandler):
                           signer=signer,
                           state=state,
                           owner= payload.owner)
+        elif payload.action == 'delete':
+            _delete_asset(asset=payload.asset,
+                          signer=signer,
+                          state=state,
+                          owner= payload.owner)
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
                 payload.action))
@@ -209,11 +214,11 @@ def _delete_asset(asset, signer, state, owner):
     print(asset)
     print("OWNER")
     print(owner)
-    if state.get_asset(asset, owner) is None:
+    if state.get_asset(asset, owner) is not None:
         raise InvalidTransaction(
             'Invalid action: Asset not exists: {}'.format(asset))
     print('DIrecciones exitosas eliminadas: ')
-    print(state.set_asset(asset, signer, owner))
+    print(state.delete_asset(asset, signer, owner))
     state.delete_asset(asset, signer, owner)
 
 

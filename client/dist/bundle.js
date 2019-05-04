@@ -30393,6 +30393,11 @@ const processAsset = (data) => {
   console.log("user: ", user)
 }
 
+const concatString = (var1, var2) =>{
+  const string1 = var1.toString()
+  const string2 = var2.toString().substring(5,10)
+  return string1.concat(string2)
+}
 
 user.refresh = function () {
   getBatchUser(({ assets }) => {
@@ -30446,6 +30451,8 @@ users.refresh = function () {
 }
 
 users.update = function (action, asset, private_key, owner) {
+
+    console.log("TRATAMOS DE: ", action)
     submitUpdate(
       {action, asset, owner},
       FAMILY_USER,
@@ -30587,26 +30594,61 @@ $('#createCocheMU').on('click', function () {
   $('#mainUser').attr('style', 'display:none')
   $('#regCoche').attr('style', '')
 })
-const concatString = (var1, var2) =>{
-  const string1 = var1.toString()
-  const string2 = var2.toString().substring(5,10)
-  return string1.concat(string2)
+
+
+const ActualizarAssetUser = () =>{
+  const asset = user.assets[0].asset
+  console.log("ASSET VIEJO: ", asset)
+  var invitacionesActuales = parseInt(user.numInvitaciones)-1;
+  const address = getAddress(asset, user.owner)
+  console.log("QUEREMOS ELIMINAR EL ASSET CON DIRECCION: ", address)
+  users.update("delete" , asset, user.keys.private_key, user.owner)
+
+  invitacionesActuales=invitacionesActuales.toString()
+  
+
+  const assetNuevo = asset.split(":")
+  console.log("ASSET NUEVO1: ", assetNuevo)
+
+  assetNuevo.pop()
+  assetNuevo.push(invitacionesActuales)
+  
+  console.log("ASSET NUEVO2: ", assetNuevo.join(":"))
+
+  //users.update("register", assetNuevo.join(':'), user.keys.private_key, user.owner)
+
 }
+const getAddress = (string, owner) =>{
+  //hashlib.sha512(key.encode('utf-8')).hexdigest()[:30]
+  //USERCHAIN_NAMESPACE +owner+ '00' + _get_address(asset_name)
+  var string1 = createHash('sha512').update(string).digest('hex')
+  var devolver = PREFIX_USER + owner + '00'+ string1
+  return devolver
+}
+
 
 $('#publicarInv').on('click', function () {
   console.log("user.owner en pubINV: ", user.owner)
   const keys = makeKeyPair();
   const publicrand = concatString(user.keys.public_key, keys.private)
-  const propiedad = addCategory("invitacion_de", user.keys.public_key)
+  const propiedad = addCategory("invitacion_de", publicrand)
   invitaciones.address = PREFIX_INVITATIONS+user.owner;
   invitaciones.update("register", propiedad, user.keys.private_key, user.owner)
+  
   $('#publicarInv').attr('style', 'display:none')
   $('#publicarInv2').attr('style', '')
 })
 
 $('#publicarInv2').on('click', function () {
   invitaciones.refresh();
+  ActualizarAssetUser()
   $('#publicarInv2').attr('style', 'display:none')
+  $('#publicarInv3').attr('style', '')
+})
+$('#publicarInv3').on('click', function () {
+  
+  user.refresh()
+  $('#publicarInv3').attr('style', 'display:none')
   $('#publicarInv').attr('style', '')
 })
 
@@ -30624,10 +30666,10 @@ $('#solicitarInv').on('click', function () {
 
 //if(user.assets != []) user.refresh()
  
-//users.refresh()
-//coches.refresh()
-//invitaciones.refresh()
-
+/*user.refresh()
+coches.refresh()
+invitaciones.refresh()
+*/
 
 /***/ }),
 /* 104 */
