@@ -22,6 +22,97 @@ const addOriginal = (parent, original_number, original_id) => {
   </div>`
   );
 }
+
+const addTableUsers = (users) => {
+  $(`#visualizacion`).empty();
+  
+  console.log("Users que llegan al metodo: ", users)
+  
+  $(`#visualizacion`).append(`<tr id="cabecera">
+                            <th>Nombre</th>
+                            <th>DNI</th>
+                            <th>Telefono</th>
+                            <th>Rol</th>
+                            <th>Clave publica</th>
+                          </tr>`)
+  for(var i=0; i<users.users.length; i++){
+    const usuario ={nombre:null, dni:null, telefono:null, public_key:null, rol:null}
+    console.log("USUARIO DENTRO DEL BUCLE: ", usuario)
+    var userAsset = users.users[i].asset.split(',');
+    console.log("userAsset: ", userAsset)
+    for(var j=0; j<userAsset.length;j++){
+      var field = userAsset[j].split(":");
+      switch(field[0]){
+        case "nombre":
+          usuario.nombre = field[1];
+          console.log("usuario.nombre: ", usuario.nombre)
+          break;
+        case "dni":
+          usuario.dni = field[1];
+          break;
+        case "telefono":
+          usuario.telefono = field[1];
+          break;
+        case "rol":
+          usuario.rol = field[1];
+          break;
+        case "public":
+          usuario.public_key = field[1];
+          break;
+      }
+    }
+    console.log("usuario: ",usuario)
+    $(`#visualizacion`).append(`<tr>
+                              <td>${usuario.nombre}<td>
+                              <td>${usuario.dni}<td>
+                              <td>${usuario.telefono}<td>
+                              <td>${usuario.rol}<td>
+                              <td>${usuario.public_key}<td>
+                            </tr>`)
+  
+  }
+}
+const addTableCoches = (coches) => {
+  $(`#visualizacion`).empty();
+  
+  console.log("coches que llegan al metodo: ", coches)
+  
+  $(`#visualizacion`).append(`<tr id="cabecera">
+                            <th>Matricula</th>
+                            <th>Modelo</th>
+                            <th>Propietario</th>
+                          </tr>`)
+  for(var i=0; i<coches.coches.length; i++){
+    const coche ={matricula:null, modelo:null, propietario:null}
+    console.log("USUARIO DENTRO DEL BUCLE: ", coches)
+    var cocheAsset = coches.coches[i].asset.split(',');
+    console.log("userAsset: ", cocheAsset)
+    for(var j=0; j<cocheAsset.length;j++){
+      var field = cocheAsset[j].split(":");
+      switch(field[0]){
+        case "modelo":
+          coche.modelo = field[1];
+          //console.log("usuario.nombre: ", usuario.nombre)
+          break;
+        case "matricula":
+          coche.matricula = field[1];
+          break;
+      }
+    }
+    console.log("usuario: ",coche)
+    $(`#visualizacion`).append(`<tr>
+                              <td>${coche.matricula}<td>
+                              <td>${coche.modelo}<td>
+                              <td>${coches.coches[i].signer}<td>
+                            </tr>`)
+  
+  }
+}
+
+
+const addTableInvitaciones = (parent, invitaciones) => {
+
+}
 const deleteOptionAdmin = () =>{
   var opciones = ["none:Selecciona Rol...","Invitado:Invitado", "Usuario:Usuario"]
   
@@ -76,5 +167,7 @@ module.exports = {
   deleteOptionAdmin,
   addCategory,
   getHashUser,
-  compruebaCampos
+  compruebaCampos,
+  addTableUsers,
+  addTableCoches
 }

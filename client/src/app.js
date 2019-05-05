@@ -28,7 +28,9 @@ const {
   deleteOptionAdmin,
   addCategory,
   getHashUser,
-  compruebaCampos
+  compruebaCampos,
+  addTableUsers,
+  addTableCoches
 }=require('./components')
 
 // Application Object
@@ -70,10 +72,7 @@ const processAsset = (data) => {
       case "numInvitaciones":
         user.numInvitaciones = field[1]
         break;
-      /*case "wallet":
-        user.wallet = field[1]
-        break;
-*/
+      
     }
   }
   console.log("user: ", user)
@@ -492,10 +491,12 @@ $('#solicitarInv').on('click', function () {
 
 $('#verUsuarios').on('click', function () {
   console.log("TODOS LOS USUARIOS REGISTRADOS: ", admin.users)
+  addTableUsers(admin.users)
 })
 
 $('#verCoches').on('click', function () {
   console.log("TODOS LOS COCHES REGISTRADOS: ", admin.coches)
+  addTableCoches(admin.coches)
 })
 $('#verInvitaciones').on('click', function () {
   console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
