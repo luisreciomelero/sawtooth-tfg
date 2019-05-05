@@ -23,7 +23,19 @@ const addOriginal = (parent, original_number, original_id) => {
   );
 }
 const deleteOptionAdmin = () =>{
-  $(".roleSelect option[value='Admin']").remove();
+  var opciones = ["none:Selecciona Rol...","Invitado:Invitado", "Usuario:Usuario"]
+  
+  console.log("opciones: ", opciones)
+  $("#roles").empty();
+
+  for(var i=0; i<opciones.length; i++){
+    var valor = opciones[i].split(":")[0]
+    var texto = opciones[i].split(":")[1]
+    $('#roles').append(
+        $(`<option value="${valor}">${texto}</option>`));
+  }
+
+  
 }
 
 const addCategory = (categ, val) =>{

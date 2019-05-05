@@ -371,6 +371,10 @@ $('#registerUser').on('click', function () {
   console.log(keys.private)
   $('#login').attr('style', '')
   $('#register').attr('style', 'display:none')
+  if($('[name="roleSelect"]').val() == "Admin"){
+    deleteOptionAdmin()
+  }
+  
 
   users.update(action,asset.join(), keys.private, hashUP32)
   //users.refresh()
