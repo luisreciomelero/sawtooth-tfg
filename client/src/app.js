@@ -30,7 +30,8 @@ const {
   getHashUser,
   compruebaCampos,
   addTableUsers,
-  addTableCoches
+  addTableCoches,
+  addTableInvitaciones
 }=require('./components')
 
 // Application Object
@@ -113,7 +114,7 @@ const ActualizarAssetUser = () =>{
   //console.log("USER ANTES DE CREAR EL USUARIO NUEVO: ", user)
 
   users.update("register", assetNuevo.join(':'), user.keys.private_key, user.owner)
-  sleep(4000);
+  sleep(5000);
   users.update("delete" , asset, user.keys.private_key, user.owner)
 
 }
@@ -500,6 +501,7 @@ $('#verCoches').on('click', function () {
 })
 $('#verInvitaciones').on('click', function () {
   console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
+  addTableInvitaciones(admin.invitaciones)
 })
 
 

@@ -110,7 +110,42 @@ const addTableCoches = (coches) => {
 }
 
 
-const addTableInvitaciones = (parent, invitaciones) => {
+const addTableInvitaciones = (invitaciones) => {
+
+  $(`#visualizacion`).empty();
+  
+  console.log("invitaciones que llegan al metodo: ", invitaciones)
+  
+  $(`#visualizacion`).append(`<tr id="cabecera">
+                            <th>Invitacion de</th>
+                            <th>Publicada en</th>
+                          </tr>`)
+  for(var i=0; i<invitaciones.invitaciones.length; i++){
+    const invitacion ={invitacion_de:null, fecha:null}
+    console.log("USUARIO DENTRO DEL BUCLE: ", invitaciones)
+    var invitacionAsset = invitaciones.invitaciones[i].asset.split(',');
+    console.log("invitacionAsset: ", invitacionAsset)
+    for(var j=0; j<invitacionAsset.length;j++){
+      var field = invitacionAsset[j].split(":");
+      console.log("field", field)
+      switch(field[0]){
+        case "invitacion_de":
+          invitacion.invitacion_de = field[1];
+          
+          //console.log("usuario.nombre: ", usuario.nombre)
+          break;
+        case "timestamp":
+          invitacion.fecha = field[1];
+          break;
+      }
+    }
+    console.log("invitacion: ",invitacion)
+    $(`#visualizacion`).append(`<tr>
+                              <td>${invitacion.invitacion_de}<td>
+                              <td>${invitacion.fecha}<td>
+                            </tr>`)
+  
+  }
 
 }
 const deleteOptionAdmin = () =>{
@@ -169,5 +204,6 @@ module.exports = {
   getHashUser,
   compruebaCampos,
   addTableUsers,
-  addTableCoches
+  addTableCoches,
+  addTableInvitaciones
 }
