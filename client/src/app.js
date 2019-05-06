@@ -43,7 +43,7 @@ const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
 const invitaciones = {assets:[], address:null}
 const invitaciones_adjudicadas = {assets:[], addressInvitaciones:[], coches:[]}
 const version = VERSION_USER
-const admin = {users:[], invitaciones:[], coches:[]}
+const admin = {users:[], invitaciones:[], coches:[], admin:0}
 
 
 
@@ -371,9 +371,9 @@ $('#registerUser').on('click', function () {
   console.log(keys.private)
   $('#login').attr('style', '')
   $('#register').attr('style', 'display:none')
-  if($('[name="roleSelect"]').val() == "Admin"){
-    deleteOptionAdmin()
-  }
+  if($('[name="roleSelect"]').val() == "Admin"){ admin.admin==1}
+  deleteOptionAdmin(admin.admin)
+  
   
 
   users.update(action,asset.join(), keys.private, hashUP32)
@@ -404,6 +404,7 @@ $('#loginButton').on('click', function () {
   console.log("user.rol fuera de refresh: ", user.rol)
 
   $('#login').attr('style', 'display:none');
+  $('#logout').attr('style', '')
   switch (user.rol) {
     case 'Invitado':
       $('#mainInvitado').attr('style', '')
@@ -502,6 +503,17 @@ $('#verCoches').on('click', function () {
 $('#verInvitaciones').on('click', function () {
   console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
   addTableInvitaciones(admin.invitaciones)
+})
+$('#logout').on('click', function(){
+  $('#login').attr('style', '')
+  $('#register').attr('style', 'display:none')
+  $('#mainInvitado').attr('style', 'display:none')
+  $('#mainUser').attr('style', 'display:none')
+  $('#mainAdmin').attr('style', 'display:none')
+  $('#regCoche').attr('style', 'display:none')
+  $('#solicitarInvitacion').attr('style', 'display:none')
+  $('#logout').attr('style', 'display:none')
+  
 })
 
 

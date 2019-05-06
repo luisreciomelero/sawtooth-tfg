@@ -148,19 +148,22 @@ const addTableInvitaciones = (invitaciones) => {
   }
 
 }
-const deleteOptionAdmin = () =>{
-  var opciones = ["none:Selecciona Rol...","Invitado:Invitado", "Usuario:Usuario"]
+const deleteOptionAdmin = (admin) =>{
+  if (admin == 1){
+    var opciones = ["none:Selecciona Rol...","Invitado:Invitado", "Usuario:Usuario"]
   
-  console.log("opciones: ", opciones)
-  $("#roles").empty();
+    console.log("opciones: ", opciones)
+    $("#roles").empty();
 
-  for(var i=0; i<opciones.length; i++){
-    var valor = opciones[i].split(":")[0]
-    var texto = opciones[i].split(":")[1]
-    $('#roles').append(
-        $(`<option value="${valor}">${texto}</option>`));
+    for(var i=0; i<opciones.length; i++){
+      var valor = opciones[i].split(":")[0]
+      var texto = opciones[i].split(":")[1]
+      $('#roles').append(
+          $(`<option value="${valor}">${texto}</option>`));
+    }
+
   }
-
+  
   
 }
 
