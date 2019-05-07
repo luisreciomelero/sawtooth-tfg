@@ -36,7 +36,6 @@ const {
 
 // Application Object
 
-const users = {assets:[], matriculas:[], DNIs:[], emailsPsw:[], phones:[], dniSigners:[], admin:0}
 const user = {owner:null, address:null, keys:{public_key:null, private_key:null},  assets:[], dni:null, 
               nombre:null, phone:null, rol:null, numInvitaciones:null, wallet:null}
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
@@ -113,9 +112,9 @@ const ActualizarAssetUser = () =>{
   console.log("ASSET NUEVO2: ", assetNuevo.join(":"))
   //console.log("USER ANTES DE CREAR EL USUARIO NUEVO: ", user)
 
-  users.update("register", assetNuevo.join(':'), user.keys.private_key, user.owner)
+  postUser("register", assetNuevo.join(':'), user.keys.private_key, user.owner)
   sleep(5000);
-  users.update("delete" , asset, user.keys.private_key, user.owner)
+  postUser("delete" , asset, user.keys.private_key, user.owner)
 
 }
 
@@ -278,27 +277,8 @@ invitaciones.getAll = function() {
   }) 
 }
 
-users.refresh = function () {
-  getStateUser(({ assets, transfers }) => {
-    this.matriculas = []
-    this.DNIs = []
-    this.emailsPsw = []
-    this.phones = []
-    this.dniSigners = []
-    this.assets = assets
-    console.log("users.assets")
-    for(var i=0; i<assets.length; i++){
-      var asset = assets[i].asset
-      var signer = assets[i].signer
-      console.log(asset)
-      separateAssetsUser(asset, signer)
-      console.log("users")
-      console.log(users)
-    }  
-  })
-}
 
-users.update = function (action, asset, private_key, owner) {
+const postUser = (action, asset, private_key, owner) =>{
 
     console.log("TRATAMOS DE: ", action)
     submitUpdate(
@@ -307,19 +287,18 @@ users.update = function (action, asset, private_key, owner) {
       version,
       PREFIX_USER,
       private_key,
-      success => success ? this.refresh() : null
+      success => success ? null : postUser(action, asset, private_key, owner)
     )
   
 }
-
-coches.update = function(action, asset, private_key, owner){
+const postCoches = (action, asset, private_key, owner) =>{
   submitUpdate(
       {action, asset, owner},
       FAMILY_CARS,
       version,
       PREFIX_CARS,
       private_key,
-      success => success ? this.refresh() : null
+      success => success ? null : postCoches(action, asset, private_key, owner)
     )
 }
 
@@ -382,7 +361,7 @@ $('#registerUser').on('click', function () {
   
   
 
-  users.update(action,asset.join(), keys.private, hashUP32)
+  postUser(action,asset.join(), keys.private, hashUP32)
   //users.refresh()
 })
 
@@ -442,7 +421,7 @@ $('#createCocheRC').on('click', function () {
   const model = addCategory("modelo", $('#modelRC').val());
   const propietario = addCategory("propietario", user.owner);
   const asset = [matricula, model, propietario]
-  coches.update("register", asset.join(), user.keys.private_key, user.owner)
+  postCoches("register", asset.join(), user.keys.private_key, user.owner)
   $('#regCoche').attr('style', 'display:none')
   $('#mainUser').attr('style', '')
   
