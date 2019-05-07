@@ -240,7 +240,7 @@ admin.getCoches = function () {
   }) 
 }
 
-user.refresh = function (ff) {
+user.refresh = function (mostrarMain) {
   getBatchUser(({ assets }) => {
     console.log("ASSETS RECUPERADOS")
     console.log(assets)
@@ -252,7 +252,7 @@ user.refresh = function (ff) {
       processAsset(asset)
       
     }
-    ff()
+    mostrarMain()
   })
 }
 
@@ -291,14 +291,15 @@ const postUser = (action, asset, private_key, owner) =>{
     )
   
 }
-const postCoches = (action, asset, private_key, owner) =>{
+
+coches.update = function(action, asset, private_key, owner){
   submitUpdate(
       {action, asset, owner},
       FAMILY_CARS,
       version,
       PREFIX_CARS,
       private_key,
-      success => success ? null : postCoches(action, asset, private_key, owner)
+      success => success ? this.refresh() : null
     )
 }
 
@@ -367,7 +368,7 @@ $('#registerUser').on('click', function () {
 
 
 
-$('#loginButton1').on('click', function () {
+$('#loginButton').on('click', function () {
   const mail = addCategory('email',$('#mailInputL').val());
   const psw = addCategory('psw',$('#passInputL').val());
   const mailPsw = addCategory(mail, psw)
@@ -379,14 +380,32 @@ $('#loginButton1').on('click', function () {
   user.address = address
   
   user.refresh(()=>{
-    console.log("ggggggggguser.rol fuera de refresh: ", user.rol)
+    mostrarMain(user.rol)
   })
   $('#loginButton1').attr('style', 'display:none')
   $('#loginButton').attr('style', '')
   //$('#loginButton').click()
 })
 
-$('#loginButton').on('click', function () {
+const mostrarMain = (rol)=>{
+  $('#login').attr('style', 'display:none');
+  $('#logout').attr('style', '')
+  switch (user.rol) {
+    case 'Invitado':
+      $('#mainInvitado').attr('style', '')
+        invitaciones.getAll()
+        sleep(3000)
+      break;
+    case 'Usuario':
+      $('#mainUser').attr('style', '')
+      break;
+    default:
+       $('#mainAdmin').attr('style', '')
+       actualizaAdmin()
+  }
+}
+
+/*$('#loginButton').on('click', function () {
   
   console.log("user.rol fuera de refresh: ", user.rol)
 
@@ -407,7 +426,7 @@ $('#loginButton').on('click', function () {
   }
 
 })
-
+*/
 $('#goToRegister').on('click', function () {
 
   $('#register').attr('style', '')
@@ -421,7 +440,7 @@ $('#createCocheRC').on('click', function () {
   const model = addCategory("modelo", $('#modelRC').val());
   const propietario = addCategory("propietario", user.owner);
   const asset = [matricula, model, propietario]
-  postCoches("register", asset.join(), user.keys.private_key, user.owner)
+  coches.update("register", asset.join(), user.keys.private_key, user.owner)
   $('#regCoche').attr('style', 'display:none')
   $('#mainUser').attr('style', '')
   
