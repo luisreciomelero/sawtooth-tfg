@@ -241,7 +241,7 @@ admin.getCoches = function () {
   }) 
 }
 
-user.refresh = function () {
+user.refresh = function (ff) {
   getBatchUser(({ assets }) => {
     console.log("ASSETS RECUPERADOS")
     console.log(assets)
@@ -253,6 +253,7 @@ user.refresh = function () {
       processAsset(asset)
       
     }
+    ff()
   })
 }
 
@@ -398,7 +399,9 @@ $('#loginButton1').on('click', function () {
   user.owner = hashUP32
   user.address = address
   
-  user.refresh()
+  user.refresh(()=>{
+    console.log("ggggggggguser.rol fuera de refresh: ", user.rol)
+  })
   $('#loginButton1').attr('style', 'display:none')
   $('#loginButton').attr('style', '')
   //$('#loginButton').click()
