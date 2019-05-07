@@ -110,13 +110,13 @@ const addTableCoches = (coches) => {
 }
 
 
-const addTableInvitaciones = (invitaciones) => {
+const addTableInvitaciones = (parent, invitaciones) => {
 
-  $(`#visualizacion`).empty();
+  $(parent).empty();
   
   console.log("invitaciones que llegan al metodo: ", invitaciones)
   
-  $(`#visualizacion`).append(`<tr id="cabecera">
+  $(parent).append(`<tr id="cabecera">
                             <th>Invitacion de</th>
                             <th>Publicada en</th>
                           </tr>`)
@@ -140,7 +140,7 @@ const addTableInvitaciones = (invitaciones) => {
       }
     }
     console.log("invitacion: ",invitacion)
-    $(`#visualizacion`).append(`<tr>
+    $(parent).append(`<tr>
                               <td>${invitacion.invitacion_de}<td>
                               <td>${invitacion.fecha}<td>
                             </tr>`)
@@ -148,8 +148,8 @@ const addTableInvitaciones = (invitaciones) => {
   }
 
 }
-const deleteOptionAdmin = (admin) =>{
-  if (admin == 1){
+const deleteOptionAdmin = () =>{
+  
     var opciones = ["none:Selecciona Rol...","Invitado:Invitado", "Usuario:Usuario"]
   
     console.log("opciones: ", opciones)
@@ -162,7 +162,7 @@ const deleteOptionAdmin = (admin) =>{
           $(`<option value="${valor}">${texto}</option>`));
     }
 
-  }
+  
   
   
 }

@@ -271,6 +271,11 @@ invitaciones.refresh = function () {
   })
 }
 
+invitaciones.getAll = function() {
+  getAllInvitaciones((assets) =>{
+    this.assets = assets
+  }) 
+}
 
 users.refresh = function () {
   getStateUser(({ assets, transfers }) => {
@@ -371,8 +376,8 @@ $('#registerUser').on('click', function () {
   console.log(keys.private)
   $('#login').attr('style', '')
   $('#register').attr('style', 'display:none')
-  if($('[name="roleSelect"]').val() == "Admin"){ admin.admin==1}
-  deleteOptionAdmin(admin.admin)
+  if($('[name="roleSelect"]').val() == "Admin")deleteOptionAdmin()
+  
   
   
 
@@ -408,6 +413,8 @@ $('#loginButton').on('click', function () {
   switch (user.rol) {
     case 'Invitado':
       $('#mainInvitado').attr('style', '')
+        invitaciones.getAll()
+        sleep(3000)
       break;
     case 'Usuario':
       $('#mainUser').attr('style', '')
@@ -481,9 +488,9 @@ $('#publicarInv3').on('click', function () {
 })
 
 
-$('#solicitarInv').on('click', function () {
-  const matricula = $('#matriculaSI').val();
-  const modelo = $('#modelSI').val();
+$('#solicitarMI').on('click', function () {
+  
+  addTableInvitaciones('#invitacionesTableSI', invitaciones.assets)
   //getRandomInvitation
   $('#solicitarInvitacion').attr('style', 'display:none')
   $('#mainInvitado').attr('style', '')
@@ -502,10 +509,12 @@ $('#verCoches').on('click', function () {
 })
 $('#verInvitaciones').on('click', function () {
   console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
-  addTableInvitaciones(admin.invitaciones)
+  addTableInvitaciones('#visualizacion', admin.invitaciones)
 })
 $('#logout').on('click', function(){
   $('#login').attr('style', '')
+  $('#loginButton').attr('style', 'display:none')
+  $('#loginButton1').attr('style', '')
   $('#register').attr('style', 'display:none')
   $('#mainInvitado').attr('style', 'display:none')
   $('#mainUser').attr('style', 'display:none')
