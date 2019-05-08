@@ -78,14 +78,6 @@ const processAsset = (data) => {
   console.log("user: ", user)
 }
 
-const actualizaAdmin = () =>{
-  admin.getUsers();
-  /*sleep(3000)
-  admin.getInvitaciones();
-  sleep(3000)
-  admin.getCoches();*/
-}
-
 const concatString = (var1, var2) =>{
   const string1 = var1.toString()
   const string2 = var2.toString().substring(5,10)
@@ -96,12 +88,8 @@ const ActualizarAssetUser = (refreshUserMain) =>{
   const asset = user.assets[0].asset
   console.log("ASSET VIEJO: ", asset)
   var invitacionesActuales = parseInt(user.numInvitaciones)-1;
-  const address = getAddress(asset, user.owner)
-  console.log("QUEREMOS ELIMINAR EL ASSET CON DIRECCION: ", address)
-  //users.update("delete" , asset, user.keys.private_key, user.owner)
 
   invitacionesActuales=invitacionesActuales.toString()
-  
 
   const assetNuevo = asset.split(":")
   console.log("ASSET NUEVO1: ", assetNuevo)
@@ -110,34 +98,13 @@ const ActualizarAssetUser = (refreshUserMain) =>{
   assetNuevo.push(invitacionesActuales)
   
   console.log("ASSET NUEVO2: ", assetNuevo.join(":"))
-  //console.log("USER ANTES DE CREAR EL USUARIO NUEVO: ", user)
 
   actualizaInvitacionesUserState("register", assetNuevo.join(':'), user.keys.private_key, user.owner, ()=>{
     deleteUser("delete" , asset, user.keys.private_key, user.owner, ()=>{
       refreshUserMain()
     })
   })
-  //sleep(5000);
-  //postUser("delete" , asset, user.keys.private_key, user.owner)
-  
-}
 
-const sleep = (ms) => {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > ms) {
-      break;
-  }
- }
-}
-
-
-const getAddress = (string, owner) =>{
-  //hashlib.sha512(key.encode('utf-8')).hexdigest()[:30]
-  //USERCHAIN_NAMESPACE +owner+ '00' + _get_address(asset_name)
-  var string1 = createHash('sha512').update(string).digest('hex')
-  var devolver = PREFIX_USER + owner + '00'+ string1.substring(0,30)
-  return devolver
 }
 
 const getBatchUser = cb => {
@@ -228,22 +195,24 @@ const getAllCoches = cb => {
   })
 }
 
-admin.getUsers = function () {
+admin.getUsers = function (tablaUsers) {
   getAllUsers((users) =>{
     console.log("users recuperados")
-    this.users = users
+    this.users = users;
+    tablaUsers();
   }) 
-  admin.getAllInvitaciones()
+  
 }
-admin.getInvitaciones = function () {
+admin.getInvitaciones = function (tablaInvitaciones) {
   getAllInvitaciones((invitaciones) =>{
     this.invitaciones = invitaciones
+    tablaInvitaciones()
   }) 
-  admin.getCoches()
 }
-admin.getCoches = function () {
+admin.getCoches = function (tablaCoches) {
   getAllCoches((coches) =>{
     this.coches = coches
+    tablaCoches()
   }) 
 }
 
@@ -352,12 +321,6 @@ invitaciones.update = function(action, asset, private_key, owner, actualizaUser)
     )
 }
 
-/*invitaciones.refresh =  function() {
-  getStateInvitations(({assets, transfers}) => {
-    this.assets = assets;
-    console.log(this.assets)
-  })
-}*/
 
 $('#registerUser').on('click', function () {
 
@@ -373,8 +336,6 @@ $('#registerUser').on('click', function () {
   const private_key = addCategory("private", keys.private)
   const public_key = addCategory("public", keys.public)
   const invitaciones = addCategory("numInvitaciones", "20")
-  //const wallet = addCategory("wallet", "0")
-  //const asset = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones, wallet]
   const asset = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones]
   
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
@@ -388,12 +349,8 @@ $('#registerUser').on('click', function () {
   console.log(keys.private)
  
   if($('[name="roleSelect"]').val() == "Admin")deleteOptionAdmin()
-  
-  
-  
 
   postUser(action,asset.join(), keys.private, hashUP32)
-  //users.refresh()
 })
 
 $('#volverLogin').on('click', function(){
@@ -436,7 +393,7 @@ const mostrarMain = (rol)=>{
     default:
        $('#mainAdmin').attr('style', '')
        $('#login').attr('style', 'display:none')
-       actualizaAdmin()
+       
   }
   
 }
@@ -466,10 +423,6 @@ $('#createCocheMU').on('click', function () {
   $('#regCoche').attr('style', '')
 })
 
-
-
-
-
 $('#publicarInv').on('click', function () {
   if (user.numInvitaciones==0){
     alert("No le quedan invitaciones al usuario")
@@ -494,33 +447,36 @@ $('#publicarInv').on('click', function () {
   })
 })
 
-
-
-
-
 $('#solicitarMI').on('click', function () {
   
   addTableInvitaciones('#invitacionesTableSI', invitaciones.assets)
-  //getRandomInvitation
+
   $('#solicitarInvitacion').attr('style', 'display:none')
   $('#mainInvitado').attr('style', '')
-
 })
 
-
 $('#verUsuarios').on('click', function () {
+
   console.log("TODOS LOS USUARIOS REGISTRADOS: ", admin.users)
-  addTableUsers(admin.users)
+  admin.getUsers(()=>{
+    addTableUsers(admin.users)
+  })
 })
 
 $('#verCoches').on('click', function () {
   console.log("TODOS LOS COCHES REGISTRADOS: ", admin.coches)
-  addTableCoches(admin.coches)
+  admin.getCoches(()=>{
+    addTableCoches(admin.coches)
+  })
 })
+
 $('#verInvitaciones').on('click', function () {
   console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
-  addTableInvitaciones('#visualizacion', admin.invitaciones)
+  admin.getInvitaciones(()=>{
+    addTableInvitaciones('#visualizacion', admin.invitaciones)
+  })
 })
+
 $('#logout').on('click', function(){
   $('#login').attr('style', '')
   $('#register').attr('style', 'display:none')
@@ -534,12 +490,3 @@ $('#logout').on('click', function(){
 })
 
 
-
-/////FALTA EL ACCEPT O REJECT INVITACIONES SI LAS HAY. DESPUES DE DEFINIR ESA TP
-
-//if(user.assets != []) user.refresh()
- 
-/*user.refresh()
-coches.refresh()
-invitaciones.refresh()
-*/

@@ -30364,14 +30364,6 @@ const processAsset = (data) => {
   console.log("user: ", user)
 }
 
-const actualizaAdmin = () =>{
-  admin.getUsers();
-  /*sleep(3000)
-  admin.getInvitaciones();
-  sleep(3000)
-  admin.getCoches();*/
-}
-
 const concatString = (var1, var2) =>{
   const string1 = var1.toString()
   const string2 = var2.toString().substring(5,10)
@@ -30382,12 +30374,8 @@ const ActualizarAssetUser = (refreshUserMain) =>{
   const asset = user.assets[0].asset
   console.log("ASSET VIEJO: ", asset)
   var invitacionesActuales = parseInt(user.numInvitaciones)-1;
-  const address = getAddress(asset, user.owner)
-  console.log("QUEREMOS ELIMINAR EL ASSET CON DIRECCION: ", address)
-  //users.update("delete" , asset, user.keys.private_key, user.owner)
 
   invitacionesActuales=invitacionesActuales.toString()
-  
 
   const assetNuevo = asset.split(":")
   console.log("ASSET NUEVO1: ", assetNuevo)
@@ -30396,34 +30384,13 @@ const ActualizarAssetUser = (refreshUserMain) =>{
   assetNuevo.push(invitacionesActuales)
   
   console.log("ASSET NUEVO2: ", assetNuevo.join(":"))
-  //console.log("USER ANTES DE CREAR EL USUARIO NUEVO: ", user)
 
   actualizaInvitacionesUserState("register", assetNuevo.join(':'), user.keys.private_key, user.owner, ()=>{
     deleteUser("delete" , asset, user.keys.private_key, user.owner, ()=>{
       refreshUserMain()
     })
   })
-  //sleep(5000);
-  //postUser("delete" , asset, user.keys.private_key, user.owner)
-  
-}
 
-const sleep = (ms) => {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > ms) {
-      break;
-  }
- }
-}
-
-
-const getAddress = (string, owner) =>{
-  //hashlib.sha512(key.encode('utf-8')).hexdigest()[:30]
-  //USERCHAIN_NAMESPACE +owner+ '00' + _get_address(asset_name)
-  var string1 = createHash('sha512').update(string).digest('hex')
-  var devolver = PREFIX_USER + owner + '00'+ string1.substring(0,30)
-  return devolver
 }
 
 const getBatchUser = cb => {
@@ -30514,22 +30481,24 @@ const getAllCoches = cb => {
   })
 }
 
-admin.getUsers = function () {
+admin.getUsers = function (tablaUsers) {
   getAllUsers((users) =>{
     console.log("users recuperados")
-    this.users = users
+    this.users = users;
+    tablaUsers();
   }) 
-  admin.getAllInvitaciones()
+  
 }
-admin.getInvitaciones = function () {
+admin.getInvitaciones = function (tablaInvitaciones) {
   getAllInvitaciones((invitaciones) =>{
     this.invitaciones = invitaciones
+    tablaInvitaciones()
   }) 
-  admin.getCoches()
 }
-admin.getCoches = function () {
+admin.getCoches = function (tablaCoches) {
   getAllCoches((coches) =>{
     this.coches = coches
+    tablaCoches()
   }) 
 }
 
@@ -30638,12 +30607,6 @@ invitaciones.update = function(action, asset, private_key, owner, actualizaUser)
     )
 }
 
-/*invitaciones.refresh =  function() {
-  getStateInvitations(({assets, transfers}) => {
-    this.assets = assets;
-    console.log(this.assets)
-  })
-}*/
 
 $('#registerUser').on('click', function () {
 
@@ -30659,8 +30622,6 @@ $('#registerUser').on('click', function () {
   const private_key = addCategory("private", keys.private)
   const public_key = addCategory("public", keys.public)
   const invitaciones = addCategory("numInvitaciones", "20")
-  //const wallet = addCategory("wallet", "0")
-  //const asset = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones, wallet]
   const asset = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones]
   
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
@@ -30674,12 +30635,8 @@ $('#registerUser').on('click', function () {
   console.log(keys.private)
  
   if($('[name="roleSelect"]').val() == "Admin")deleteOptionAdmin()
-  
-  
-  
 
   postUser(action,asset.join(), keys.private, hashUP32)
-  //users.refresh()
 })
 
 $('#volverLogin').on('click', function(){
@@ -30722,7 +30679,7 @@ const mostrarMain = (rol)=>{
     default:
        $('#mainAdmin').attr('style', '')
        $('#login').attr('style', 'display:none')
-       actualizaAdmin()
+       
   }
   
 }
@@ -30752,10 +30709,6 @@ $('#createCocheMU').on('click', function () {
   $('#regCoche').attr('style', '')
 })
 
-
-
-
-
 $('#publicarInv').on('click', function () {
   if (user.numInvitaciones==0){
     alert("No le quedan invitaciones al usuario")
@@ -30780,33 +30733,36 @@ $('#publicarInv').on('click', function () {
   })
 })
 
-
-
-
-
 $('#solicitarMI').on('click', function () {
   
   addTableInvitaciones('#invitacionesTableSI', invitaciones.assets)
-  //getRandomInvitation
+
   $('#solicitarInvitacion').attr('style', 'display:none')
   $('#mainInvitado').attr('style', '')
-
 })
 
-
 $('#verUsuarios').on('click', function () {
+
   console.log("TODOS LOS USUARIOS REGISTRADOS: ", admin.users)
-  addTableUsers(admin.users)
+  admin.getUsers(()=>{
+    addTableUsers(admin.users)
+  })
 })
 
 $('#verCoches').on('click', function () {
   console.log("TODOS LOS COCHES REGISTRADOS: ", admin.coches)
-  addTableCoches(admin.coches)
+  admin.getCoches(()=>{
+    addTableCoches(admin.coches)
+  })
 })
+
 $('#verInvitaciones').on('click', function () {
   console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
-  addTableInvitaciones('#visualizacion', admin.invitaciones)
+  admin.getInvitaciones(()=>{
+    addTableInvitaciones('#visualizacion', admin.invitaciones)
+  })
 })
+
 $('#logout').on('click', function(){
   $('#login').attr('style', '')
   $('#register').attr('style', 'display:none')
@@ -30821,14 +30777,6 @@ $('#logout').on('click', function(){
 
 
 
-/////FALTA EL ACCEPT O REJECT INVITACIONES SI LAS HAY. DESPUES DE DEFINIR ESA TP
-
-//if(user.assets != []) user.refresh()
- 
-/*user.refresh()
-coches.refresh()
-invitaciones.refresh()
-*/
 
 /***/ }),
 /* 104 */
@@ -33983,7 +33931,7 @@ module.exports.makeKey = makeKey
 /* 149 */
 /***/ (function(module, exports) {
 
-module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-user/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-user/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
+module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-invitations/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-invitations/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
 
 /***/ }),
 /* 150 */
