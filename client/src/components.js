@@ -196,6 +196,19 @@ const compruebaCampos = (fields) =>{
   return comprueba
 }
 
+const limpiaInputs = () =>{
+  $("#nameInputR").val('')
+  $("#dniInputR").val('')
+  $("#emailInputR").val('')
+  $("#passInputR").val('')
+  $("#tfnInputR").val('')
+  $("#mailInputL").val('')
+  $("#passInputL").val('')
+  $("#matriculaRC").val('')
+  $("#modelRC").val('')
+
+}
+
 
 
 
@@ -208,5 +221,6 @@ module.exports = {
   compruebaCampos,
   addTableUsers,
   addTableCoches,
-  addTableInvitaciones
+  addTableInvitaciones,
+  limpiaInputs
 }

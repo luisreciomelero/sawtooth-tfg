@@ -31,7 +31,8 @@ const {
   compruebaCampos,
   addTableUsers,
   addTableCoches,
-  addTableInvitaciones
+  addTableInvitaciones,
+  limpiaInputs
 }=require('./components')
 
 // Application Object
@@ -351,11 +352,13 @@ $('#registerUser').on('click', function () {
   if($('[name="roleSelect"]').val() == "Admin")deleteOptionAdmin()
 
   postUser(action,asset.join(), keys.private, hashUP32)
+  limpiaInputs()
 })
 
 $('#volverLogin').on('click', function(){
   $('#login').attr('style', '')
   $('#register').attr('style', 'display:none')
+  limpiaInputs()
 })
 
 
@@ -374,7 +377,7 @@ $('#loginButton').on('click', function () {
   user.refresh(()=>{
     mostrarMain(user.rol)
   })
-  
+  limpiaInputs()
 })
 
 const mostrarMain = (rol)=>{
@@ -400,7 +403,7 @@ const mostrarMain = (rol)=>{
 
 
 $('#goToRegister').on('click', function () {
-
+  limpiaInputs()
   $('#register').attr('style', '')
   $('#login').attr('style', 'display:none')
 })
@@ -415,6 +418,7 @@ $('#createCocheRC').on('click', function () {
   coches.update("register", asset.join(), user.keys.private_key, user.owner)
   $('#regCoche').attr('style', 'display:none')
   $('#mainUser').attr('style', '')
+  limpiaInputs()
   
 })
 
@@ -453,6 +457,7 @@ $('#solicitarMI').on('click', function () {
 
   $('#solicitarInvitacion').attr('style', 'display:none')
   $('#mainInvitado').attr('style', '')
+  limpiaInputs()
 })
 
 $('#verUsuarios').on('click', function () {
