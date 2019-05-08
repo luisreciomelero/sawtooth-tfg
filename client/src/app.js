@@ -85,10 +85,10 @@ const concatString = (var1, var2) =>{
   return string1.concat(string2)
 }
 
-const ActualizarAssetUser = (refreshUserMain) =>{
+const ActualizarAssetUser = (numInvPub, refreshUserMain) =>{
   const asset = user.assets[0].asset
   console.log("ASSET VIEJO: ", asset)
-  var invitacionesActuales = parseInt(user.numInvitaciones)-1;
+  var invitacionesActuales = parseInt(user.numInvitaciones)-numInvPub;
 
   invitacionesActuales=invitacionesActuales.toString()
 
@@ -312,6 +312,7 @@ coches.refresh = function() {
 }
 
 invitaciones.update = function(action, asset, private_key, owner, actualizaUser){
+  
   submitUpdate(
       {action, asset, owner},
       FAMILY_INVITATIONS,
@@ -322,6 +323,19 @@ invitaciones.update = function(action, asset, private_key, owner, actualizaUser)
     )
 }
 
+const limpiarUser = () =>{
+  user.owner = null;
+  user.address= null;
+  user.keys.public_key= null;
+  user.keys.private_key =null;
+  user.assets = [];
+  user.dni= null;
+  user.nombre= null;
+  user.phone= null;
+  user.rol= null;
+  user.numInvitaciones= null;
+  user.wallet= null;
+}
 
 $('#registerUser').on('click', function () {
 
@@ -364,9 +378,10 @@ $('#volverLogin').on('click', function(){
 
 
 $('#loginButton').on('click', function () {
-  const mail = addCategory('email',$('#mailInputL').val());
-  const psw = addCategory('psw',$('#passInputL').val());
-  const mailPsw = addCategory(mail, psw)
+  //limpiarUser()
+  var mail = addCategory('email',$('#mailInputL').val());
+  var psw = addCategory('psw',$('#passInputL').val());
+  var mailPsw = addCategory(mail, psw)
   
   const hashUP32 = getHashUser($('#mailInputL').val(), $('#passInputL').val());
   const address = PREFIX_USER + hashUP32;
@@ -382,20 +397,23 @@ $('#loginButton').on('click', function () {
 
 const mostrarMain = (rol)=>{
   
-  $('#logout').attr('style', '')
+  
   switch (user.rol) {
     case 'Invitado':
       $('#mainInvitado').attr('style', '')
       $('#login').attr('style', 'display:none')
+      $('#logout').attr('style', '')
         invitaciones.getAll()
       break;
     case 'Usuario':
       $('#mainUser').attr('style', '')
       $('#login').attr('style', 'display:none')
+      $('#logout').attr('style', '')
       break;
-    default:
+    case 'Admin':
        $('#mainAdmin').attr('style', '')
        $('#login').attr('style', 'display:none')
+       $('#logout').attr('style', '')
        
   }
   
@@ -432,23 +450,36 @@ $('#publicarInv').on('click', function () {
     alert("No le quedan invitaciones al usuario")
     return; 
   }
-  console.log("user.owner en pubINV: ", user.owner)
-  var currentDate = new Date();
-  console.log("TIMESTAMP: ", currentDate)
-  const keys = makeKeyPair();
-  const publicrand = concatString(user.keys.public_key, keys.private)
-  const propiedad = addCategory("invitacion_de", publicrand)
-  const fecha = addCategory("timestamp", currentDate)
-  const asset = [propiedad, fecha]
-  invitaciones.address = PREFIX_INVITATIONS+user.owner;
+  console.log("antes de comprobar user.numInvitaciones", user.numInvitaciones)
+  console.log("lo mismo para numInvPublicar", $('#numInv').val())
+  var numInvPublicar = $('#numInv').val();
+  if(numInvPublicar > user.numInvitaciones){
+    console.log("numInvPublicar", numInvPublicar)
+    console.log("user.numInvitaciones", user.numInvitaciones)
+    alert(`No puede publicar mas de: ${user.numInvitaciones}`)
+    return;
+  }
+  const numInvPub = numInvPublicar;
+  for(var i=0; i<numInvPublicar; i++){
 
-  invitaciones.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
-    ActualizarAssetUser(()=>{
-      user.refresh(()=>{
-        mostrarMain(user.rol)
-      })
-    });
-  })
+    console.log("user.owner en pubINV: ", user.owner)
+    var currentDate = new Date();
+    console.log("TIMESTAMP: ", currentDate)
+    const keys = makeKeyPair();
+    const publicrand = concatString(user.keys.public_key, keys.private)
+    const propiedad = addCategory("invitacion_de", publicrand)
+    const fecha = addCategory("timestamp", currentDate)
+    const asset = [propiedad, fecha]
+    invitaciones.address = PREFIX_INVITATIONS+user.owner;
+    invitaciones.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
+      ActualizarAssetUser(numInvPub,()=>{
+        user.refresh(()=>{
+          mostrarMain(user.rol)
+        })
+      });
+    })
+  }
+  
 })
 
 $('#solicitarMI').on('click', function () {
