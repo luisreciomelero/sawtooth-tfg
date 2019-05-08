@@ -80,10 +80,10 @@ const processAsset = (data) => {
 
 const actualizaAdmin = () =>{
   admin.getUsers();
-  sleep(3000)
+  /*sleep(3000)
   admin.getInvitaciones();
   sleep(3000)
-  admin.getCoches();
+  admin.getCoches();*/
 }
 
 const concatString = (var1, var2) =>{
@@ -92,7 +92,7 @@ const concatString = (var1, var2) =>{
   return string1.concat(string2)
 }
 
-const ActualizarAssetUser = () =>{
+const ActualizarAssetUser = (refresh) =>{
   const asset = user.assets[0].asset
   console.log("ASSET VIEJO: ", asset)
   var invitacionesActuales = parseInt(user.numInvitaciones)-1;
@@ -115,7 +115,7 @@ const ActualizarAssetUser = () =>{
   postUser("register", assetNuevo.join(':'), user.keys.private_key, user.owner)
   sleep(5000);
   postUser("delete" , asset, user.keys.private_key, user.owner)
-
+  refresh()
 }
 
 const sleep = (ms) => {
@@ -226,13 +226,16 @@ const getAllCoches = cb => {
 
 admin.getUsers = function () {
   getAllUsers((users) =>{
+    console.log("users recuperados")
     this.users = users
   }) 
+  admin.getAllInvitaciones()
 }
 admin.getInvitaciones = function () {
   getAllInvitaciones((invitaciones) =>{
     this.invitaciones = invitaciones
   }) 
+  admin.getCoches()
 }
 admin.getCoches = function () {
   getAllCoches((coches) =>{
@@ -256,7 +259,7 @@ user.refresh = function (mostrarMain) {
   })
 }
 
-invitaciones.refresh = function () {
+invitaciones.refresh = function (actualizaUser) {
   getBatchInv(({ assets }) => {
     console.log("ASSETS RECUPERADOS")
     console.log(assets)
@@ -269,6 +272,7 @@ invitaciones.refresh = function () {
       
     }
   })
+  actualizaUser();
 }
 
 invitaciones.getAll = function() {
@@ -310,14 +314,14 @@ coches.refresh = function() {
   })
 }
 
-invitaciones.update = function(action, asset, private_key, owner){
+invitaciones.update = function(action, asset, private_key, owner, actualizaUser){
   submitUpdate(
       {action, asset, owner},
       FAMILY_INVITATIONS,
       version,
       PREFIX_INVITATIONS,
       private_key,
-      success => success ? this.refresh() : null
+      success => success ? this.refresh(actualizaUser) : null
     )
 }
 
@@ -355,8 +359,7 @@ $('#registerUser').on('click', function () {
   console.log(asset.join())
   console.log("keys.private")
   console.log(keys.private)
-  $('#login').attr('style', '')
-  $('#register').attr('style', 'display:none')
+ 
   if($('[name="roleSelect"]').val() == "Admin")deleteOptionAdmin()
   
   
@@ -364,6 +367,11 @@ $('#registerUser').on('click', function () {
 
   postUser(action,asset.join(), keys.private, hashUP32)
   //users.refresh()
+})
+
+$('#volverLogin').on('click', function(){
+  $('#login').attr('style', '')
+  $('#register').attr('style', 'display:none')
 })
 
 
@@ -382,51 +390,31 @@ $('#loginButton').on('click', function () {
   user.refresh(()=>{
     mostrarMain(user.rol)
   })
-  $('#loginButton1').attr('style', 'display:none')
-  $('#loginButton').attr('style', '')
-  //$('#loginButton').click()
+  
 })
 
 const mostrarMain = (rol)=>{
-  $('#login').attr('style', 'display:none');
+  
   $('#logout').attr('style', '')
   switch (user.rol) {
     case 'Invitado':
       $('#mainInvitado').attr('style', '')
+      $('#login').attr('style', 'display:none')
         invitaciones.getAll()
-        sleep(3000)
       break;
     case 'Usuario':
       $('#mainUser').attr('style', '')
+      $('#login').attr('style', 'display:none')
       break;
     default:
        $('#mainAdmin').attr('style', '')
+       $('#login').attr('style', 'display:none')
        actualizaAdmin()
   }
+  
 }
 
-/*$('#loginButton').on('click', function () {
-  
-  console.log("user.rol fuera de refresh: ", user.rol)
 
-  $('#login').attr('style', 'display:none');
-  $('#logout').attr('style', '')
-  switch (user.rol) {
-    case 'Invitado':
-      $('#mainInvitado').attr('style', '')
-        invitaciones.getAll()
-        sleep(3000)
-      break;
-    case 'Usuario':
-      $('#mainUser').attr('style', '')
-      break;
-    default:
-       $('#mainAdmin').attr('style', '')
-       actualizaAdmin()
-  }
-
-})
-*/
 $('#goToRegister').on('click', function () {
 
   $('#register').attr('style', '')
@@ -469,24 +457,18 @@ $('#publicarInv').on('click', function () {
   const fecha = addCategory("timestamp", currentDate)
   const asset = [propiedad, fecha]
   invitaciones.address = PREFIX_INVITATIONS+user.owner;
-  invitaciones.update("register", asset.join(), user.keys.private_key, user.owner)
-  
-  $('#publicarInv').attr('style', 'display:none')
-  $('#publicarInv2').attr('style', '')
+
+  invitaciones.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
+    ActualizarAssetUser(()=>{
+      user.refresh(()=>{
+        mostrarMain(user.rol)
+      })
+    });
+  })
 })
 
-$('#publicarInv2').on('click', function () {
-  invitaciones.refresh();
-  ActualizarAssetUser()
-  $('#publicarInv2').attr('style', 'display:none')
-  $('#publicarInv3').attr('style', '')
-})
-$('#publicarInv3').on('click', function () {
-  console.log("INVITACIONES: ", invitaciones)
-  user.refresh()
-  $('#publicarInv3').attr('style', 'display:none')
-  $('#publicarInv').attr('style', '')
-})
+
+
 
 
 $('#solicitarMI').on('click', function () {
@@ -514,8 +496,6 @@ $('#verInvitaciones').on('click', function () {
 })
 $('#logout').on('click', function(){
   $('#login').attr('style', '')
-  $('#loginButton').attr('style', 'display:none')
-  $('#loginButton1').attr('style', '')
   $('#register').attr('style', 'display:none')
   $('#mainInvitado').attr('style', 'display:none')
   $('#mainUser').attr('style', 'display:none')
