@@ -92,7 +92,7 @@ const concatString = (var1, var2) =>{
   return string1.concat(string2)
 }
 
-const ActualizarAssetUser = (refresh) =>{
+const ActualizarAssetUser = (refreshUserMain) =>{
   const asset = user.assets[0].asset
   console.log("ASSET VIEJO: ", asset)
   var invitacionesActuales = parseInt(user.numInvitaciones)-1;
@@ -112,10 +112,14 @@ const ActualizarAssetUser = (refresh) =>{
   console.log("ASSET NUEVO2: ", assetNuevo.join(":"))
   //console.log("USER ANTES DE CREAR EL USUARIO NUEVO: ", user)
 
-  postUser("register", assetNuevo.join(':'), user.keys.private_key, user.owner)
-  sleep(5000);
-  postUser("delete" , asset, user.keys.private_key, user.owner)
-  refresh()
+  actualizaInvitacionesUserState("register", assetNuevo.join(':'), user.keys.private_key, user.owner, ()=>{
+    deleteUser("delete" , asset, user.keys.private_key, user.owner, ()=>{
+      refreshUserMain()
+    })
+  })
+  //sleep(5000);
+  //postUser("delete" , asset, user.keys.private_key, user.owner)
+  
 }
 
 const sleep = (ms) => {
@@ -281,6 +285,29 @@ invitaciones.getAll = function() {
   }) 
 }
 
+const actualizaInvitacionesUserState = (action, asset, private_key, owner, deleteUser) =>{
+
+    console.log("TRATAMOS DE: ", action)
+    submitUpdate(
+      {action, asset, owner},
+      FAMILY_USER,
+      version,
+      PREFIX_USER,
+      private_key,
+      success => success ? deleteUser() : null
+    )
+  
+}
+const deleteUser =(action, asset, private_key, owner, refreshUserMain)=>{
+  submitUpdate(
+      {action, asset, owner},
+      FAMILY_USER,
+      version,
+      PREFIX_USER,
+      private_key,
+      success => success ? refreshUserMain() : null
+    )
+}
 
 const postUser = (action, asset, private_key, owner) =>{
 
@@ -291,7 +318,7 @@ const postUser = (action, asset, private_key, owner) =>{
       version,
       PREFIX_USER,
       private_key,
-      success => success ? null : postUser(action, asset, private_key, owner)
+      success => success ? this.refresh : null
     )
   
 }
