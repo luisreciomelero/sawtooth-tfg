@@ -9,6 +9,15 @@
 
 const $ = require('jquery')
 const {createHash} = require('crypto')
+const {
+  FAMILY_USER,
+  VERSION_USER,
+  PREFIX_USER,
+  FAMILY_CARS,
+  PREFIX_CARS,
+  FAMILY_INVITATIONS,
+  PREFIX_INVITATIONS
+} = require('./state.js')
 
 const addSesion = (parent, current_number, current_id) => {
   $(parent).append(`<div>
@@ -209,6 +218,48 @@ const limpiaInputs = () =>{
 
 }
 
+const mostrarMain = (rol)=>{
+  
+  switch (rol) {
+    case 'Invitado':
+      $('#mainInvitado').attr('style', '')
+      $('#login').attr('style', 'display:none')
+      $('#logout').attr('style', '')
+        invitaciones.getAll()
+      break;
+    case 'Usuario':
+      $('#mainUser').attr('style', '')
+      $('#login').attr('style', 'display:none')
+      $('#logout').attr('style', '')
+      break;
+    case 'Admin':
+       $('#mainAdmin').attr('style', '')
+       $('#login').attr('style', 'display:none')
+       $('#logout').attr('style', '')
+       
+  }
+  
+}
+
+const generateAddress_user = (email, psw, rol)=>{
+  const hashUP32 = getHashUser(email);
+  switch(rol){
+    case 'Admin':
+      return PREFIX_USER + '00' + hashUP32;
+    case 'Usuario':
+      return PREFIX_USER + '01' + hashUP32;
+    case 'Invitado':
+      return PREFIX_USER + '01' + hashUP32;
+    
+  }
+
+}
+
+const concatString = (var1, var2) =>{
+  const string1 = var1.toString()
+  const string2 = var2.toString().substring(5,10)
+  return string1.concat(string2)
+}
 
 
 
@@ -222,5 +273,8 @@ module.exports = {
   addTableUsers,
   addTableCoches,
   addTableInvitaciones,
-  limpiaInputs
+  limpiaInputs,
+  mostrarMain,
+  generateAddress_user,
+  concatString
 }

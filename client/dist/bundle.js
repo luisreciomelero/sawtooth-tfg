@@ -30333,6 +30333,45 @@ const admin = {users:[], invitaciones:[], coches:[], admin:0}
 const registro = {user:null}
 
 
+
+const mostrarMain = (rol)=>{
+  
+  switch (rol) {
+    case 'Invitado':
+      $('#mainInvitado').attr('style', '')
+      $('#login').attr('style', 'display:none')
+      $('#logout').attr('style', '')
+        invitaciones.getAll()
+      break;
+    case 'Usuario':
+      $('#mainUser').attr('style', '')
+      $('#login').attr('style', 'display:none')
+      $('#logout').attr('style', '')
+      break;
+    case 'Admin':
+       $('#mainAdmin').attr('style', '')
+       $('#login').attr('style', 'display:none')
+       $('#logout').attr('style', '')
+       
+  }
+  
+}
+
+
+const generateAddress_user = (email, psw, rol)=>{
+  const hashUP32 = getHashUser(email);
+  switch(rol){
+    case 'Admin':
+      return PREFIX_USER + '00' + hashUP32;
+    case 'Usuario':
+      return PREFIX_USER + '01' + hashUP32;
+    case 'Invitado':
+      return PREFIX_USER + '01' + hashUP32;
+    
+  }
+
+}
+
 const processAsset = (data) => {
   const arrayDataComas = data.split(',');
   for(var i=0; i<arrayDataComas.length;i++){
@@ -30702,18 +30741,16 @@ $('#registerUser').on('click', function () {
   const private_key = addCategory("private", keys.private)
   const public_key = addCategory("public", keys.public)
   const invitaciones = addCategory("numInvitaciones", "20")
-  const asset_admin = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, email, psw]
-  const asset = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones, email, psw]
-  
+  const invitaciones_invAdm = addCategory("numInvitaciones", "0")
+  const asset_admin = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones_invAdm, email, psw]
+  const asset_user = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones, email, psw]
+  const asset_invitado = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones_invAdm, email, psw]
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
                   $('#passInputR').val(), $('#tfnInputR').val(), $('[name="roleSelect"]').val()]
 
   var comprueba = compruebaCampos(campos)
   if (comprueba == 0) return;
-  console.log("Asset")
-  console.log(asset.join())
-  console.log("keys.private")
-  console.log(keys.private)
+  
   const address = generateAddress_user($('#emailInputR').val(), $('#passInputR').val(), roleSelect)
   if(roleSelect == 'Admin'){
 
@@ -30723,15 +30760,21 @@ $('#registerUser').on('click', function () {
       postUser(action,asset_admin.join(), keys.private, hashUP32, roleSelect)
   })
   }
-  else{
+  else if (roleSelect == 'Usuario'){
     registro.refresh(address, ()=>{
       getAlert(user.rol, user.address)
     },()=>{
-      postUser(action,asset_admin.join(), keys.private, hashUP32, roleSelect)
-  })
+      postUser(action,asset_user.join(), keys.private, hashUP32, roleSelect)
+    })
+  }else{
+    registro.refresh(address, ()=>{
+      getAlert(user.rol, user.address)
+    },()=>{
+      postUser(action,asset_invitado.join(), keys.private, hashUP32, roleSelect)
+    })
   }
   
-
+  limpiarUser()
   limpiaInputs()
 })
 
@@ -30740,19 +30783,7 @@ $('#volverLogin').on('click', function(){
   $('#register').attr('style', 'display:none')
   limpiaInputs()
 })
-const generateAddress_user = (email, psw, rol)=>{
-  const hashUP32 = getHashUser(email);
-  switch(rol){
-    case 'Admin':
-      return PREFIX_USER + '00' + hashUP32;
-    case 'Usuario':
-      return PREFIX_USER + '01' + hashUP32;
-    case 'Invitado':
-      return PREFIX_USER + '01' + hashUP32;
-    
-  }
 
-}
 $('#loginAdmin').on('click', function () {
   //limpiarUser()
   var mail = addCategory('email',$('#mailInputL').val());
@@ -30764,7 +30795,7 @@ $('#loginAdmin').on('click', function () {
   console.log("ADDRESS")
   user.owner = hashUP32
   user.address = address
-  user.rol = null;
+  //user.rol = null;
   user.refresh(()=>{
     mostrarMain(user.rol)
   })
@@ -30789,29 +30820,7 @@ $('#loginButton').on('click', function () {
   limpiaInputs()
 })
 
-const mostrarMain = (rol)=>{
-  
-  
-  switch (rol) {
-    case 'Invitado':
-      $('#mainInvitado').attr('style', '')
-      $('#login').attr('style', 'display:none')
-      $('#logout').attr('style', '')
-        invitaciones.getAll()
-      break;
-    case 'Usuario':
-      $('#mainUser').attr('style', '')
-      $('#login').attr('style', 'display:none')
-      $('#logout').attr('style', '')
-      break;
-    case 'Admin':
-       $('#mainAdmin').attr('style', '')
-       $('#login').attr('style', 'display:none')
-       $('#logout').attr('style', '')
-       
-  }
-  
-}
+
 
 
 $('#goToRegister').on('click', function () {
