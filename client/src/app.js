@@ -279,11 +279,11 @@ const deleteUser =(action, asset, private_key, owner, refreshUserMain)=>{
     )
 }
 
-const postUser = (action, asset, private_key, owner) =>{
+const postUser = (action, asset, private_key, owner, rol) =>{
 
     console.log("TRATAMOS DE: ", action)
     submitUpdate(
-      {action, asset, owner},
+      {action, asset, owner, rol},
       FAMILY_USER,
       version,
       PREFIX_USER,
@@ -346,7 +346,8 @@ $('#registerUser').on('click', function () {
   const dni = addCategory("dni", $('#dniInputR').val());
   const hashUP32 = getHashUser($('#emailInputR').val(),$('#passInputR').val());
   const telefono = addCategory("telefono", $('#tfnInputR').val());
-  const rol = addCategory("rol", $('[name="roleSelect"]').val());
+  const roleSelect = $('[name="roleSelect"]').val();
+  const rol = addCategory("rol", roleSelect);
   const keys = makeKeyPair();
   const private_key = addCategory("private", keys.private)
   const public_key = addCategory("public", keys.public)
@@ -365,7 +366,7 @@ $('#registerUser').on('click', function () {
  
   if($('[name="roleSelect"]').val() == "Admin")deleteOptionAdmin()
 
-  postUser(action,asset.join(), keys.private, hashUP32)
+  postUser(action,asset.join(), keys.private, hashUP32, roleSelect)
   limpiaInputs()
 })
 

@@ -82,15 +82,17 @@ class UserTransactionHandler(TransactionHandler):
                     signer[:8] + '... ')
 
         if payload.action == 'register':
-            _register_asset(asset=payload.asset,
+            _register_user(asset=payload.asset,
                           signer=signer,
                           state=state,
-                          owner= payload.owner)
+                          owner= payload.owner,
+                          rol= payload.rol)
         elif payload.action == 'delete':
-            _delete_asset(asset=payload.asset,
+            _delete_user(asset=payload.asset,
                           signer=signer,
                           state=state,
-                          owner= payload.owner)
+                          owner= payload.owner,
+                          rol= payload.rol)
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
                 payload.action))
@@ -221,5 +223,32 @@ def _delete_asset(asset, signer, state, owner):
     print('DIrecciones exitosas eliminadas: ')
     print(state.delete_asset(asset, owner))
     state.delete_asset(asset, owner)
+
+
+def _register_user(asset, signer, state, owner, rol):
+    print("entro en _register")
+    print(asset)
+    print("OWNER")
+    print(owner)
+    if state.get_asset(asset, owner, rol) is not None:
+        raise InvalidTransaction(
+            'Invalid action: Asset already exists: {}'.format(asset))
+    print('DIrecciones exitosas anadidas: ')
+    print(state.set_asset(asset, signer, owner, rol))
+    state.set_asset(asset, signer, owner, rol)
+
+def _delete_user(asset, signer, state, owner, rol):
+    print("entro en _delete_asset")
+    print(asset)
+    print("OWNER")
+    print(owner)
+    if state.get_asset(asset, owner, rol) is None:
+        raise InvalidTransaction(
+            'Invalid action: Asset not exists: {}'.format(asset))
+    print('DIrecciones exitosas eliminadas: ')
+    print(state.delete_asset(asset, owner, rol))
+    state.delete_asset(asset, owner, rol)
+
+
 
 

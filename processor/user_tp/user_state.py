@@ -14,8 +14,13 @@ def _get_address(key):
     return hashlib.sha512(key.encode('utf-8')).hexdigest()[:30]
 
 
-def _get_asset_address(asset_name, owner):
-    return  USERCHAIN_NAMESPACE +owner+ '00' + _get_address(asset_name)
+def _get_asset_address(asset_name, owner, rol):
+    if (rol == 'Admin'):
+        return  USERCHAIN_NAMESPACE +'00' +owner+  _get_address(asset_name)
+    elif(rol == 'Usuario'):
+        return  USERCHAIN_NAMESPACE +'01' +owner+  _get_address(asset_name) 
+    elif(rol == 'Invitado'):
+        return  USERCHAIN_NAMESPACE +'02' +owner+  _get_address(asset_name)
 
 
 def _get_transfer_address(asset_name):
@@ -37,14 +42,14 @@ class UserState(object):
     def __init__(self, context):
         self._context = context
 
-    def get_asset(self, asset, owner):
-        return self._get_state(_get_asset_address(asset, owner))
+    def get_asset(self, asset, owner, rol):
+        return self._get_state(_get_asset_address(asset, owner, rol))
 
     # def get_transfer(self, asset):
     #     return self._get_state(_get_transfer_address(asset))
 
-    def set_asset(self, asset, signer, owner):
-        address = _get_asset_address(asset, owner)
+    def set_asset(self, asset, signer, owner, rol):
+        address = _get_asset_address(asset, owner, rol)
         state_data = _serialize(
             {
                 "asset": asset,
@@ -63,9 +68,9 @@ class UserState(object):
     #         {address: state_data}, timeout=self.TIMEOUT)
 
 
-    def delete_asset(self, asset, owner):
+    def delete_asset(self, asset, owner, rol):
         return self._context.delete_state(
-            [_get_asset_address(asset, owner)],
+            [_get_asset_address(asset, owner, rol)],
             timeout=self.TIMEOUT)
 
     def _get_state(self, address):
