@@ -44,8 +44,7 @@ const invitaciones = {assets:[], address:null}
 const invitaciones_adjudicadas = {assets:[], addressInvitaciones:[], coches:[]}
 const version = VERSION_USER
 const admin = {users:[], invitaciones:[], coches:[], admin:0}
-const registro = {user:null, owner:null, address:null, keys:{public_key:null, private_key:null},  assets:[], dni:null, 
-              nombre:null, phone:null, rol:null, numInvitaciones:null}
+const registro = {user:null}
 
 
 const processAsset = (data) => {
@@ -391,6 +390,9 @@ const getAlert = (rol, address) =>{
     alert('No puedes registrarte como Administrador')
     deleteOptionAdmin()
     return;
+  }else{
+    alert('Ya hay un usuario registrado con este email')
+    return;
   }
   
 }
@@ -412,6 +414,7 @@ $('#registerUser').on('click', function () {
   const private_key = addCategory("private", keys.private)
   const public_key = addCategory("public", keys.public)
   const invitaciones = addCategory("numInvitaciones", "20")
+  const asset_admin = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, email, psw]
   const asset = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones, email, psw]
   
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
@@ -425,14 +428,19 @@ $('#registerUser').on('click', function () {
   console.log(keys.private)
   const address = generateAddress_user($('#emailInputR').val(), $('#passInputR').val(), roleSelect)
   if(roleSelect == 'Admin'){
+
     registro.refresh(PREFIX_USER+'00', ()=>{
       getAlert(user.rol, user.address)
     },()=>{
-      postUser(action,asset.join(), keys.private, hashUP32, roleSelect)
+      postUser(action,asset_admin.join(), keys.private, hashUP32, roleSelect)
   })
   }
   else{
-    postUser(action,asset.join(), keys.private, hashUP32, roleSelect)
+    registro.refresh(address, ()=>{
+      getAlert(user.rol, user.address)
+    },()=>{
+      postUser(action,asset_admin.join(), keys.private, hashUP32, roleSelect)
+  })
   }
   
 
