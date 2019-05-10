@@ -38,13 +38,14 @@ const {
 // Application Object
 
 const user = {owner:null, address:null, keys:{public_key:null, private_key:null},  assets:[], dni:null, 
-              nombre:null, phone:null, rol:null, numInvitaciones:null, wallet:null}
+              nombre:null, phone:null, rol:null, numInvitaciones:null, wallet:null, email: null, psw: null}
 const coches = {assets:[], matriculasOwner:[], matriculaInvitado:[]}
 const invitaciones = {assets:[], address:null}
 const invitaciones_adjudicadas = {assets:[], addressInvitaciones:[], coches:[]}
 const version = VERSION_USER
 const admin = {users:[], invitaciones:[], coches:[], admin:0}
-
+const registro = {user:null, owner:null, address:null, keys:{public_key:null, private_key:null},  assets:[], dni:null, 
+              nombre:null, phone:null, rol:null, numInvitaciones:null}
 
 
 const processAsset = (data) => {
@@ -72,6 +73,12 @@ const processAsset = (data) => {
         break;
       case "numInvitaciones":
         user.numInvitaciones = field[1]
+        break;
+      case "email":
+        user.email = field[1];
+        break;
+      case "psw":
+        user.psw = field[1];
         break;
       
     }
@@ -308,6 +315,7 @@ coches.refresh = function() {
   getStateCars(({assets, transfers}) => {
     this.assets = assets;
     console.log(this.assets)
+
   })
 }
 
@@ -337,13 +345,59 @@ const limpiarUser = () =>{
   user.wallet= null;
 }
 
-$('#registerUser').on('click', function () {
+const comprobarRegistro = (address, cb) =>{
+  console.log("Visualizacion data:")
+  
+  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.user.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {user: []}))
+  })
+}
 
+registro.refresh = function( address, getAlert){
+  comprobarRegistro(address, ({user}) => {
+
+    this.user = user;
+    console.log("Usuario recuperado")
+    console.log(registro.user)
+    if(this.user != undefined){
+      processAsset(user)
+      getAlert(registro.rol, registro.address)
+    }
+    else{
+      return
+    }
+    
+  })
+}
+
+const getAlert = (rol, address) =>{
+  if(rol == 'Admin'){
+    alert('No puedes registrarte como Administrador')
+    deleteOptionAdmin()
+    return;
+  }
+  
+}
+
+$('#registerUser').on('click', function () {
+  
   const action = 'register'
   console.log("pulso registro")
 
   const nombre = addCategory("nombre", $('#nameInputR').val());
   const dni = addCategory("dni", $('#dniInputR').val());
+  const email = addCategory("email", $('#emailInputR').val());
+  const psw = addCategory("psw", $('#passInputR').val());
   const hashUP32 = getHashUser($('#emailInputR').val(),$('#passInputR').val());
   const telefono = addCategory("telefono", $('#tfnInputR').val());
   const roleSelect = $('[name="roleSelect"]').val();
@@ -352,7 +406,7 @@ $('#registerUser').on('click', function () {
   const private_key = addCategory("private", keys.private)
   const public_key = addCategory("public", keys.public)
   const invitaciones = addCategory("numInvitaciones", "20")
-  const asset = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones]
+  const asset = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones, email, psw]
   
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
                   $('#passInputR').val(), $('#tfnInputR').val(), $('[name="roleSelect"]').val()]
@@ -363,7 +417,10 @@ $('#registerUser').on('click', function () {
   console.log(asset.join())
   console.log("keys.private")
   console.log(keys.private)
- 
+  const address = generateAddress_user($('#emailInputR').val(), $('#passInputR').val(), roleSelect)
+  registro.refresh(address, ()=>{
+    getAlert()
+  })
   if($('[name="roleSelect"]').val() == "Admin")deleteOptionAdmin()
 
   postUser(action,asset.join(), keys.private, hashUP32, roleSelect)
@@ -375,7 +432,19 @@ $('#volverLogin').on('click', function(){
   $('#register').attr('style', 'display:none')
   limpiaInputs()
 })
+const generateAddress_user = (email, psw, rol)=>{
+  const hashUP32 = getHashUser(email, psw);
+  switch(rol){
+    case 'Admin':
+      return PREFIX_USER + '00' + hashUP32;
+    case 'Usuario':
+      return PREFIX_USER + '01' + hashUP32;
+    case 'Invitado':
+      return PREFIX_USER + '01' + hashUP32;
+    
+  }
 
+}
 $('#loginAdmin').on('click', function () {
   //limpiarUser()
   var mail = addCategory('email',$('#mailInputL').val());
