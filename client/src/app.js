@@ -88,6 +88,9 @@ const processAsset = (data) => {
       case "psw":
         user.psw = field[1];
         break;
+      case "wallet":
+        user.wallet = field[1]
+        break;
       
     }
   }
@@ -418,9 +421,12 @@ $('#registerUser').on('click', function () {
   const public_key = addCategory("public", keys.public)
   const invitaciones = addCategory("numInvitaciones", "20")
   const invitaciones_invAdm = addCategory("numInvitaciones", "0")
-  const asset_admin = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones_invAdm, email, psw]
-  const asset_user = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones, email, psw]
-  const asset_invitado = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones_invAdm, email, psw]
+  const wallet = addCategory("wallet", "0")
+  const asset_admin = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones_invAdm, email, psw, wallet]
+  const asset_user = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones, email, psw, wallet]
+  const asset_invitado = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones_invAdm, email, psw, wallet]
+  
+
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
                   $('#passInputR').val(), $('#tfnInputR').val(), $('[name="roleSelect"]').val()]
 
