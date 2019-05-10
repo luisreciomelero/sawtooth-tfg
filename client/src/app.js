@@ -363,24 +363,30 @@ const comprobarRegistro = (address, cb) =>{
   })
 }
 
-registro.refresh = function( address, getAlert){
+registro.refresh = function( address, getAlert, postUser){
   comprobarRegistro(address, ({user}) => {
 
-    this.user = user;
+    this.user = user[0];
     console.log("Usuario recuperado")
     console.log(registro.user)
-    if(this.user != undefined){
-      processAsset(user)
-      getAlert(registro.rol, registro.address)
+    if(registro.user == undefined){
+      postUser()
+      return
     }
     else{
-      return
+      console.log("ENTRAMOS")
+      console.log("pasamos: ", registro.user.asset)
+      processAsset(registro.user.asset)
+      console.log("rol: ", user.rol, ", address: ", user.address)
+      getAlert()
+      
     }
     
   })
 }
 
 const getAlert = (rol, address) =>{
+  console.log("Entramos en getAlert con rol: ", rol)
   if(rol == 'Admin'){
     alert('No puedes registrarte como Administrador')
     deleteOptionAdmin()
@@ -418,12 +424,18 @@ $('#registerUser').on('click', function () {
   console.log("keys.private")
   console.log(keys.private)
   const address = generateAddress_user($('#emailInputR').val(), $('#passInputR').val(), roleSelect)
-  registro.refresh(address, ()=>{
-    getAlert()
+  if(roleSelect == 'Admin'){
+    registro.refresh(PREFIX_USER+'00', ()=>{
+      getAlert(user.rol, user.address)
+    },()=>{
+      postUser(action,asset.join(), keys.private, hashUP32, roleSelect)
   })
-  if($('[name="roleSelect"]').val() == "Admin")deleteOptionAdmin()
+  }
+  else{
+    postUser(action,asset.join(), keys.private, hashUP32, roleSelect)
+  }
+  
 
-  postUser(action,asset.join(), keys.private, hashUP32, roleSelect)
   limpiaInputs()
 })
 
