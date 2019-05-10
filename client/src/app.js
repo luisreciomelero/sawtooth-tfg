@@ -406,7 +406,9 @@ $('#registerUser').on('click', function () {
   const dni = addCategory("dni", $('#dniInputR').val());
   const email = addCategory("email", $('#emailInputR').val());
   const psw = addCategory("psw", $('#passInputR').val());
-  const hashUP32 = getHashUser($('#emailInputR').val(),$('#passInputR').val());
+  const hashUP16A = getHashUser($('#emailInputR').val());
+  const hashUP16B = getHashUser($('#passInputR').val());
+  const hashUP32 = hashUP16A + hashUP16B
   const telefono = addCategory("telefono", $('#tfnInputR').val());
   const roleSelect = $('[name="roleSelect"]').val();
   const rol = addCategory("rol", roleSelect);
@@ -453,7 +455,7 @@ $('#volverLogin').on('click', function(){
   limpiaInputs()
 })
 const generateAddress_user = (email, psw, rol)=>{
-  const hashUP32 = getHashUser(email, psw);
+  const hashUP32 = getHashUser(email);
   switch(rol){
     case 'Admin':
       return PREFIX_USER + '00' + hashUP32;

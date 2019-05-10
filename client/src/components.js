@@ -176,10 +176,10 @@ const addCategory = (categ, val) =>{
   return catVal
 }
 
-const getHashUser = (email, password) =>{
-  const stringUP = addCategory(email, password);
+const getHashUser = (key) =>{
+  const stringUP = key;
   const hashUP70 = createHash('sha512').update(stringUP).digest('hex')
-  const hashUP32 = hashUP70.substr(0,32)
+  const hashUP32 = hashUP70.substr(0,16)
   return hashUP32
 }
 
