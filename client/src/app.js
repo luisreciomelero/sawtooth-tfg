@@ -145,7 +145,7 @@ const getBatchInv = cb =>{
 const getAllUsers = cb => {
   console.log("Visualizacion data:")
   
-  $.get(`${API_URL}/state?address=${PREFIX_USER}`, ({ data }) => {
+  $.get(`${API_URL}/state?address=${PREFIX_USER + '01'}`, ({ data }) => {
     
     console.log("FIN Visualizacion")
     cb(data.reduce((processed, datum) => {
@@ -376,7 +376,23 @@ $('#volverLogin').on('click', function(){
   limpiaInputs()
 })
 
-
+$('#loginAdmin').on('click', function () {
+  //limpiarUser()
+  var mail = addCategory('email',$('#mailInputL').val());
+  var psw = addCategory('psw',$('#passInputL').val());
+  var mailPsw = addCategory(mail, psw)
+  
+  const hashUP32 = getHashUser($('#mailInputL').val(), $('#passInputL').val());
+  const address = PREFIX_USER +'00'+ hashUP32;
+  console.log("ADDRESS")
+  user.owner = hashUP32
+  user.address = address
+  user.rol = null;
+  user.refresh(()=>{
+    mostrarMain(user.rol)
+  })
+  limpiaInputs()
+})
 
 $('#loginButton').on('click', function () {
   //limpiarUser()
@@ -385,11 +401,11 @@ $('#loginButton').on('click', function () {
   var mailPsw = addCategory(mail, psw)
   
   const hashUP32 = getHashUser($('#mailInputL').val(), $('#passInputL').val());
-  const address = PREFIX_USER + hashUP32;
+  const address = PREFIX_USER +'01'+ hashUP32;
   console.log("ADDRESS")
   user.owner = hashUP32
   user.address = address
-  
+  user.rol = null;
   user.refresh(()=>{
     mostrarMain(user.rol)
   })
@@ -399,7 +415,7 @@ $('#loginButton').on('click', function () {
 const mostrarMain = (rol)=>{
   
   
-  switch (user.rol) {
+  switch (rol) {
     case 'Invitado':
       $('#mainInvitado').attr('style', '')
       $('#login').attr('style', 'display:none')

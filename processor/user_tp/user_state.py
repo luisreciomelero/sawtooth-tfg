@@ -17,11 +17,9 @@ def _get_address(key):
 def _get_asset_address(asset_name, owner, rol):
     if (rol == 'Admin'):
         return  USERCHAIN_NAMESPACE +'00' +owner+  _get_address(asset_name)
-    elif(rol == 'Usuario'):
+    else:
         return  USERCHAIN_NAMESPACE +'01' +owner+  _get_address(asset_name) 
-    elif(rol == 'Invitado'):
-        return  USERCHAIN_NAMESPACE +'02' +owner+  _get_address(asset_name)
-
+    
 
 def _get_transfer_address(asset_name):
     return USERCHAIN_NAMESPACE +owner+ '01' + _get_address(asset_name)
