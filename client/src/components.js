@@ -218,7 +218,7 @@ const limpiaInputs = () =>{
 
 }
 
-const mostrarMain = (rol)=>{
+const mostrarMain = (rol, invitaciones=null)=>{
   
   switch (rol) {
     case 'Invitado':

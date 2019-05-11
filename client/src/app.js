@@ -422,9 +422,9 @@ $('#registerUser').on('click', function () {
   const invitaciones = addCategory("numInvitaciones", "20")
   const invitaciones_invAdm = addCategory("numInvitaciones", "0")
   const wallet = addCategory("wallet", "0")
-  const asset_admin = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones_invAdm, email, psw, wallet]
-  const asset_user = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones, email, psw, wallet]
-  const asset_invitado = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, invitaciones_invAdm, email, psw, wallet]
+  const asset_admin = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, email, psw, wallet, invitaciones_invAdm]
+  const asset_user = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, email, psw, wallet, invitaciones]
+  const asset_invitado = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, email, psw, wallet, invitaciones_invAdm]
   
 
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
@@ -434,6 +434,7 @@ $('#registerUser').on('click', function () {
   if (comprueba == 0) return;
   
   const address = generateAddress_user($('#emailInputR').val(), $('#passInputR').val(), roleSelect)
+
   if(roleSelect == 'Admin'){
 
     registro.refresh(PREFIX_USER+'00', ()=>{
@@ -458,6 +459,7 @@ $('#registerUser').on('click', function () {
   
   limpiarUser()
   limpiaInputs()
+
 })
 
 $('#volverLogin').on('click', function(){
@@ -479,7 +481,7 @@ $('#loginAdmin').on('click', function () {
   user.address = address
   //user.rol = null;
   user.refresh(()=>{
-    mostrarMain(user.rol)
+    mostrarMain(user.rol, invitaciones)
   })
   limpiaInputs()
 })
@@ -525,9 +527,14 @@ $('#createCocheRC').on('click', function () {
   
 })
 
-$('#createCocheMU').on('click', function () {
-  $('#mainUser').attr('style', 'display:none')
-  $('#regCoche').attr('style', '')
+$('#createCocheMI').on('click', function () {
+  if(user.numInvitaciones>0){
+    $('#mainInvitado').attr('style', 'display:none')
+    $('#regCoche').attr('style', '')
+  }else{
+    alert("Necesitas solicitar una invitacion para porder registrar un coche")
+  }
+  
 })
 
 $('#publicarInv').on('click', function () {
@@ -537,14 +544,16 @@ $('#publicarInv').on('click', function () {
   }
   console.log("antes de comprobar user.numInvitaciones", user.numInvitaciones)
   console.log("lo mismo para numInvPublicar", $('#numInv').val())
-  var numInvPublicar = $('#numInv').val();
-  if(numInvPublicar > user.numInvitaciones){
+  var numInvPublicar = $('#numInv').val()
+  var numInvPubInt =parseInt(numInvPublicar,10);
+  var numInvitaciones = parseInt(user.numInvitaciones, 10)
+  if(numInvPubInt > numInvitaciones){
     console.log("numInvPublicar", numInvPublicar)
     console.log("user.numInvitaciones", user.numInvitaciones)
     alert(`No puede publicar mas de: ${user.numInvitaciones}`)
     return;
   }
-  const numInvPub = numInvPublicar;
+  const numInvPub = numInvPubInt;
   for(var i=0; i<numInvPublicar; i++){
 
     console.log("user.owner en pubINV: ", user.owner)
