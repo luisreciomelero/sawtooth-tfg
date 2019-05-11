@@ -1,4 +1,3 @@
-
 /*
 *  Author: 
 *     Luis Recio - lreciog@gmail.com
@@ -474,7 +473,9 @@ $('#loginAdmin').on('click', function () {
   var psw = addCategory('psw',$('#passInputL').val());
   var mailPsw = addCategory(mail, psw)
   
-  const hashUP32 = getHashUser($('#mailInputL').val(), $('#passInputL').val());
+  const hashEmail = getHashUser($('#mailInputL').val());
+  const hashPsw = getHashUser( $('#passInputL').val());
+  const hashUP32 = hashEmail+hashPsw
   const address = PREFIX_USER +'00'+ hashUP32;
   console.log("ADDRESS")
   user.owner = hashUP32
@@ -491,8 +492,10 @@ $('#loginButton').on('click', function () {
   var mail = addCategory('email',$('#mailInputL').val());
   var psw = addCategory('psw',$('#passInputL').val());
   var mailPsw = addCategory(mail, psw)
+  const hashEmail = getHashUser($('#mailInputL').val());
+  const hashPsw = getHashUser( $('#passInputL').val());
+  const hashUP32 = hashEmail+hashPsw
   
-  const hashUP32 = getHashUser($('#mailInputL').val(), $('#passInputL').val());
   const address = PREFIX_USER +'01'+ hashUP32;
   console.log("ADDRESS")
   user.owner = hashUP32
@@ -618,5 +621,3 @@ $('#logout').on('click', function(){
   $('#logout').attr('style', 'display:none')
   
 })
-
-
