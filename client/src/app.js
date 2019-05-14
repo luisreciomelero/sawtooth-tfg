@@ -581,7 +581,7 @@ $('#publicarInv').on('click', function () {
 
 $('#solicitarMI').on('click', function () {
   
-  addTableInvitaciones('#invitacionesTableSI', invitaciones.assets)
+  addTableInvitaciones('#invitacionesTableSI', invitaciones.assets, "solicitar")
 
   $('#solicitarInvitacion').attr('style', 'display:none')
   $('#mainInvitado').attr('style', '')
@@ -606,8 +606,14 @@ $('#verCoches').on('click', function () {
 $('#verInvitaciones').on('click', function () {
   console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
   admin.getInvitaciones(()=>{
-    addTableInvitaciones('#visualizacion', admin.invitaciones)
+    addTableInvitaciones('#visualizacion', admin.invitaciones, "editar")
   })
+})
+
+$('#visualizacion').on('click', '.editar' ,function(){
+  console.log("has pulsado editar desde js")
+  var valores = $(this).parent().siblings('td').html();
+  console.log("hermanos: ",  $(this).parent().siblings('td').html())
 })
 
 $('#logout').on('click', function(){

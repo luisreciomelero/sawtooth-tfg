@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+import os
 
 
 LOGGER = logging.getLogger(__name__)
@@ -9,6 +10,11 @@ LOGGER = logging.getLogger(__name__)
 INVITATIONSCHAIN_NAMESPACE = hashlib.sha512(
     'invitations-chain'.encode('utf-8')).hexdigest()[0:6]
 
+COUNT = 0
+
+def _increment():
+    global COUNT
+    COUNT= COUNT+1
 
 def _get_address(key):
     return hashlib.sha512(key.encode('utf-8')).hexdigest()[:30]
@@ -28,6 +34,62 @@ def _deserialize(data):
 
 def _serialize(data):
     return json.dumps(data, sort_keys=True).encode('utf-8')
+
+def _comprueba_JSON(fileJSON):
+    if os.path.isfile(fileJSON):
+        if (COUNT == 0):
+            os.remove(fileJSON)
+
+
+
+def _createJson(address, asset, signer):
+        _comprueba_JSON("InvitacionesSinAdjudicar.json")
+
+        data = {}
+        invitations = []
+        invitation = {}
+        invitation['address'] = address
+        invitation['asset'] = asset
+        invitation['signer'] = signer
+        
+        allAddress = []
+        logging.debug("directorio actual : %s", os.getcwd())
+
+        if not os.path.isfile("InvitacionesSinAdjudicar.json"):
+            invitations.append(invitation)
+            _increment()
+            data['InvitacionesSinAdjudicar'] = invitations
+            with open('InvitacionesSinAdjudicar.json', mode='a') as outfile:
+                json.dump(data, outfile, indent=4, ensure_ascii=False)
+        else:
+            with open('InvitacionesSinAdjudicar.json','r+') as jsonData:
+                invitations_json = json.load(jsonData)
+                for invitacion in invitations_json['InvitacionesSinAdjudicar']:
+                    allAddress.append(invitacion['address'])
+                if invitation['address'] not in allAddress:
+                    invitations_json['InvitacionesSinAdjudicar'].append(invitation)
+                _increment()
+                with open('InvitacionesSinAdjudicar.json', mode='w') as outfile:
+                    json.dump(invitations_json, outfile, indent=4, ensure_ascii=False)
+
+
+# def _saveAddress(address):
+#     invitacionesSinAdjudicar = []
+#     if not os.path.isfile("InvitacionesSinAdjudicar.txt"):
+#         with open('InvitacionesSinAdjudicar.txt', mode='a') as outfile:
+#             outfile.write(address + '\n')
+#     else:
+#         with open('InvitacionesSinAdjudicar.txt', mode='w') as outfile:
+#             for line in  outfile:
+#                 if line not in InvitacionesSinAdjudicar:
+#                     invitacionesSinAdjudicar.append(line)
+#             for pos in invitacionesSinAdjudicar:
+#                 outfile.write(pos + '\n')
+
+
+
+
+
 
 
 class InvitationsState(object):
@@ -50,6 +112,7 @@ class InvitationsState(object):
                 "asset": asset,
                 "signer": signer
             })
+        _createJson(address, asset, signer)
         return self._context.set_state(
             {address: state_data}, timeout=self.TIMEOUT)
 
@@ -76,3 +139,5 @@ class InvitationsState(object):
         else:
             entry = None
         return entry
+
+    

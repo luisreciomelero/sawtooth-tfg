@@ -119,16 +119,17 @@ const addTableCoches = (coches) => {
 }
 
 
-const addTableInvitaciones = (parent, invitaciones) => {
+const addTableInvitaciones = (parent, invitaciones, claseFila) => {
 
   $(parent).empty();
   
   console.log("invitaciones que llegan al metodo: ", invitaciones)
   
   $(parent).append(`<tr id="cabecera">
-                            <th>Invitacion de</th>
-                            <th>Publicada en</th>
-                          </tr>`)
+                      <th>Invitacion de</th>
+                      <th>Publicada en</th>
+                      <th></th>
+                    </tr>`)
   for(var i=0; i<invitaciones.invitaciones.length; i++){
     const invitacion ={invitacion_de:null, fecha:null}
     console.log("USUARIO DENTRO DEL BUCLE: ", invitaciones)
@@ -150,9 +151,11 @@ const addTableInvitaciones = (parent, invitaciones) => {
     }
     console.log("invitacion: ",invitacion)
     $(parent).append(`<tr>
-                              <td>${invitacion.invitacion_de}<td>
-                              <td>${invitacion.fecha}<td>
-                            </tr>`)
+                        <td>${invitacion.invitacion_de}<td>
+                        <td>${invitacion.fecha}<td>
+                        <button class="${claseFila}">${claseFila} Invitacion</button>
+                        
+                      </tr>`)
   
   }
 
