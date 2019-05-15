@@ -48,7 +48,7 @@ const invitaciones_adjudicadas = {assets:[], addressInvitaciones:[], coches:[]}
 const version = VERSION_USER
 const admin = {users:[], invitaciones:[], coches:[], admin:0}
 const registro = {user:null}
-const invitacionEditar={ invitacion:[]}
+const invitacionEditar={ invitacion:[], address:null, fecha:null, invitacion_de:null, private_key}
 
 
 
@@ -315,6 +315,17 @@ const deleteUser =(action, asset, private_key, owner, refreshUserMain)=>{
       PREFIX_USER,
       private_key,
       success => success ? refreshUserMain() : null
+    )
+}
+
+const deleteInvitation =(action, asset, private_key, owner)=>{
+  submitUpdate(
+      {action, asset, owner},
+      FAMILY_USER,
+      version,
+      PREFIX_USER,
+      private_key,
+      success => success ? console.log("INVITACION ELIMINADA") : null
     )
 }
 
@@ -606,7 +617,8 @@ $('#publicarInv').on('click', function () {
     const publicrand = concatString(user.keys.public_key, keys.private)
     const propiedad = addCategory("invitacion_de", publicrand)
     const fecha = addCategory("timestamp", currentDate)
-    const asset = [propiedad, fecha]
+    const private_key = user.keys.private_key
+    const asset = [propiedad, fecha, private_key]
     invitaciones.address = PREFIX_INVITATIONS+user.owner;
     invitaciones.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
       ActualizarAssetUser(numInvPub,()=>{
@@ -666,12 +678,35 @@ $('#visualizacion').on('click', '.editarInvitacion' ,function(){
   })
   })
   console.log("user.address: ", PREFIX_USER+'01'+address.substring(6,38))
+
   /*user.address = PREFIX_USER+'01'+address.substring(6,38)
   user.refresh(()=>{
     fillUserInvitation(user, invitacionEditar.invitacion[0].asset)
   })*/
 
 })
+$('#visualizacion').on('click', '#eliminarInvitacion' ,function(){
+  var invitationSplit = invitacionEditar.invitacion[0].asset.split(',');
+  for(var j=0; j<invitationSplit.length;j++){
+      var field = invitationSplit[j].split(":");
+      console.log("field", field)
+      switch(field[0]){
+        case "invitacion_de":
+          invitacionEditar.invitacion_de = field[1];
+          break;
+        case "timestamp":
+          invitacionEditar.fecha = field[1];
+          break;
+        case "address":
+          invitacionEditar.address = field[1];
+          break;
+        case "private_key":
+          invitacionEditar.private_key = field[1];
+          break;
+      }
+    }
+  deleteInvitation('delete', invitacionEditar.invitacion[0].asset, invitacionEditar.private_key, invitacionEditar.address.address.substring(6,38)
+}
 
 $('#visualizacion').on('click', '.editarUsuario' ,function(){
   console.log("has pulsado editarUsuario")
