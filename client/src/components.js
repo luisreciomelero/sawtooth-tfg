@@ -32,9 +32,9 @@ const addOriginal = (parent, original_number, original_id) => {
   );
 }
 
-const addTableUsers = (users) => {
+const addTableUsers = (users, claseFila) => {
   $(`#visualizacion`).empty();
-  
+  var clase = claseFila+'Usuario'
   console.log("Users que llegan al metodo: ", users)
   
   $(`#visualizacion`).append(`<tr id="cabecera">
@@ -77,13 +77,14 @@ const addTableUsers = (users) => {
                               <td>${usuario.telefono}<td>
                               <td>${usuario.rol}<td>
                               <td>${usuario.public_key}<td>
-                            </tr>`)
+                              <button class="${clase}">${claseFila} Usuario</button>
+                              </tr>`)
   
   }
 }
-const addTableCoches = (coches) => {
+const addTableCoches = (coches, claseFila) => {
   $(`#visualizacion`).empty();
-  
+  var clase = claseFila+'Coche'
   console.log("coches que llegan al metodo: ", coches)
   
   $(`#visualizacion`).append(`<tr id="cabecera">
@@ -113,6 +114,7 @@ const addTableCoches = (coches) => {
                               <td>${coche.matricula}<td>
                               <td>${coche.modelo}<td>
                               <td>${coches.coches[i].signer}<td>
+                              <button class="${clase}">${claseFila} Coche</button>
                             </tr>`)
   
   }
@@ -122,7 +124,7 @@ const addTableCoches = (coches) => {
 const addTableInvitaciones = (parent, invitaciones, claseFila) => {
 
   $(parent).empty();
-  
+  var clase = claseFila+'Invitacion'
   console.log("invitaciones que llegan al metodo: ", invitaciones)
   
   $(parent).append(`<tr id="cabecera">
@@ -131,7 +133,7 @@ const addTableInvitaciones = (parent, invitaciones, claseFila) => {
                       <th></th>
                     </tr>`)
   for(var i=0; i<invitaciones.invitaciones.length; i++){
-    const invitacion ={invitacion_de:null, fecha:null}
+    const invitacion ={invitacion_de:null, fecha:null, address: null}
     console.log("USUARIO DENTRO DEL BUCLE: ", invitaciones)
     var invitacionAsset = invitaciones.invitaciones[i].asset.split(',');
     console.log("invitacionAsset: ", invitacionAsset)
@@ -147,19 +149,26 @@ const addTableInvitaciones = (parent, invitaciones, claseFila) => {
         case "timestamp":
           invitacion.fecha = field[1];
           break;
+        case "address":
+          console.log("Address dentro de addTaable: ", field[1])
+          invitacion.address = field[1];
+          break;
       }
     }
     console.log("invitacion: ",invitacion)
     $(parent).append(`<tr>
-                        <td>${invitacion.invitacion_de}<td>
+                        <td data-address="${invitacion.address}">${invitacion.invitacion_de}<td>
                         <td>${invitacion.fecha}<td>
-                        <button class="${claseFila}">${claseFila} Invitacion</button>
+                        <button class="${clase}">${claseFila} Invitacion</button>
                         
                       </tr>`)
+
   
+  console.log('data-address: ', $(`#${invitacion.invitacion_de}`).attr('data-address'))
   }
 
 }
+
 const deleteOptionAdmin = () =>{
   
     var opciones = ["none:Selecciona Rol...","Invitado:Invitado", "Usuario:Usuario"]
@@ -221,8 +230,10 @@ const limpiaInputs = () =>{
 
 }
 
-const mostrarMain = (rol, invitaciones=null)=>{
-  
+const mostrarMain = (rol, invitaciones=null, inviEdit=null)=>{
+  if(inviEdit!=null){
+    return;
+  }
   switch (rol) {
     case 'Invitado':
       $('#mainInvitado').attr('style', '')
@@ -239,6 +250,7 @@ const mostrarMain = (rol, invitaciones=null)=>{
        $('#mainAdmin').attr('style', '')
        $('#login').attr('style', 'display:none')
        $('#logout').attr('style', '')
+       break;
        
   }
   
@@ -264,6 +276,33 @@ const concatString = (var1, var2) =>{
   return string1.concat(string2)
 }
 
+const fillUserInvitation = (user, invitacionAsset)=>{
+  var invitacion ={invitacion_de:null, fecha:null, address: null} 
+  var invitationSplit =invitacionAsset.split(',')
+  for(var j=0; j<invitationSplit.length;j++){
+      var field = invitationSplit[j].split(":");
+      console.log("field", field)
+      switch(field[0]){
+        case "invitacion_de":
+          invitacion.invitacion_de = field[1];
+          break;
+        case "timestamp":
+          invitacion.fecha = field[1];
+          break;
+        case "address":
+          invitacion.address = field[1];
+          break;
+      }
+    }
+  console.log('invitacion: ', invitacion)
+  $('#publicadaInvitacion').text('Publicada por: '+user.nombre)
+  $('#fechaInvitacion').text('Publicada en: '+ invitacion.fecha)
+  $('#estadoInvitacion').text('AUN POR IMPLEMENTAR')
+  $('#propietarioInvitacion').text('AUN POR IMPLEMENTAR')
+  $('#validaInvitacion').text('AUN POR IMPLEMENTAR')
+
+}
+
 
 
 module.exports = {
@@ -279,5 +318,6 @@ module.exports = {
   limpiaInputs,
   mostrarMain,
   generateAddress_user,
-  concatString
+  concatString,
+  fillUserInvitation
 }

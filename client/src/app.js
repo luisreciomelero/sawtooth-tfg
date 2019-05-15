@@ -34,7 +34,8 @@ const {
   limpiaInputs,
   mostrarMain,
   generateAddress_user,
-  concatString
+  concatString,
+  fillUserInvitation
 }=require('./components')
 
 // Application Object
@@ -47,6 +48,7 @@ const invitaciones_adjudicadas = {assets:[], addressInvitaciones:[], coches:[]}
 const version = VERSION_USER
 const admin = {users:[], invitaciones:[], coches:[], admin:0}
 const registro = {user:null}
+const invitacionEditar={ invitacion:[]}
 
 
 
@@ -117,10 +119,24 @@ const ActualizarAssetUser = (numInvPub, refreshUserMain) =>{
 
 }
 
-const getBatchUser = cb => {
+const getbbdd = cb =>{
+  $.ajax({
+    url:'../../InvitacionesSinAdjudicar.json',
+    data:{id:1},
+    dataType:'json',
+    type:'get',
+    success: function(data){
+      console.log(data);
+    }
+  })
+
+      
+  }
+
+const getBatchUser = (address, cb)=> {
   console.log("Visualizacion data:")
   
-  $.get(`${API_URL}/state?address=${user.address}`, ({ data }) => {
+  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
     
     console.log("FIN Visualizacion")
     cb(data.reduce((processed, datum) => {
@@ -227,7 +243,7 @@ admin.getCoches = function (tablaCoches) {
 }
 
 user.refresh = function (mostrarMain) {
-  getBatchUser(({ assets }) => {
+  getBatchUser(user.address, ({ assets }) => {
     console.log("ASSETS RECUPERADOS")
     console.log(assets)
     this.assets = assets
@@ -241,7 +257,21 @@ user.refresh = function (mostrarMain) {
     mostrarMain()
   })
 }
-
+user.editInvitation = function () {
+  getBatchUser(user.address, ({ assets }) => {
+    console.log("ASSETS RECUPERADOS")
+    console.log(assets)
+    this.assets = assets
+    console.log("user.assets")
+    console.log(user.assets)
+    for(var i=0; i<user.assets.length; i++){
+      var asset = assets[i].asset
+      processAsset(asset)
+      
+    }
+    
+  })
+}
 invitaciones.refresh = function (actualizaUser) {
   getBatchInv(({ assets }) => {
     console.log("ASSETS RECUPERADOS")
@@ -347,6 +377,16 @@ const limpiarUser = () =>{
   user.wallet= null;
 }
 
+invitacionEditar.refresh = function(address, loadUser){
+  console.log("address que queremos recuperar (fuera de comprobar): ", address)
+
+  comprobarRegistro(address, ({user}) =>{
+    console.log("address que queremos recuperar (dentro de comprobar): ", address)
+    this.invitacion = user
+    loadUser()
+  })
+}
+
 const comprobarRegistro = (address, cb) =>{
   console.log("Visualizacion data:")
   
@@ -435,7 +475,7 @@ $('#registerUser').on('click', function () {
   const address = generateAddress_user($('#emailInputR').val(), $('#passInputR').val(), roleSelect)
 
   if(roleSelect == 'Admin'){
-
+    deleteOptionAdmin()
     registro.refresh(PREFIX_USER+'00', ()=>{
       getAlert(user.rol, user.address)
     },()=>{
@@ -579,6 +619,7 @@ $('#publicarInv').on('click', function () {
   
 })
 
+
 $('#solicitarMI').on('click', function () {
   
   addTableInvitaciones('#invitacionesTableSI', invitaciones.assets, "solicitar")
@@ -592,31 +633,60 @@ $('#verUsuarios').on('click', function () {
 
   console.log("TODOS LOS USUARIOS REGISTRADOS: ", admin.users)
   admin.getUsers(()=>{
-    addTableUsers(admin.users)
+    addTableUsers(admin.users, "editar")
   })
 })
 
 $('#verCoches').on('click', function () {
   console.log("TODOS LOS COCHES REGISTRADOS: ", admin.coches)
   admin.getCoches(()=>{
-    addTableCoches(admin.coches)
+    addTableCoches(admin.coches, "editar")
   })
 })
 
 $('#verInvitaciones').on('click', function () {
-  console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
+  
   admin.getInvitaciones(()=>{
+    console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
     addTableInvitaciones('#visualizacion', admin.invitaciones, "editar")
   })
+  //getbbdd()
 })
 
-$('#visualizacion').on('click', '.editar' ,function(){
+$('#visualizacion').on('click', '.editarInvitacion' ,function(){
+  console.log("has pulsado editarInvitacion")
+  var address = $(this).parent().siblings('td').attr('data-address');
+  $('#mainAdmin').attr('style', 'display:none')
+  $('#editarInvitacion').attr('style', '')
+  invitacionEditar.refresh(address, ()=>{
+    user.address = PREFIX_USER+'01'+address.substring(6,38)
+    user.refresh(()=>{
+      console.log('invitacionEditar', invitacionEditar)
+    fillUserInvitation(user, invitacionEditar.invitacion[0].asset)
+  })
+  })
+  console.log("user.address: ", PREFIX_USER+'01'+address.substring(6,38))
+  /*user.address = PREFIX_USER+'01'+address.substring(6,38)
+  user.refresh(()=>{
+    fillUserInvitation(user, invitacionEditar.invitacion[0].asset)
+  })*/
+
+})
+
+$('#visualizacion').on('click', '.editarUsuario' ,function(){
+  console.log("has pulsado editarUsuario")
+  var valores = $(this).parent().siblings('td').html();
+  console.log("hermanos: ",  $(this).parent().siblings('td').html())
+})
+
+$('#visualizacion').on('click', '.editarCoche' ,function(){
   console.log("has pulsado editar desde js")
   var valores = $(this).parent().siblings('td').html();
   console.log("hermanos: ",  $(this).parent().siblings('td').html())
 })
 
 $('#logout').on('click', function(){
+  limpiarUser()
   $('#login').attr('style', '')
   $('#register').attr('style', 'display:none')
   $('#mainInvitado').attr('style', 'display:none')
@@ -625,5 +695,6 @@ $('#logout').on('click', function(){
   $('#regCoche').attr('style', 'display:none')
   $('#solicitarInvitacion').attr('style', 'display:none')
   $('#logout').attr('style', 'display:none')
+   $('#editarInvitacion').attr('style', 'display:none')
   
 })

@@ -40,6 +40,9 @@ def _comprueba_JSON(fileJSON):
         if (COUNT == 0):
             os.remove(fileJSON)
 
+def _addAddress2Asset(asset, address):
+        newAsset= asset+',address:'+address
+        return newAsset
 
 
 def _createJson(address, asset, signer):
@@ -48,6 +51,7 @@ def _createJson(address, asset, signer):
         data = {}
         invitations = []
         invitation = {}
+
         invitation['address'] = address
         invitation['asset'] = asset
         invitation['signer'] = signer
@@ -56,6 +60,7 @@ def _createJson(address, asset, signer):
         logging.debug("directorio actual : %s", os.getcwd())
 
         if not os.path.isfile("InvitacionesSinAdjudicar.json"):
+            invitation['id'] = 0
             invitations.append(invitation)
             _increment()
             data['InvitacionesSinAdjudicar'] = invitations
@@ -64,6 +69,7 @@ def _createJson(address, asset, signer):
         else:
             with open('InvitacionesSinAdjudicar.json','r+') as jsonData:
                 invitations_json = json.load(jsonData)
+                invitation['id'] = len(invitations_json['InvitacionesSinAdjudicar'])
                 for invitacion in invitations_json['InvitacionesSinAdjudicar']:
                     allAddress.append(invitacion['address'])
                 if invitation['address'] not in allAddress:
@@ -106,13 +112,16 @@ class InvitationsState(object):
     #     return self._get_state(_get_transfer_address(asset))
 
     def set_asset(self, asset, signer, owner):
+        
         address = _get_asset_address(asset, owner )
+        newAsset= _addAddress2Asset(asset, address)
         state_data = _serialize(
             {
-                "asset": asset,
+                "asset": newAsset,
                 "signer": signer
             })
-        _createJson(address, asset, signer)
+
+        #_createJson(address, asset, signer)
         return self._context.set_state(
             {address: state_data}, timeout=self.TIMEOUT)
 
@@ -140,4 +149,5 @@ class InvitationsState(object):
             entry = None
         return entry
 
+    
     
