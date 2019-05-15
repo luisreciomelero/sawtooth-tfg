@@ -108,12 +108,16 @@ class InvitationsState(object):
     def get_asset(self, asset, owner):
         return self._get_state(_get_asset_address(asset, owner))
 
+    def get_assetAddress(self, address):
+        return self._get_state(address)
+
     # def get_transfer(self, asset):
     #     return self._get_state(_get_transfer_address(asset))
 
     def set_asset(self, asset, signer, owner):
         
         address = _get_asset_address(asset, owner )
+        print("DIRECCION CREADA: ", address)
         newAsset= _addAddress2Asset(asset, address)
         state_data = _serialize(
             {
@@ -135,9 +139,10 @@ class InvitationsState(object):
     #         {address: state_data}, timeout=self.TIMEOUT)
 
 
-    def delete_asset(self, asset, owner):
+    def delete_asset(self, asset, owner, address):
+        
         return self._context.delete_state(
-            [_get_asset_address(asset, owner)],
+            [address],
             timeout=self.TIMEOUT)
 
     def _get_state(self, address):

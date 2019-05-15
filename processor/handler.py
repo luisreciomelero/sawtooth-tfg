@@ -193,10 +193,11 @@ class InvitationsTransactionHandler(TransactionHandler):
                           state=state,
                           owner= payload.owner)
         elif payload.action == 'delete':
-            _register_asset(asset=payload.asset,
+            _delete_invitacion(asset=payload.asset,
                           signer=signer,
                           state=state,
-                          owner= payload.owner)
+                          owner= payload.owner,
+                          address=payload.address)
         
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
@@ -253,6 +254,18 @@ def _delete_user(asset, signer, state, owner, rol):
     print('DIrecciones exitosas eliminadas: ')
     print(state.delete_asset(asset, owner, rol))
     state.delete_asset(asset, owner, rol)
+
+def _delete_invitacion(asset, signer, state, owner, address):
+    print("entro en _delete_invitacion")
+    print(asset)
+    print("OWNER")
+    print(owner)
+    if state.get_assetAddress(address) is None:
+        raise InvalidTransaction(
+            'Invalid action: Asset not exists con address: {}'.format(address))
+    print('DIrecciones exitosas eliminadas: ')
+    print(state.delete_asset(asset, owner,address))
+    state.delete_asset(asset, owner,address)
 
 
 

@@ -318,12 +318,12 @@ const deleteUser =(action, asset, private_key, owner, refreshUserMain)=>{
     )
 }
 
-const deleteInvitation =(action, asset, private_key, owner)=>{
+const deleteInvitation =(action, asset, private_key, owner, address)=>{
   submitUpdate(
-      {action, asset, owner},
-      FAMILY_USER,
+      {action, asset, owner, address},
+      FAMILY_INVITATIONS,
       version,
-      PREFIX_USER,
+      PREFIX_INVITATIONS,
       private_key,
       success => success ? console.log("INVITACION ELIMINADA") : null
     )
@@ -613,13 +613,18 @@ $('#publicarInv').on('click', function () {
     console.log("user.owner en pubINV: ", user.owner)
     var currentDate = new Date();
     console.log("TIMESTAMP: ", currentDate)
+    var date= currentDate.toString().substring(0, 15).replace(/ /g, "")
+    console.log("date", date)
     const keys = makeKeyPair();
     const publicrand = concatString(user.keys.public_key, keys.private)
     const propiedad = addCategory("invitacion_de", publicrand)
-    const fecha = addCategory("timestamp", currentDate)
-    const private_key = user.keys.private_key
+    const fecha = addCategory("timestamp", date)
+    const p_key = user.keys.private_key
+    const private_key = addCategory('private_key', p_key)
     const asset = [propiedad, fecha, private_key]
     invitaciones.address = PREFIX_INVITATIONS+user.owner;
+    console.log('PUBLICAMOS INVITACION CON ASSET=====================', asset.join())
+    console.log('PUBLICAMOS INVITACION CON  P_KEY=====================', user.keys.private_key)
     invitaciones.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
       ActualizarAssetUser(numInvPub,()=>{
         user.refresh(()=>{
@@ -685,9 +690,11 @@ $('#visualizacion').on('click', '.editarInvitacion' ,function(){
   })*/
 
 })
-$('#visualizacion').on('click', '#eliminarInvitacion' ,function(){
+$('#eliminarInvitacion').on('click' ,function(){
   console.log("he pulsado BORRAR")
   var invitationSplit = invitacionEditar.invitacion[0].asset.split(',');
+  console.log('INVITACION: ', invitacionEditar.invitacion[0])
+  console.log('InvitacionSplit', invitationSplit)
   for(var j=0; j<invitationSplit.length;j++){
       var field = invitationSplit[j].split(":");
       console.log("field", field)
@@ -705,11 +712,15 @@ $('#visualizacion').on('click', '#eliminarInvitacion' ,function(){
           invitacionEditar.private_key = field[1];
           break;
       }
-    }
-  var asset = invitacionEditar.invitacion[0].asset;
-  var private_key = invitacionEditar.private_key;
+    }  
+  var asset = invitacionEditar.invitacion[0].asset.replace("\n"," ");
+  asset = asset.split(',address')[0]
+  var private_key = user.keys.private_key;
   var owner = invitacionEditar.address.substring(6,38);
-  deleteInvitation('delete', asset, private_key, owner);
+  console.log('BORRAMOS INVITACION CON ASSET=====================', asset)
+  console.log('BORRAMOS INVITACION CON  P_KEY=====================', user.keys.private_key)
+  var address = invitacionEditar.address
+  deleteInvitation('delete', asset, private_key, owner, address);
 })
 
 $('#visualizacion').on('click', '.editarUsuario' ,function(){
