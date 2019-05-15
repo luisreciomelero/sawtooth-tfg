@@ -48,7 +48,7 @@ const invitaciones_adjudicadas = {assets:[], addressInvitaciones:[], coches:[]}
 const version = VERSION_USER
 const admin = {users:[], invitaciones:[], coches:[], admin:0}
 const registro = {user:null}
-const invitacionEditar={ invitacion:[], address:null, fecha:null, invitacion_de:null, private_key}
+const invitacionEditar={ invitacion:[], address:null, fecha:null, invitacion_de:null, private_key:null}
 
 
 
@@ -686,6 +686,7 @@ $('#visualizacion').on('click', '.editarInvitacion' ,function(){
 
 })
 $('#visualizacion').on('click', '#eliminarInvitacion' ,function(){
+  console.log("he pulsado BORRAR")
   var invitationSplit = invitacionEditar.invitacion[0].asset.split(',');
   for(var j=0; j<invitationSplit.length;j++){
       var field = invitationSplit[j].split(":");
@@ -705,8 +706,11 @@ $('#visualizacion').on('click', '#eliminarInvitacion' ,function(){
           break;
       }
     }
-  deleteInvitation('delete', invitacionEditar.invitacion[0].asset, invitacionEditar.private_key, invitacionEditar.address.address.substring(6,38)
-}
+  var asset = invitacionEditar.invitacion[0].asset;
+  var private_key = invitacionEditar.private_key;
+  var owner = invitacionEditar.address.substring(6,38);
+  deleteInvitation('delete', asset, private_key, owner);
+})
 
 $('#visualizacion').on('click', '.editarUsuario' ,function(){
   console.log("has pulsado editarUsuario")

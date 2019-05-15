@@ -192,6 +192,11 @@ class InvitationsTransactionHandler(TransactionHandler):
                           signer=signer,
                           state=state,
                           owner= payload.owner)
+        elif payload.action == 'delete':
+            _register_asset(asset=payload.asset,
+                          signer=signer,
+                          state=state,
+                          owner= payload.owner)
         
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
