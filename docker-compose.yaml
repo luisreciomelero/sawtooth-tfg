@@ -36,11 +36,14 @@ services:
       - 80
     ports:
       - '8000:80'
+    links:
+      - nodeapi
     depends_on:
     - rest-api
     - user-shell
     - cars-shell
     - invitations-shell
+    - nodeapi
 
   user-tp:
     build:
@@ -167,6 +170,20 @@ services:
     depends_on:
       - validator
     entrypoint: sawtooth-rest-api -vv -C tcp://validator:4004 --bind rest-api:8008
+
+  nodeapi:
+    build: nodeapi
+    container_name: nodeapi
+    volumes:
+      - ./nodeapi:/usr/src/app
+    expose:
+      - 5000
+    ports:
+      - '5000:5000'
+    links:
+      - rest-api
+    depends_on:
+      - rest-api
 
   validator:
     image: hyperledger/sawtooth-validator:1.0
