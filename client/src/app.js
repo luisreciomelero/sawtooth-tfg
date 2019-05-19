@@ -5,6 +5,8 @@
 
 'use strict'
 const API_URL = 'http://localhost:8000/api'
+const API_NODE = 'http://localhost:5000/api'
+
 
 const {createHash} = require('crypto')
 const $ = require('jquery')
@@ -48,11 +50,32 @@ const invitaciones_adjudicadas = {assets:[], addressInvitaciones:[], coches:[]}
 const version = VERSION_USER
 const admin = {users:[], invitaciones:[], coches:[], admin:0}
 const registro = {user:null}
-const invitacionEditar={ invitacion:[], address:null, fecha:null, invitacion_de:null, private_key:null}
+const invitacionEditar={ invitacion:[], address:null, fecha:null, invitacion_de:null, private_key:null, numTotal:null}
 
 
 
+const getNodeapiInvitacion = () =>{
+  fetch(`${API_NODE}/luis/invitations/1`)
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(myJson) {
+    console.log(myJson);
+    invitacionEditar.invitacion = myJson.invitations
+  });
+}
 
+const getNumInv = ()=>{
+  fetch(`${API_NODE}/luis/NumInvitations/`)
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(myJson) {
+    console.log(myJson);
+    invitacionEditar.numTotal = myJson.numTotal
+  });
+
+}
 
 
 
@@ -119,19 +142,7 @@ const ActualizarAssetUser = (numInvPub, refreshUserMain) =>{
 
 }
 
-const getbbdd = cb =>{
-  $.ajax({
-    url:'../../InvitacionesSinAdjudicar.json',
-    data:{id:1},
-    dataType:'json',
-    type:'get',
-    success: function(data){
-      console.log(data);
-    }
-  })
 
-      
-  }
 
 const getBatchUser = (address, cb)=> {
   console.log("Visualizacion data:")
@@ -639,13 +650,21 @@ $('#publicarInv').on('click', function () {
 
 $('#solicitarMI').on('click', function () {
   
-  addTableInvitaciones('#invitacionesTableSI', invitaciones.assets, "solicitar")
+  //addTableInvitaciones('#invitacionesTableSI', invitaciones.assets, "solicitar")
 
-  $('#solicitarInvitacion').attr('style', 'display:none')
+  $('#solicitarInvitacion').attr('style', '')
   $('#mainInvitado').attr('style', '')
   limpiaInputs()
 })
 
+
+$('#solicitarInv').on('click', function () {
+  //var randomNum = getRandomNum(invitacionEditar.numTotal)
+  getNodeapiInvitacion()
+  
+  
+  limpiaInputs()
+})
 $('#verUsuarios').on('click', function () {
 
   console.log("TODOS LOS USUARIOS REGISTRADOS: ", admin.users)

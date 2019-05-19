@@ -239,7 +239,7 @@ const mostrarMain = (rol, invitaciones=null, inviEdit=null)=>{
       $('#mainInvitado').attr('style', '')
       $('#login').attr('style', 'display:none')
       $('#logout').attr('style', '')
-        invitaciones.getAll()
+        
       break;
     case 'Usuario':
       $('#mainUser').attr('style', '')

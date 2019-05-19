@@ -16,7 +16,7 @@ exports.invitations = function (req, res, next) {
     console.log('allInvitations: ', allInvitations.data[0])
       res.status(200).send({
         success: 'true',
-        message: 'todos retrieved successfully',
+        message: 'invitation retrieved successfully',
         invitations: response.data[req.params.position]
   })
 
