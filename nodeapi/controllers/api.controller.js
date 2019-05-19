@@ -1,13 +1,11 @@
 const fetch = require('node-fetch');
 
 exports.invitations = function (req, res, next) {
-	fetch('http://rest-api:8008/state', {
+
+	fetch('http://rest-api:8008/state?address=1a7335', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
-    },
-    qs: {
-      'address': '1a7335'
     }
   })
   .then(function(response) {

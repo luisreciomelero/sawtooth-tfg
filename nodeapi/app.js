@@ -2,10 +2,26 @@ const createError = require('http-errors');
 const express = require('express');
 const logger = require('morgan');
 const bodyParser = require ('body-parser');
+const cors = require('cors')
 
 var indexRouter = require('./routes/api.router');
 
+const config = {
+    application: {
+        cors: {
+            server: [
+                {
+                    origin: "localhost:8008", //servidor que deseas que consuma o (*) en caso que sea acceso libre
+                    credentials: true
+                }
+            ]
+        }
+	}
+}
+
 var app = express();
+
+app.use(cors(config.application.cors.server))
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
