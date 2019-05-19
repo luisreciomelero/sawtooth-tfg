@@ -30522,10 +30522,12 @@ const admin = {users:[], invitaciones:[], coches:[], admin:0}
 const registro = {user:null}
 const invitacionEditar={ invitacion:[], address:null, fecha:null, invitacion_de:null, private_key:null, numTotal:null}
 
+const getRandomNumber = (length) =>{
+  return Math.floor(Math.random() * length)
+}
 
-
-const getNodeapiInvitacion = () =>{
-  fetch(`${API_NODE}/luis/invitations/1`)
+const getNodeapiInvitacion = (num) =>{
+  fetch(`${API_NODE}/luis/invitations/${num}`)
   .then(function(response) {
     return response.json();
   })
@@ -30535,15 +30537,30 @@ const getNodeapiInvitacion = () =>{
   });
 }
 
-const getNumInv = ()=>{
+const getRandomInvitation = ()=>{
   fetch(`${API_NODE}/luis/NumInvitations/`)
   .then(function(response) {
     return response.json();
   })
   .then(function(myJson) {
     console.log(myJson);
-    invitacionEditar.numTotal = myJson.numTotal
-  });
+    invitacionEditar.numTotal = myJson.numInvitations;
+    return invitacionEditar.numTotal;
+  }).then(function(numInv){
+    var randomNum = getRandomNumber(numInv)
+    console.log("NUMERO ALEATORIO: ", randomNum)
+    return randomNum
+  }).then(function(randomNum){
+          fetch(`${API_NODE}/luis/invitations/${randomNum}`)
+          .then(function(response) {
+                return response.json();
+          })
+          .then(function(myJson) {
+                console.log(myJson);
+                invitacionEditar.invitacion = myJson.invitations
+
+          });
+  })
 
 }
 
@@ -31130,7 +31147,8 @@ $('#solicitarMI').on('click', function () {
 
 $('#solicitarInv').on('click', function () {
   //var randomNum = getRandomNum(invitacionEditar.numTotal)
-  getNodeapiInvitacion()
+  getRandomInvitation()
+  console.log("Address: ", invitacionEditar)
   
   
   limpiaInputs()
@@ -44975,7 +44993,7 @@ const mostrarMain = (rol, invitaciones=null, inviEdit=null)=>{
       $('#mainInvitado').attr('style', '')
       $('#login').attr('style', 'display:none')
       $('#logout').attr('style', '')
-        invitaciones.getAll()
+        
       break;
     case 'Usuario':
       $('#mainUser').attr('style', '')
