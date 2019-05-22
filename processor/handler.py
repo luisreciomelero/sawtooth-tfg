@@ -191,9 +191,16 @@ class InvitationsTransactionHandler(TransactionHandler):
             _register_asset(asset=payload.asset,
                           signer=signer,
                           state=state,
-                          owner= payload.owner)
+                          owner= payload.owner,
+                          action = payload.action)
         elif payload.action == 'delete':
             _delete_invitacion(asset=payload.asset,
+                          signer=signer,
+                          state=state,
+                          owner= payload.owner,
+                          address=payload.address)
+        elif payload.action == 'assign':
+            _register_asset(asset=payload.asset,
                           signer=signer,
                           state=state,
                           owner= payload.owner,
@@ -206,17 +213,17 @@ class InvitationsTransactionHandler(TransactionHandler):
 
 
 
-def _register_asset(asset, signer, state, owner):
+def _register_asset(asset, signer, state, owner, action):
     print("entro en _register")
     print(asset)
     print("OWNER")
     print(owner)
-    if state.get_asset(asset, owner) is not None:
+    if state.get_asset(asset, owner, action) is not None:
         raise InvalidTransaction(
             'Invalid action: Asset already exists: {}'.format(asset))
     print('DIrecciones exitosas anadidas: ')
-    print(state.set_asset(asset, signer, owner))
-    state.set_asset(asset, signer, owner)
+    print(state.set_asset(asset, signer, owner, action))
+    state.set_asset(asset, signer, owner, action)
 
 def _delete_asset(asset, signer, state, owner):
     print("entro en _delete_asset")
@@ -264,8 +271,8 @@ def _delete_invitacion(asset, signer, state, owner, address):
         raise InvalidTransaction(
             'Invalid action: Asset not exists con address: {}'.format(address))
     print('DIrecciones exitosas eliminadas: ')
-    print(state.delete_asset(asset, owner,address))
-    state.delete_asset(asset, owner,address)
+    print(state.delete_asset(address))
+    state.delete_asset(address)
 
 
 

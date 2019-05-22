@@ -30830,6 +30830,7 @@ const deleteInvitation =(action, asset, private_key, owner, address)=>{
     )
 }
 
+
 const postUser = (action, asset, private_key, owner, rol) =>{
 
     console.log("TRATAMOS DE: ", action)
@@ -31137,18 +31138,8 @@ $('#publicarInv').on('click', function () {
   }
   
 })
-
-
-$('#solicitarMI').on('click', function () {
-  
-  //addTableInvitaciones('#invitacionesTableSI', invitaciones.assets, "solicitar")
-   getRandomInvitation().then(function (randomNum) {
-    getNodeapiInvitacion(randomNum).then(function(invitacion){
-      console.log("llega invitacion: ", invitacion)
-      var data = JSON.parse(atob(invitacion.data))
-      console.log("data: ", data)
-      var invitationSplit = data.asset.split(',');
-      var nuevoAsset = []
+const getNuevoAsset=(invitationSplit)=>{
+  var nuevoAsset = []
       for(var j=0; j<invitationSplit.length;j++){
       var field = invitationSplit[j].split(":");
       console.log("field", field)
@@ -31168,13 +31159,27 @@ $('#solicitarMI').on('click', function () {
     var solicitada = addCategory("solicitada",dateSol)
     var dateVal = getFecha(currentDate, 1)
     var valida = addCategory("valida", dateVal)
-    var address = addCategory("address", invitacion.address)
     var private_key = addCategory("private_key", user.keys.private_key)
     nuevoAsset.push(solicitada)
     nuevoAsset.push(valida)
     nuevoAsset.push(private_key)
-    nuevoAsset.push(address)
     console.log("Asset nuevo: ", nuevoAsset.join())
+    return nuevoAsset.join()
+}
+
+$('#solicitarMI').on('click', function () {
+  
+  //addTableInvitaciones('#invitacionesTableSI', invitaciones.assets, "solicitar")
+   getRandomInvitation().then(function (randomNum) {
+    getNodeapiInvitacion(randomNum).then(function(invitacion){
+      console.log("llega invitacion: ", invitacion)
+      var data = JSON.parse(atob(invitacion.data))
+      console.log("data: ", data)
+      var invitationSplit = data.asset.split(',');
+      const nuevoAsset = getNuevoAsset(invitationSplit)
+      console.log("nuevo asset devuelto: ", nuevoAsset)
+      deleteInvitation('delete', nuevoAsset, user.keys.private_key, user.owner, invitacion.address);
+      
     })
   })
   /*$('#solicitarInvitacion').attr('style', '')
