@@ -6,6 +6,6 @@ var controller = require('../controllers/api.controller');
 var allInvitations = []
 
 router.get('/luis/invitations/:position', controller.invitations);
-router.get('/luis/NumInvitations/', controller.numInvitations)
+router.get('/luis/NumInvitations/', controller.numInvitations);
 
 module.exports = router;

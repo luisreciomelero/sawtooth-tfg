@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const atob = require('atob');
 
 exports.invitations = function (req, res, next) {
 
@@ -11,9 +12,8 @@ exports.invitations = function (req, res, next) {
   .then(function(response) {
     return response.json();
   }).then(function(response){
-    //console.log(response)
-    allInvitations = response
-    console.log('allInvitations: ', allInvitations.data[0])
+    console.log("probamos atob: ", JSON.parse(atob(response.data[req.params.position].data)))
+    
       res.status(200).send({
         success: 'true',
         message: 'invitation retrieved successfully',
@@ -29,14 +29,15 @@ exports.numInvitations = function (req, res, next) {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
-    }
+    } 
   })
+  .catch(error => console.error('Error:', error))
   .then(function(response) {
     return response.json();
-  }).then(function(response){
-    //console.log(response)
-    allInvitations = response
-    console.log('allInvitations: ', allInvitations.data.length)
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response){
+
       res.status(200).send({
         success: 'true',
         message: 'invitation retrieved successfully',
@@ -45,3 +46,14 @@ exports.numInvitations = function (req, res, next) {
 
   })
 }
+
+
+
+
+
+
+
+
+
+
+

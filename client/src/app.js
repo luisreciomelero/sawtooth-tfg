@@ -52,50 +52,53 @@ const admin = {users:[], invitaciones:[], coches:[], admin:0}
 const registro = {user:null}
 const invitacionEditar={ invitacion:[], address:null, fecha:null, invitacion_de:null, private_key:null, numTotal:null}
 
+
+
+const getFecha=(currentDate, addTime=null)=>{
+  var dia = currentDate.getDate()
+  var mes = currentDate.getMonth()
+  var anio = currentDate.getFullYear()
+  if(addTime!=null){
+    const tiempo = addTime * 86400;
+    const fecha = currentDate.setSeconds(tiempo)
+    dia = currentDate.getDate()
+  }
+  return ""+dia+"/"+mes+"/"+anio
+}
 const getRandomNumber = (length) =>{
   return Math.floor(Math.random() * length)
 }
 
 const getNodeapiInvitacion = (num) =>{
-  fetch(`${API_NODE}/luis/invitations/${num}`)
-  .then(function(response) {
-    return response.json();
-  })
-  .then(function(myJson) {
-    console.log(myJson);
-    invitacionEditar.invitacion = myJson.invitations
-  });
+  console.log("ENTRO EN getNodeapiInvitacion")
+  return fetch(`${API_NODE}/luis/invitations/${num}`)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(myJson) {
+          console.log(myJson);
+          return myJson.invitations
+        }).then(function(invitacion){
+          alert("Invitacion adjudicada: "+ invitacion.address)
+          return invitacion  
+        })
 }
 
 const getRandomInvitation = ()=>{
-  fetch(`${API_NODE}/luis/NumInvitations/`)
-  .then(function(response) {
-    return response.json();
-  })
-  .then(function(myJson) {
-    console.log(myJson);
-    invitacionEditar.numTotal = myJson.numInvitations;
-    return invitacionEditar.numTotal;
-  }).then(function(numInv){
-    var randomNum = getRandomNumber(numInv)
-    console.log("NUMERO ALEATORIO: ", randomNum)
-    return randomNum
-  }).then(function(randomNum){
-          fetch(`${API_NODE}/luis/invitations/${randomNum}`)
+  return fetch(`${API_NODE}/luis/NumInvitations/`)
           .then(function(response) {
-                return response.json();
+            return response.json();
           })
           .then(function(myJson) {
-                console.log(myJson);
-                invitacionEditar.invitacion = myJson.invitations
-
-          });
-  })
-
+            console.log(myJson);
+            return invitacionEditar.numTotal;
+          }).then(function(numInv){
+            var randomNum = getRandomNumber(numInv)
+            console.log("NUMERO ALEATORIO: ", randomNum)
+            return randomNum
+          })
+          
 }
-
-
-
 
 const processAsset = (data) => {
   const arrayDataComas = data.split(',');
@@ -641,7 +644,8 @@ $('#publicarInv').on('click', function () {
     console.log("user.owner en pubINV: ", user.owner)
     var currentDate = new Date();
     console.log("TIMESTAMP: ", currentDate)
-    var date= currentDate.toString().substring(0, 15).replace(/ /g, "")
+    //var date= currentDate.toString().substring(0, 15).replace(/ /g, "")
+    var date = getFecha(currentDate)
     console.log("date", date)
     const keys = makeKeyPair();
     const publicrand = concatString(user.keys.public_key, keys.private)
@@ -668,21 +672,54 @@ $('#publicarInv').on('click', function () {
 $('#solicitarMI').on('click', function () {
   
   //addTableInvitaciones('#invitacionesTableSI', invitaciones.assets, "solicitar")
-
-  $('#solicitarInvitacion').attr('style', '')
-  $('#mainInvitado').attr('style', '')
+   getRandomInvitation().then(function (randomNum) {
+    getNodeapiInvitacion(randomNum).then(function(invitacion){
+      console.log("llega invitacion: ", invitacion)
+      var data = JSON.parse(atob(invitacion.data))
+      console.log("data: ", data)
+      var invitationSplit = data.asset.split(',');
+      var nuevoAsset = []
+      for(var j=0; j<invitationSplit.length;j++){
+      var field = invitationSplit[j].split(":");
+      console.log("field", field)
+      switch(field[0]){
+        case "invitacion_de":
+          var invitacion_de = addCategory("invitacionPublicadaPor", field[1])
+          nuevoAsset.push(invitacion_de)
+          break;
+        case "timestamp":
+          var publicada = addCategory("publicada", field[1])
+          nuevoAsset.push(publicada)
+          break;
+      }
+    }
+    var currentDate = new Date();
+    var dateSol = getFecha(currentDate)
+    var solicitada = addCategory("solicitada",dateSol)
+    var dateVal = getFecha(currentDate, 1)
+    var valida = addCategory("valida", dateVal)
+    var private_key = addCategory("private_key", user.keys.private_key)
+    nuevoAsset.push(solicitada)
+    nuevoAsset.push(valida)
+    nuevoAsset.push(private_key)
+    console.log("Asset nuevo: ", nuevoAsset.join())
+    })
+  })
+  /*$('#solicitarInvitacion').attr('style', '')
+  $('#mainInvitado').attr('style', '')*/
   limpiaInputs()
 })
 
 
-$('#solicitarInv').on('click', function () {
+/*$('#solicitarInv').on('click', function () {
   //var randomNum = getRandomNum(invitacionEditar.numTotal)
-  getRandomInvitation()
+
+ 
   
   
   
   limpiaInputs()
-})
+})*/
 $('#verUsuarios').on('click', function () {
 
   console.log("TODOS LOS USUARIOS REGISTRADOS: ", admin.users)

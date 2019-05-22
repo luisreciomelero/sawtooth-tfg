@@ -13,6 +13,10 @@ const config = {
                 {
                     origin: "localhost:8008", //servidor que deseas que consuma o (*) en caso que sea acceso libre
                     credentials: true
+                },
+                {
+                    origin: "localhost:8000", //servidor que deseas que consuma o (*) en caso que sea acceso libre
+                    credentials: true
                 }
             ]
         }
