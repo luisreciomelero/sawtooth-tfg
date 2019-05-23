@@ -30780,8 +30780,9 @@ admin.getCoches = function (tablaCoches) {
   }) 
 }
 
-user.refresh = function (mostrarMain) {
-  getBatchUser(user.address, ({ assets }) => {
+user.refresh = function (address, mostrarMain) {
+  user.address = address
+  getBatchUser(address, ({ assets }) => {
     console.log("ASSETS RECUPERADOS")
     console.log(assets)
     this.assets = assets
@@ -31096,7 +31097,7 @@ $('#loginAdmin').on('click', function () {
   user.owner = hashUP32
   user.address = address
   //user.rol = null;
-  user.refresh(()=>{
+  user.refresh(user.address,()=>{
     mostrarMain(user.rol, invitaciones)
   })
   limpiaInputs()
@@ -31116,7 +31117,7 @@ $('#loginButton').on('click', function () {
   user.owner = hashUP32
   user.address = address
   user.rol = null;
-  user.refresh(()=>{
+  user.refresh(user.address,()=>{
     mostrarMain(user.rol)
   })
   limpiaInputs()
@@ -31192,7 +31193,7 @@ $('#publicarInv').on('click', function () {
     console.log('PUBLICAMOS INVITACION CON  P_KEY=====================', user.keys.private_key)
     invitaciones.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
       ActualizarAssetUser_publicar(numInvPub,()=>{
-        user.refresh(()=>{
+        user.refresh(user.address,()=>{
           mostrarMain(user.rol)
         })
       });
@@ -31234,20 +31235,35 @@ const getNuevoAsset=(invitationSplit)=>{
     console.log("Asset nuevo: ", nuevoAsset.join())
     return nuevoAsset.join()
 }
-const getNuevoAssetPropietario =(assetPropietario)=>{
+const getNuevoAssetSol =(assetPropietario, rol)=>{
   var assetSplit = assetPropietario.split(',')
   var nuevoAsset = []
   for (let i = 0; i<assetSplit.length; i++){
-    if (assetSplit[i].substring(0,6)!='wallet'){
-      nuevoAsset.push(assetSplit[i])
+  var compara = ((assetSplit[i].substring(0,15)=='numInvitaciones') || (assetSplit[i].substring(0,6)=='wallet'))
+
+    if(rol=="Usuario"){
+      compara = (assetSplit[i].substring(0,6)=='wallet')
+    }
+    if (compara){
+      if (assetSplit[i].substring(0,6)=='wallet'){
+        var valor = parseInt(assetSplit[i].split(':')[1],10)
+        valor = valor +1
+        valor = valor.toString()
+        console.log('valor', valor)
+        var wallet = addCategory(assetSplit[i].split(':')[0], valor)
+        nuevoAsset.push(wallet)
+      }
+      else if(assetSplit[i].substring(0,15)=='numInvitaciones' && rol == 'Invitado'){
+        var valor = parseInt(assetSplit[i].split(':')[1],10)
+        valor = valor +1
+        valor = valor.toString()
+        console.log('invitaciones', valor)
+        var invitaciones = addCategory(assetSplit[i].split(':')[0], valor)
+        nuevoAsset.push(invitaciones)
+      }
     }
     else{
-      var valor = parseInt(assetSplit[i].split(':')[1],10)
-      valor = valor +1
-      valor = valor.toString()
-      console.log('valor', valor)
-      var wallet = addCategory(assetSplit[i].split(':')[0], valor)
-      nuevoAsset.push(wallet)
+      nuevoAsset.push(assetSplit[i])
     }
   }
   console.log('nuevoAsset', nuevoAsset.join(','))
@@ -31267,31 +31283,50 @@ $('#solicitarMI').on('click', function () {
       console.log("nuevo asset devuelto: ", nuevoAsset)
       const propietario = invitacion.address.substring(8,40)
       const propietarioAddress =  PREFIX_USER+'01'+ propietario
+      console.log("PROPIETARIO.ADDRESS: ", propietario)
+      console.log("USER.ADDRESS: ", user.address)
+      const invitadoAddress = user.address
       updateInvitation('delete', nuevoAsset, user.keys.private_key, user.owner, invitacion.address, ()=>{
         updateInvitation("assign", nuevoAsset, user.keys.private_key, propietario , invitacion.address, ()=>{
           getBatchUser(propietarioAddress, ({ assets }) => {
+            console.log("address:", assets)
             var assetPropietario = assets[0].asset;
-            assetPropietario = getNuevoAssetPropietario(assetPropietario)
+            console.log("ASSET NUEVO PROPIETARIO")
+            assetPropietario = getNuevoAssetSol(assetPropietario, "Usuario")
             getAddressBatch(propietarioAddress).then(function(address){
               var completeAddress = address;
               console.log("llega address: ", address)
               updateUserSolicitar("update", "asset", user.keys.private_key, propietario, completeAddress, "Usuario",()=>{
                 updateUserSolicitar("register", assetPropietario, user.keys.private_key, propietario, completeAddress,'Usuario', ()=>{
-                  console.log("UPDATED")
+                  console.log("UPDATED PROPIETARIO")
+                  getBatchUser(invitadoAddress,({assets})=>{
+                    var assetInvitado=assets[0].asset;
+                    console.log("ASSET NUEVO INVITADO")
+                    assetInvitado = getNuevoAssetSol(assetInvitado, "Invitado")
+                    getAddressBatch(invitadoAddress).then(function(address){
+                      var completeAddress = address;
+                      console.log("llega address: ", address)
+                      updateUserSolicitar("update", assetInvitado, user.keys.private_key, user.owner, completeAddress, "Invitado",()=>{
+                        updateUserSolicitar("register", assetInvitado, user.keys.private_key, user.owner, completeAddress,'Invitado', ()=>{
+                         
+                      })
+                    })
+                  })
+                });
                 })
               })
             })
           })
-        })
-      });
+          
       
-    })
-  })
+        })    
+      })
   /*$('#solicitarInvitacion').attr('style', '')
   $('#mainInvitado').attr('style', '')*/
   limpiaInputs()
 })
-
+})
+})
 /*$('#solicitarInv').on('click', function () {
   //var randomNum = getRandomNum(invitacionEditar.numTotal)
 
@@ -31332,7 +31367,7 @@ $('#visualizacion').on('click', '.editarInvitacion' ,function(){
   $('#editarInvitacion').attr('style', '')
   invitacionEditar.refresh(address, ()=>{
     user.address = PREFIX_USER+'01'+address.substring(8,40)
-    user.refresh(()=>{
+    user.refresh(user.address,()=>{
       console.log('invitacionEditar', invitacionEditar)
     fillUserInvitation(user, invitacionEditar.invitacion[0].asset)
   })
