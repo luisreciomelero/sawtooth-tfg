@@ -30561,11 +30561,27 @@ const getRandomInvitation = ()=>{
           })
           .then(function(myJson) {
             console.log(myJson);
-            return invitacionEditar.numTotal;
+            if(myJson.numInvitations == 0){
+              alert('No quedan invitaciones en este momento.')
+              return
+            }
+            return myJson.numInvitations;
           }).then(function(numInv){
             var randomNum = getRandomNumber(numInv)
             console.log("NUMERO ALEATORIO: ", randomNum)
             return randomNum
+          })
+          
+}
+
+const getAddressBatch = (prefix)=>{
+  return fetch(`${API_NODE}/luis/users/${prefix}`)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(myJson) {
+            console.log(myJson);
+            return myJson.address;
           })
           
 }
@@ -30654,6 +30670,24 @@ const getBatchUser = (address, cb)=> {
     }, {assets: []}))
   })
 }
+
+/*const getAddressBatch =(address, cb)=> {
+ 
+  
+  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.address !== '') {
+        const parsed = JSON.parse(atob(datum.address))
+        console.log("PARSED:", parsed)
+        processed.address.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {address: []}))
+  })
+}*/
 
 const getBatchInv = cb =>{
   $.get(`${API_URL}/state?address=${invitaciones.address}`, ({ data }) => {
@@ -31238,10 +31272,13 @@ $('#solicitarMI').on('click', function () {
           getBatchUser(propietarioAddress, ({ assets }) => {
             var assetPropietario = assets[0].asset;
             assetPropietario = getNuevoAssetPropietario(assetPropietario)
-
-            updateUserSolicitar("update", "asset", user.keys.private_key, propietario, propietarioAddress, "Usuario",()=>{
-              updateUserSolicitar("register", assetPropietario, user.keys.private_key, propietario, propietarioAddress,'Usuario', ()=>{
-                console.log("UPDATED")
+            getAddressBatch(propietarioAddress).then(function(address){
+              var completeAddress = address;
+              console.log("llega address: ", address)
+              updateUserSolicitar("update", "asset", user.keys.private_key, propietario, completeAddress, "Usuario",()=>{
+                updateUserSolicitar("register", assetPropietario, user.keys.private_key, propietario, completeAddress,'Usuario', ()=>{
+                  console.log("UPDATED")
+                })
               })
             })
           })

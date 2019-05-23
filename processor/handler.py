@@ -279,8 +279,8 @@ def _delete_by_address(state, address):
         raise InvalidTransaction(
             'Invalid action: Asset not exists con address: {}'.format(address))
     print('DIrecciones exitosas eliminadas: ')
-    print(state.delete_asset(address))
-    state.delete_asset(address)
+    print(state.delete_asset_address(address))
+    state.delete_asset_address(address)
 
 
 

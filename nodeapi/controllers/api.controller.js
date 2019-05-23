@@ -3,7 +3,7 @@ const atob = require('atob');
 
 exports.invitations = function (req, res, next) {
 
-	fetch('http://rest-api:8008/state?address=1a7335', {
+	fetch('http://rest-api:8008/state?address=1a733500', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -25,7 +25,7 @@ exports.invitations = function (req, res, next) {
 
 exports.numInvitations = function (req, res, next) {
 
-  fetch('http://rest-api:8008/state?address=1a7335', {
+  fetch('http://rest-api:8008/state?address=1a733500', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -49,7 +49,36 @@ exports.numInvitations = function (req, res, next) {
 
 
 
+exports.getUser = function(req,res,next){
 
+  fetch('http://rest-api:8008/state?address=714183', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    } 
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response) {
+    return response.json();
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response){
+      var address ="Not Found"
+      for (var i =0; i<response.data.length; i++){
+        if (response.data[i].address.indexOf([req.params.address])> -1){
+          address = response.data[i].address;
+          
+        }
+      }
+      console.log("address a devolver: ", address)
+      res.status(200).send({
+        success: 'true',
+        message: 'invitation retrieved successfully',
+        address: address
+  })
+
+  })
+}
 
 
 
