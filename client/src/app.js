@@ -143,7 +143,7 @@ const processAsset = (data) => {
 
 
 
-const ActualizarAssetUser = (numInvPub, refreshUserMain) =>{
+const ActualizarAssetUser_publicar = (numInvPub, refreshUserMain,) =>{
   const asset = user.assets[0].asset
 
   var invitacionesActuales = parseInt(user.numInvitaciones)-numInvPub;
@@ -162,6 +162,9 @@ const ActualizarAssetUser = (numInvPub, refreshUserMain) =>{
 
 }
 
+const ActualizarAssetUser_Solicitar = ()=>{
+
+}
 
 
 const getBatchUser = (address, cb)=> {
@@ -303,7 +306,7 @@ user.editInvitation = function () {
     
   })
 }
-invitaciones.refresh = function (actualizaUser) {
+invitaciones.refresh = function (ActualizarAssetUser_publicar) {
   getBatchInv(({ assets }) => {
     console.log("ASSETS RECUPERADOS")
     console.log(assets)
@@ -316,7 +319,7 @@ invitaciones.refresh = function (actualizaUser) {
       
     }
   })
-  actualizaUser();
+  ActualizarAssetUser_publicar();
 }
 
 invitaciones.getAll = function() {
@@ -360,6 +363,18 @@ const deleteInvitation =(action, asset, private_key, owner, address)=>{
     )
 }
 
+const updateInvitation = (action, asset, private_key, owner, address, update)=>{
+  submitUpdate(
+      {action, asset, owner, address},
+      FAMILY_INVITATIONS,
+      version,
+      PREFIX_INVITATIONS,
+      private_key,
+      success => success ? update() : null
+    )
+}
+
+
 
 const postUser = (action, asset, private_key, owner, rol) =>{
 
@@ -394,7 +409,7 @@ coches.refresh = function() {
   })
 }
 
-invitaciones.update = function(action, asset, private_key, owner, actualizaUser){
+invitaciones.update = function(action, asset, private_key, owner, ActualizarAssetUser){
   
   submitUpdate(
       {action, asset, owner},
@@ -402,7 +417,7 @@ invitaciones.update = function(action, asset, private_key, owner, actualizaUser)
       version,
       PREFIX_INVITATIONS,
       private_key,
-      success => success ? this.refresh(actualizaUser) : null
+      success => success ? this.refresh(ActualizarAssetUser) : null
     )
 }
 
@@ -659,7 +674,7 @@ $('#publicarInv').on('click', function () {
     console.log('PUBLICAMOS INVITACION CON ASSET=====================', asset.join())
     console.log('PUBLICAMOS INVITACION CON  P_KEY=====================', user.keys.private_key)
     invitaciones.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
-      ActualizarAssetUser(numInvPub,()=>{
+      ActualizarAssetUser_publicar(numInvPub,()=>{
         user.refresh(()=>{
           mostrarMain(user.rol)
         })
@@ -669,14 +684,20 @@ $('#publicarInv').on('click', function () {
   
 })
 const getNuevoAsset=(invitationSplit)=>{
+
+  /////FALTA METER AL NUEVO PROPIETARIO
   var nuevoAsset = []
       for(var j=0; j<invitationSplit.length;j++){
       var field = invitationSplit[j].split(":");
       console.log("field", field)
+      
       switch(field[0]){
         case "invitacion_de":
+          
           var invitacion_de = addCategory("invitacionPublicadaPor", field[1])
+          var nuevoPropietario = addCategory("nuevoPropietario", user.keys.public_key)
           nuevoAsset.push(invitacion_de)
+          nuevoAsset.push(nuevoPropietario)
           break;
         case "timestamp":
           var publicada = addCategory("publicada", field[1])
@@ -706,9 +727,15 @@ $('#solicitarMI').on('click', function () {
       var data = JSON.parse(atob(invitacion.data))
       console.log("data: ", data)
       var invitationSplit = data.asset.split(',');
-      const nuevoAsset = getNuevoAsset(invitationSplit)
+      var nuevoAsset = getNuevoAsset(invitationSplit)
       console.log("nuevo asset devuelto: ", nuevoAsset)
-      deleteInvitation('delete', nuevoAsset, user.keys.private_key, user.owner, invitacion.address);
+      const propietario = invitacion.address.substring(8,40)
+      const propietarioAddress =  PREFIX_USER+'01'+ propietario
+      updateInvitation('delete', nuevoAsset, user.keys.private_key, user.owner, invitacion.address, ()=>{
+        updateInvitation("assign", nuevoAsset, user.keys.private_key, propietario , invitacion.address, ()=>{
+          console.log("assignamos")
+        })
+      });
       
     })
   })
@@ -716,7 +743,6 @@ $('#solicitarMI').on('click', function () {
   $('#mainInvitado').attr('style', '')*/
   limpiaInputs()
 })
-
 
 /*$('#solicitarInv').on('click', function () {
   //var randomNum = getRandomNum(invitacionEditar.numTotal)
@@ -757,13 +783,13 @@ $('#visualizacion').on('click', '.editarInvitacion' ,function(){
   $('#mainAdmin').attr('style', 'display:none')
   $('#editarInvitacion').attr('style', '')
   invitacionEditar.refresh(address, ()=>{
-    user.address = PREFIX_USER+'01'+address.substring(6,38)
+    user.address = PREFIX_USER+'01'+address.substring(8,40)
     user.refresh(()=>{
       console.log('invitacionEditar', invitacionEditar)
     fillUserInvitation(user, invitacionEditar.invitacion[0].asset)
   })
   })
-  console.log("user.address: ", PREFIX_USER+'01'+address.substring(6,38))
+  console.log("user.address: ", PREFIX_USER+'01'+address.substring(8,40))
 
   /*user.address = PREFIX_USER+'01'+address.substring(6,38)
   user.refresh(()=>{
@@ -797,7 +823,7 @@ $('#eliminarInvitacion').on('click' ,function(){
   var asset = invitacionEditar.invitacion[0].asset.replace("\n"," ");
   asset = asset.split(',address')[0]
   var private_key = user.keys.private_key;
-  var owner = invitacionEditar.address.substring(6,38);
+  var owner = invitacionEditar.address.substring(8,40);
   console.log('BORRAMOS INVITACION CON ASSET=====================', asset)
   console.log('BORRAMOS INVITACION CON  P_KEY=====================', user.keys.private_key)
   var address = invitacionEditar.address

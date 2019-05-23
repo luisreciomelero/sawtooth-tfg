@@ -187,7 +187,7 @@ class InvitationsTransactionHandler(TransactionHandler):
                     '> ' + payload.owner[:8] + '... ' if payload.owner else '',
                     signer[:8] + '... ')
 
-        if payload.action == 'register':
+        if (payload.action == 'register' or payload.action == 'assign'):
             _register_asset(asset=payload.asset,
                           signer=signer,
                           state=state,
@@ -199,13 +199,6 @@ class InvitationsTransactionHandler(TransactionHandler):
                           state=state,
                           owner= payload.owner,
                           address=payload.address)
-        elif payload.action == 'assign':
-            _register_asset(asset=payload.asset,
-                          signer=signer,
-                          state=state,
-                          owner= payload.owner,
-                          address=payload.address)
-        
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
                 payload.action))
