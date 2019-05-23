@@ -43,6 +43,9 @@ class UserState(object):
     def get_asset(self, asset, owner, rol):
         return self._get_state(_get_asset_address(asset, owner, rol))
 
+    def get_assetAddress(self, address):
+        return self._get_state(address)
+
     # def get_transfer(self, asset):
     #     return self._get_state(_get_transfer_address(asset))
 
@@ -79,3 +82,8 @@ class UserState(object):
         else:
             entry = None
         return entry
+
+    def delete_asset_address (self, address):
+        return self._context.delete_state(
+            [address],
+            timeout=self.TIMEOUT)

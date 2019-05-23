@@ -93,6 +93,9 @@ class UserTransactionHandler(TransactionHandler):
                           state=state,
                           owner= payload.owner,
                           rol= payload.rol)
+        elif payload.action == 'update':
+            _delete_by_address(address=payload.address,
+                                state=state)
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
                 payload.action))
@@ -141,6 +144,7 @@ class CarsTransactionHandler(TransactionHandler):
                           signer=signer,
                           state=state,
                           owner= payload.owner)
+        
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
                 payload.action))
@@ -255,6 +259,8 @@ def _delete_user(asset, signer, state, owner, rol):
     print(state.delete_asset(asset, owner, rol))
     state.delete_asset(asset, owner, rol)
 
+
+
 def _delete_invitacion(asset, signer, state, owner, address):
     print("entro en _delete_invitacion")
     print(asset)
@@ -267,6 +273,14 @@ def _delete_invitacion(asset, signer, state, owner, address):
     print(state.delete_asset(address))
     state.delete_asset(address)
 
+def _delete_by_address(state, address):
+    
+    if state.get_assetAddress(address) is None:
+        raise InvalidTransaction(
+            'Invalid action: Asset not exists con address: {}'.format(address))
+    print('DIrecciones exitosas eliminadas: ')
+    print(state.delete_asset(address))
+    state.delete_asset(address)
 
 
 

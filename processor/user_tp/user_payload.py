@@ -15,16 +15,18 @@ class UserPayload(object):
         asset = data.get('asset')
         owner = data.get('owner')
         rol = data.get('rol')
+        address = data.get('address')
 
         if not action:
             raise InvalidTransaction('Action is required')
-        if action not in ('register', 'delete'):
+        if action not in ('register', 'delete', 'update'):
             raise InvalidTransaction('Invalid action: {}'.format(action))
 
         self._action = action
         self._asset = asset
         self._owner = owner
         self._rol = rol
+        self._address = address
 
 
     @property
@@ -42,3 +44,7 @@ class UserPayload(object):
     @property
     def rol(self):
         return self._rol
+
+    @property
+    def address(self):
+        return self._address

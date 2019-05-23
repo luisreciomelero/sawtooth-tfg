@@ -143,7 +143,7 @@ const processAsset = (data) => {
 
 
 
-const ActualizarAssetUser_publicar = (numInvPub, refreshUserMain,) =>{
+const ActualizarAssetUser_publicar = (numInvPub, refreshUserMain) =>{
   const asset = user.assets[0].asset
 
   var invitacionesActuales = parseInt(user.numInvitaciones)-numInvPub;
@@ -352,6 +352,8 @@ const deleteUser =(action, asset, private_key, owner, refreshUserMain)=>{
     )
 }
 
+
+
 const deleteInvitation =(action, asset, private_key, owner, address)=>{
   submitUpdate(
       {action, asset, owner, address},
@@ -360,6 +362,17 @@ const deleteInvitation =(action, asset, private_key, owner, address)=>{
       PREFIX_INVITATIONS,
       private_key,
       success => success ? console.log("INVITACION ELIMINADA") : null
+    )
+}
+
+const updateUserSolicitar =(action, asset, private_key, owner, address, rol, update)=>{
+  submitUpdate(
+      {action, asset, owner, address, rol},
+      FAMILY_USER,
+      version,
+      PREFIX_USER,
+      private_key,
+      success => success ? update() : null
     )
 }
 
@@ -717,6 +730,25 @@ const getNuevoAsset=(invitationSplit)=>{
     console.log("Asset nuevo: ", nuevoAsset.join())
     return nuevoAsset.join()
 }
+const getNuevoAssetPropietario =(assetPropietario)=>{
+  var assetSplit = assetPropietario.split(',')
+  var nuevoAsset = []
+  for (let i = 0; i<assetSplit.length; i++){
+    if (assetSplit[i].substring(0,6)!='wallet'){
+      nuevoAsset.push(assetSplit[i])
+    }
+    else{
+      var valor = parseInt(assetSplit[i].split(':')[1],10)
+      valor = valor +1
+      valor = valor.toString()
+      console.log('valor', valor)
+      var wallet = addCategory(assetSplit[i].split(':')[0], valor)
+      nuevoAsset.push(wallet)
+    }
+  }
+  console.log('nuevoAsset', nuevoAsset.join(','))
+  return nuevoAsset.join(',')
+}
 
 $('#solicitarMI').on('click', function () {
   
@@ -733,7 +765,16 @@ $('#solicitarMI').on('click', function () {
       const propietarioAddress =  PREFIX_USER+'01'+ propietario
       updateInvitation('delete', nuevoAsset, user.keys.private_key, user.owner, invitacion.address, ()=>{
         updateInvitation("assign", nuevoAsset, user.keys.private_key, propietario , invitacion.address, ()=>{
-          console.log("assignamos")
+          getBatchUser(propietarioAddress, ({ assets }) => {
+            var assetPropietario = assets[0].asset;
+            assetPropietario = getNuevoAssetPropietario(assetPropietario)
+
+            updateUserSolicitar("update", "asset", user.keys.private_key, propietario, propietarioAddress, "Usuario",()=>{
+              updateUserSolicitar("register", assetPropietario, user.keys.private_key, propietario, propietarioAddress,'Usuario', ()=>{
+                console.log("UPDATED")
+              })
+            })
+          })
         })
       });
       
