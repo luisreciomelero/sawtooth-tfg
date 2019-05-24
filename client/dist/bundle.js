@@ -28633,16 +28633,15 @@ const getStateUser = cb => {
   })
 }
 
-const getStateCars = cb => {
-  $.get(`${API_URL}/state?address=${PREFIX_CARS}`, ({ data }) => {
+const getStateCars = (address, cb) => {
+  $.get(`${API_URL}/state?address=${PREFIX_CARS + address}`, ({ data }) => {
     cb(data.reduce((processed, datum) => {
       if (datum.data !== '') {
         const parsed = JSON.parse(atob(datum.data))
-        if (datum.address[7] === '0') processed.assets.push(parsed)
-        if (datum.address[7] === '1') processed.transfers.push(parsed)
+        processed.assets.push(parsed)
       }
       return processed
-    }, {assets: [], transfers: []}))
+    }, {assets: []}))
   })
 }
 
@@ -30573,6 +30572,19 @@ const getRandomInvitation = ()=>{
           })
           
 }
+const getInvitation= (prefix) =>{
+
+  return fetch(`${API_NODE}/luis/invitation/${prefix}`)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(myJson) {
+            console.log(myJson);
+            console.log("getInvitation address recibida: ", myJson.address)
+            return myJson.address;
+          })
+}
+
 
 const getAddressBatch = (prefix)=>{
   return fetch(`${API_NODE}/luis/users/${prefix}`)
@@ -30908,21 +30920,22 @@ const postUser = (action, asset, private_key, owner, rol) =>{
   
 }
 
-coches.update = function(action, asset, private_key, owner){
+coches.update = function(action, asset, private_key, owner, actualizaNumInvitaciones){
   submitUpdate(
       {action, asset, owner},
       FAMILY_CARS,
       version,
       PREFIX_CARS,
       private_key,
-      success => success ? this.refresh() : null
+      success => success ? this.refresh(actualizaNumInvitaciones) : null
     )
 }
 
-coches.refresh = function() {
-  getStateCars(({assets, transfers}) => {
+coches.refresh = function(actualizaNumInvitaciones) {
+  getStateCars(user.owner, ({assets}) => {
     this.assets = assets;
-    console.log(this.assets)
+    console.log("coches del invitado: ", this.assets)
+    actualizaNumInvitaciones()
 
   })
 }
@@ -31132,16 +31145,66 @@ $('#goToRegister').on('click', function () {
   $('#login').attr('style', 'display:none')
 })
 
+const getNuevoAssetCrearCoche =(assetPropietario)=>{
+  var assetSplit = assetPropietario.split(',')
+  console.log("assetSplit en crearcoche", assetSplit)
+  var nuevoAsset = []
+  for (let i = 0; i<assetSplit.length; i++){
+ 
+
+    if(assetSplit[i].substring(0,15)=='numInvitaciones' ){
+        var valor = parseInt(assetSplit[i].split(':')[1],10)
+        valor = valor -1
+        valor = valor.toString()
+        console.log('invitaciones', valor)
+        var invitaciones = addCategory(assetSplit[i].split(':')[0], valor)
+        nuevoAsset.push(invitaciones)
+      }
+    
+    else{
+      nuevoAsset.push(assetSplit[i])
+    }
+  }
+  console.log('nuevoAsset', nuevoAsset.join(','))
+  return nuevoAsset.join(',')
+
+}
+
 
 $('#createCocheRC').on('click', function () {
   console.log("user.assets en create coche: ", user.assets)
   const matricula = addCategory("matricula", $('#matriculaRC').val());
   const model = addCategory("modelo", $('#modelRC').val());
   const propietario = addCategory("propietario", user.owner);
-  const asset = [matricula, model, propietario]
-  coches.update("register", asset.join(), user.keys.private_key, user.owner)
+  const currentDate = new Date()
+  const fecha = addCategory("registrado_el", getFecha(currentDate))
+  const asset = [matricula, model, propietario, fecha]
+  const prefixOwner = user.owner.substring(0,16)
+  console.log("asset coche: ", asset.join())
+  coches.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
+    const prefixUser = PREFIX_USER+'01'+user.owner;
+    getAddressBatch(prefixUser).then(function(address){
+      var nuevoAsset = getNuevoAssetCrearCoche(user.assets[0].asset)
+      console.log("nuevo Asset del user -1 inv: ", nuevoAsset)
+      updateUserSolicitar("update", 'assetInvitado', user.keys.private_key, user.owner, address, "Invitado",()=>{
+        updateUserSolicitar("register", nuevoAsset, user.keys.private_key, user.owner, address,'Invitado', ()=>{
+          user.refresh(user.address, ()=>{
+
+          })
+        })
+      })
+    })
+    
+
+    /*getInvitation(prefixOwner).then(function(address){
+      updateInvitation('update', 'nuevoAsset', user.keys.private_key, user.owner, 'address', ()=>{
+        console.log("INVITACION: ", address, "ELIMINADA")
+      })
+
+    })*/
+  })
   $('#regCoche').attr('style', 'display:none')
-  $('#mainUser').attr('style', '')
+  $('#mainInvitado').attr('style', '')
   limpiaInputs()
   
 })
@@ -31204,7 +31267,7 @@ $('#publicarInv').on('click', function () {
   }
   
 })
-const getNuevoAsset=(invitationSplit)=>{
+const getNuevoAssetInvitacion=(invitationSplit)=>{
 
   /////FALTA METER AL NUEVO PROPIETARIO
   var nuevoAsset = []
@@ -31238,7 +31301,7 @@ const getNuevoAsset=(invitationSplit)=>{
     console.log("Asset nuevo: ", nuevoAsset.join())
     return nuevoAsset.join()
 }
-const getNuevoAssetSol =(assetPropietario, rol)=>{
+const getNuevoAssetUsuario =(assetPropietario, rol)=>{
   var assetSplit = assetPropietario.split(',')
   var nuevoAsset = []
   for (let i = 0; i<assetSplit.length; i++){
@@ -31282,20 +31345,21 @@ $('#solicitarMI').on('click', function () {
       var data = JSON.parse(atob(invitacion.data))
       console.log("data: ", data)
       var invitationSplit = data.asset.split(',');
-      var nuevoAsset = getNuevoAsset(invitationSplit)
+      var nuevoAsset = getNuevoAssetInvitacion(invitationSplit)
       console.log("nuevo asset devuelto: ", nuevoAsset)
+      const propietarioInv = invitacion.address.substring(8,40)+user.owner.substring(0,16)
       const propietario = invitacion.address.substring(8,40)
-      const propietarioAddress =  PREFIX_USER+'01'+ propietario
+      const propietarioAddress =  PREFIX_USER+'01'+ propietario 
       console.log("PROPIETARIO.ADDRESS: ", propietario)
       console.log("USER.ADDRESS: ", user.address)
       const invitadoAddress = PREFIX_USER+'01'+user.address.substring(8,40)
       updateInvitation('delete', nuevoAsset, user.keys.private_key, user.owner, invitacion.address, ()=>{
-        updateInvitation("assign", nuevoAsset, user.keys.private_key, propietario , invitacion.address, ()=>{
+        updateInvitation("assign", nuevoAsset, user.keys.private_key, propietarioInv , invitacion.address, ()=>{
           getBatchUser(propietarioAddress, ({ assets }) => {
             console.log("address:", assets)
             var assetPropietario = assets[0].asset;
             console.log("ASSET NUEVO PROPIETARIO")
-            assetPropietario = getNuevoAssetSol(assetPropietario, "Usuario")
+            assetPropietario = getNuevoAssetUsuario(assetPropietario, "Usuario")
             getAddressBatch(propietarioAddress).then(function(address){
               var completeAddress = address;
               console.log("llega address propietario: ", address)
@@ -31305,7 +31369,7 @@ $('#solicitarMI').on('click', function () {
                   getBatchUser(invitadoAddress,({assets})=>{
                     var assetInvitado=assets[0].asset;
                     console.log("ASSET NUEVO INVITADO")
-                    assetInvitado = getNuevoAssetSol(assetInvitado, "Invitado")
+                    assetInvitado = getNuevoAssetUsuario(assetInvitado, "Invitado")
                     getAddressBatch(invitadoAddress).then(function(address){
                       var completeAddress = address;
                       console.log("llega address invitado: ", address)
@@ -34598,7 +34662,7 @@ module.exports.makeKey = makeKey
 /* 150 */
 /***/ (function(module, exports) {
 
-module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-invitations/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-invitations/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
+module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-cars/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-cars/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
 
 /***/ }),
 /* 151 */
@@ -45169,6 +45233,8 @@ const limpiaInputs = () =>{
   $("#passInputL").val('')
   $("#matriculaRC").val('')
   $("#modelRC").val('')
+  $("#numInv").val('')
+  
 
 }
 

@@ -103,6 +103,19 @@ const getRandomInvitation = ()=>{
           })
           
 }
+const getInvitation= (prefix) =>{
+
+  return fetch(`${API_NODE}/luis/invitation/${prefix}`)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(myJson) {
+            console.log(myJson);
+            console.log("getInvitation address recibida: ", myJson.address)
+            return myJson.address;
+          })
+}
+
 
 const getAddressBatch = (prefix)=>{
   return fetch(`${API_NODE}/luis/users/${prefix}`)
@@ -438,21 +451,22 @@ const postUser = (action, asset, private_key, owner, rol) =>{
   
 }
 
-coches.update = function(action, asset, private_key, owner){
+coches.update = function(action, asset, private_key, owner, actualizaNumInvitaciones){
   submitUpdate(
       {action, asset, owner},
       FAMILY_CARS,
       version,
       PREFIX_CARS,
       private_key,
-      success => success ? this.refresh() : null
+      success => success ? this.refresh(actualizaNumInvitaciones) : null
     )
 }
 
-coches.refresh = function() {
-  getStateCars(({assets, transfers}) => {
+coches.refresh = function(actualizaNumInvitaciones) {
+  getStateCars(user.owner, ({assets}) => {
     this.assets = assets;
-    console.log(this.assets)
+    console.log("coches del invitado: ", this.assets)
+    actualizaNumInvitaciones()
 
   })
 }
@@ -662,16 +676,66 @@ $('#goToRegister').on('click', function () {
   $('#login').attr('style', 'display:none')
 })
 
+const getNuevoAssetCrearCoche =(assetPropietario)=>{
+  var assetSplit = assetPropietario.split(',')
+  console.log("assetSplit en crearcoche", assetSplit)
+  var nuevoAsset = []
+  for (let i = 0; i<assetSplit.length; i++){
+ 
+
+    if(assetSplit[i].substring(0,15)=='numInvitaciones' ){
+        var valor = parseInt(assetSplit[i].split(':')[1],10)
+        valor = valor -1
+        valor = valor.toString()
+        console.log('invitaciones', valor)
+        var invitaciones = addCategory(assetSplit[i].split(':')[0], valor)
+        nuevoAsset.push(invitaciones)
+      }
+    
+    else{
+      nuevoAsset.push(assetSplit[i])
+    }
+  }
+  console.log('nuevoAsset', nuevoAsset.join(','))
+  return nuevoAsset.join(',')
+
+}
+
 
 $('#createCocheRC').on('click', function () {
   console.log("user.assets en create coche: ", user.assets)
   const matricula = addCategory("matricula", $('#matriculaRC').val());
   const model = addCategory("modelo", $('#modelRC').val());
   const propietario = addCategory("propietario", user.owner);
-  const asset = [matricula, model, propietario]
-  coches.update("register", asset.join(), user.keys.private_key, user.owner)
+  const currentDate = new Date()
+  const fecha = addCategory("registrado_el", getFecha(currentDate))
+  const asset = [matricula, model, propietario, fecha]
+  const prefixOwner = user.owner.substring(0,16)
+  console.log("asset coche: ", asset.join())
+  coches.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
+    const prefixUser = PREFIX_USER+'01'+user.owner;
+    getAddressBatch(prefixUser).then(function(address){
+      var nuevoAsset = getNuevoAssetCrearCoche(user.assets[0].asset)
+      console.log("nuevo Asset del user -1 inv: ", nuevoAsset)
+      updateUserSolicitar("update", 'assetInvitado', user.keys.private_key, user.owner, address, "Invitado",()=>{
+        updateUserSolicitar("register", nuevoAsset, user.keys.private_key, user.owner, address,'Invitado', ()=>{
+          user.refresh(user.address, ()=>{
+
+          })
+        })
+      })
+    })
+    
+
+    /*getInvitation(prefixOwner).then(function(address){
+      updateInvitation('update', 'nuevoAsset', user.keys.private_key, user.owner, 'address', ()=>{
+        console.log("INVITACION: ", address, "ELIMINADA")
+      })
+
+    })*/
+  })
   $('#regCoche').attr('style', 'display:none')
-  $('#mainUser').attr('style', '')
+  $('#mainInvitado').attr('style', '')
   limpiaInputs()
   
 })
@@ -734,7 +798,7 @@ $('#publicarInv').on('click', function () {
   }
   
 })
-const getNuevoAsset=(invitationSplit)=>{
+const getNuevoAssetInvitacion=(invitationSplit)=>{
 
   /////FALTA METER AL NUEVO PROPIETARIO
   var nuevoAsset = []
@@ -768,7 +832,7 @@ const getNuevoAsset=(invitationSplit)=>{
     console.log("Asset nuevo: ", nuevoAsset.join())
     return nuevoAsset.join()
 }
-const getNuevoAssetSol =(assetPropietario, rol)=>{
+const getNuevoAssetUsuario =(assetPropietario, rol)=>{
   var assetSplit = assetPropietario.split(',')
   var nuevoAsset = []
   for (let i = 0; i<assetSplit.length; i++){
@@ -812,20 +876,21 @@ $('#solicitarMI').on('click', function () {
       var data = JSON.parse(atob(invitacion.data))
       console.log("data: ", data)
       var invitationSplit = data.asset.split(',');
-      var nuevoAsset = getNuevoAsset(invitationSplit)
+      var nuevoAsset = getNuevoAssetInvitacion(invitationSplit)
       console.log("nuevo asset devuelto: ", nuevoAsset)
+      const propietarioInv = invitacion.address.substring(8,40)+user.owner.substring(0,16)
       const propietario = invitacion.address.substring(8,40)
-      const propietarioAddress =  PREFIX_USER+'01'+ propietario
+      const propietarioAddress =  PREFIX_USER+'01'+ propietario 
       console.log("PROPIETARIO.ADDRESS: ", propietario)
       console.log("USER.ADDRESS: ", user.address)
       const invitadoAddress = PREFIX_USER+'01'+user.address.substring(8,40)
       updateInvitation('delete', nuevoAsset, user.keys.private_key, user.owner, invitacion.address, ()=>{
-        updateInvitation("assign", nuevoAsset, user.keys.private_key, propietario , invitacion.address, ()=>{
+        updateInvitation("assign", nuevoAsset, user.keys.private_key, propietarioInv , invitacion.address, ()=>{
           getBatchUser(propietarioAddress, ({ assets }) => {
             console.log("address:", assets)
             var assetPropietario = assets[0].asset;
             console.log("ASSET NUEVO PROPIETARIO")
-            assetPropietario = getNuevoAssetSol(assetPropietario, "Usuario")
+            assetPropietario = getNuevoAssetUsuario(assetPropietario, "Usuario")
             getAddressBatch(propietarioAddress).then(function(address){
               var completeAddress = address;
               console.log("llega address propietario: ", address)
@@ -835,7 +900,7 @@ $('#solicitarMI').on('click', function () {
                   getBatchUser(invitadoAddress,({assets})=>{
                     var assetInvitado=assets[0].asset;
                     console.log("ASSET NUEVO INVITADO")
-                    assetInvitado = getNuevoAssetSol(assetInvitado, "Invitado")
+                    assetInvitado = getNuevoAssetUsuario(assetInvitado, "Invitado")
                     getAddressBatch(invitadoAddress).then(function(address){
                       var completeAddress = address;
                       console.log("llega address invitado: ", address)

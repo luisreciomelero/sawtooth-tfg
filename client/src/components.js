@@ -227,6 +227,8 @@ const limpiaInputs = () =>{
   $("#passInputL").val('')
   $("#matriculaRC").val('')
   $("#modelRC").val('')
+  $("#numInv").val('')
+  
 
 }
 

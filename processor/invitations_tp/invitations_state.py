@@ -21,7 +21,7 @@ def _get_asset_address(asset_name, owner, action):
     if (action == "register"):
         return  INVITATIONSCHAIN_NAMESPACE + '00' +owner+  _get_address(asset_name)
     elif (action == "assign"):
-        return  INVITATIONSCHAIN_NAMESPACE + '01' +owner+  _get_address(asset_name)
+        return  INVITATIONSCHAIN_NAMESPACE + '01' +owner+  _get_address(asset_name)[:14]
 
 
 

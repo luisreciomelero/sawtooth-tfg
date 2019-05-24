@@ -140,7 +140,7 @@ class CarsTransactionHandler(TransactionHandler):
                     signer[:8] + '... ')
 
         if payload.action == 'register':
-            _register_asset(asset=payload.asset,
+            _register_car(asset=payload.asset,
                           signer=signer,
                           state=state,
                           owner= payload.owner)
@@ -221,6 +221,19 @@ def _register_asset(asset, signer, state, owner, action):
     print('DIrecciones exitosas anadidas: ')
     print(state.set_asset(asset, signer, owner, action))
     state.set_asset(asset, signer, owner, action)
+
+
+def _register_car(asset, signer, state, owner):
+    print("entro en _register")
+    print(asset)
+    print("OWNER")
+    print(owner)
+    if state.get_asset(asset, owner) is not None:
+        raise InvalidTransaction(
+            'Invalid action: Asset already exists: {}'.format(asset))
+    print('DIrecciones exitosas anadidas: ')
+    print(state.set_asset(asset, signer, owner))
+    state.set_asset(asset, signer, owner)
 
 def _delete_asset(asset, signer, state, owner):
     print("entro en _delete_asset")

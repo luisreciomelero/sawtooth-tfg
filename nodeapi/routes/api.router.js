@@ -8,5 +8,6 @@ var allInvitations = []
 router.get('/luis/invitations/:position', controller.invitations);
 router.get('/luis/NumInvitations/', controller.numInvitations);
 router.get('/luis/users/:address', controller.getUser)
+router.get('/luis/invitation/:prefix', controller.getInvitation)
 
 module.exports = router;

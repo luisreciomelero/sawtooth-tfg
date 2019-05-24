@@ -68,16 +68,15 @@ const getStateUser = cb => {
   })
 }
 
-const getStateCars = cb => {
-  $.get(`${API_URL}/state?address=${PREFIX_CARS}`, ({ data }) => {
+const getStateCars = (address, cb) => {
+  $.get(`${API_URL}/state?address=${PREFIX_CARS + address}`, ({ data }) => {
     cb(data.reduce((processed, datum) => {
       if (datum.data !== '') {
         const parsed = JSON.parse(atob(datum.data))
-        if (datum.address[7] === '0') processed.assets.push(parsed)
-        if (datum.address[7] === '1') processed.transfers.push(parsed)
+        processed.assets.push(parsed)
       }
       return processed
-    }, {assets: [], transfers: []}))
+    }, {assets: []}))
   })
 }
 
