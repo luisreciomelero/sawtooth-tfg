@@ -677,12 +677,15 @@ $('#createCocheRC').on('click', function () {
 })
 
 $('#createCocheMI').on('click', function () {
-  if(user.numInvitaciones>0){
-    $('#mainInvitado').attr('style', 'display:none')
-    $('#regCoche').attr('style', '')
-  }else{
-    alert("Necesitas solicitar una invitacion para porder registrar un coche")
+  user.refresh(user.address, ()=>{
+    if(user.numInvitaciones>0){
+      $('#mainInvitado').attr('style', 'display:none')
+      $('#regCoche').attr('style', '')
+    }else{
+      alert("Necesitas solicitar una invitacion para porder registrar un coche")
   }
+  })
+  
   
 })
 
@@ -815,7 +818,7 @@ $('#solicitarMI').on('click', function () {
       const propietarioAddress =  PREFIX_USER+'01'+ propietario
       console.log("PROPIETARIO.ADDRESS: ", propietario)
       console.log("USER.ADDRESS: ", user.address)
-      const invitadoAddress = user.address
+      const invitadoAddress = PREFIX_USER+'01'+user.address.substring(8,40)
       updateInvitation('delete', nuevoAsset, user.keys.private_key, user.owner, invitacion.address, ()=>{
         updateInvitation("assign", nuevoAsset, user.keys.private_key, propietario , invitacion.address, ()=>{
           getBatchUser(propietarioAddress, ({ assets }) => {
@@ -825,7 +828,7 @@ $('#solicitarMI').on('click', function () {
             assetPropietario = getNuevoAssetSol(assetPropietario, "Usuario")
             getAddressBatch(propietarioAddress).then(function(address){
               var completeAddress = address;
-              console.log("llega address: ", address)
+              console.log("llega address propietario: ", address)
               updateUserSolicitar("update", "asset", user.keys.private_key, propietario, completeAddress, "Usuario",()=>{
                 updateUserSolicitar("register", assetPropietario, user.keys.private_key, propietario, completeAddress,'Usuario', ()=>{
                   console.log("UPDATED PROPIETARIO")
@@ -835,10 +838,12 @@ $('#solicitarMI').on('click', function () {
                     assetInvitado = getNuevoAssetSol(assetInvitado, "Invitado")
                     getAddressBatch(invitadoAddress).then(function(address){
                       var completeAddress = address;
-                      console.log("llega address: ", address)
+                      console.log("llega address invitado: ", address)
                       updateUserSolicitar("update", assetInvitado, user.keys.private_key, user.owner, completeAddress, "Invitado",()=>{
                         updateUserSolicitar("register", assetInvitado, user.keys.private_key, user.owner, completeAddress,'Invitado', ()=>{
-                         
+                         user.refresh(user.address, ()=>{
+                            console.log("USER.ADDRESS EN SOL: ", user.address)
+                         } )
                       })
                     })
                   })
