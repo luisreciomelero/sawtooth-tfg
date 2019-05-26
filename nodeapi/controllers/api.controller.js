@@ -112,5 +112,67 @@ exports.getInvitation = function(req,res,next){
 }
 
 
+exports.getAddressUser = function(req,res,next){
+  fetch('http://rest-api:8008/state?address=714183', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    } 
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response) {
+    return response.json();
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response){
+    var address ="Not Found"
+      for (var i =0; i<response.data.length; i++){
+        const parsed = JSON.parse(atob(response.data[i].data))
+        if (parsed.asset == req.params.asset){
+          address = response.data[i].address;
+          
+        }
+      }
+      console.log("address a devolver: ", address)
+      res.status(200).send({
+        success: 'true',
+        message: 'invitation retrieved successfully',
+        address: address
+  })
+
+  })
+}
+
+exports.getAddressCoche = function(req,res,next){
+  fetch('http://rest-api:8008/state?address=812fb5', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    } 
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response) {
+    return response.json();
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response){
+    var address ="Not Found"
+      for (var i =0; i<response.data.length; i++){
+        const parsed = JSON.parse(atob(response.data[i].data))
+        if (parsed.asset == req.params.asset){
+          address = response.data[i].address;
+          
+        }
+      }
+      console.log("address a devolver: ", address)
+      res.status(200).send({
+        success: 'true',
+        message: 'invitation retrieved successfully',
+        address: address
+  })
+
+  })
+}
+
 
 

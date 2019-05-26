@@ -37,7 +37,8 @@ const {
   mostrarMain,
   generateAddress_user,
   concatString,
-  fillUserInvitation
+  fillUserInvitation,
+  eliminarInvitacionAdmin
 }=require('./components')
 
 // Application Object
@@ -191,9 +192,7 @@ const ActualizarAssetUser_publicar = (numInvPub, refreshUserMain) =>{
 
 }
 
-const ActualizarAssetUser_Solicitar = ()=>{
 
-}
 
 
 const getBatchUser = (address, cb)=> {
@@ -273,7 +272,7 @@ const getAllInvitaciones = cb => {
     
     console.log("FIN Visualizacion")
     cb(data.reduce((processed, datum) => {
-      if (datum.data !== '') {
+      if (datum.data !== '' && datum.data !== null) {
         const parsed = JSON.parse(atob(datum.data))
         console.log("PARSED:", parsed)
         processed.invitaciones.push(parsed)
@@ -312,6 +311,8 @@ admin.getUsers = function (tablaUsers) {
 }
 admin.getInvitaciones = function (tablaInvitaciones) {
   getAllInvitaciones((invitaciones) =>{
+    this.invitaciones = []
+    console.log("INVITACIONES DESCARGADAS: ", invitaciones)
     this.invitaciones = invitaciones
     tablaInvitaciones()
   }) 
@@ -940,14 +941,14 @@ $('#verUsuarios').on('click', function () {
 
   console.log("TODOS LOS USUARIOS REGISTRADOS: ", admin.users)
   admin.getUsers(()=>{
-    addTableUsers(admin.users, "editar")
+    addTableUsers('#visualizacion', admin.users, "eliminar")
   })
 })
 
 $('#verCoches').on('click', function () {
   console.log("TODOS LOS COCHES REGISTRADOS: ", admin.coches)
   admin.getCoches(()=>{
-    addTableCoches(admin.coches, "editar")
+    addTableCoches('#visualizacion',admin.coches, "eliminar")
   })
 })
 
@@ -955,22 +956,25 @@ $('#verInvitaciones').on('click', function () {
   
   admin.getInvitaciones(()=>{
     console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
-    addTableInvitaciones('#visualizacion', admin.invitaciones, "editar")
+    addTableInvitaciones('#visualizacion', admin.invitaciones, "eliminar")
   })
   //getbbdd()
 })
 
-$('#visualizacion').on('click', '.editarInvitacion' ,function(){
-  console.log("has pulsado editarInvitacion")
+$('#visualizacion').on('click', '.eliminarInvitacion' ,function(){
+  console.log("has pulsado editarInvitacion", $(this))
   var address = $(this).parent().siblings('td').attr('data-address');
-  $('#mainAdmin').attr('style', 'display:none')
-  $('#editarInvitacion').attr('style', '')
+  console.log("address invitacion: ", address)
+  /*$('#mainAdmin').attr('style', 'display:none')
+  $('#editarInvitacion').attr('style', '')*/
   invitacionEditar.refresh(address, ()=>{
     user.address = PREFIX_USER+'01'+address.substring(8,40)
     user.refresh(user.address,()=>{
-      console.log('invitacionEditar', invitacionEditar)
-    fillUserInvitation(user, invitacionEditar.invitacion[0].asset)
-  })
+      eliminarInvitacionAdmin(invitacionEditar, user)
+      /*fillUserInvitation(user, invitacionEditar.invitacion[0].asset, ()=>{
+        
+      })*/
+    })
   })
   console.log("user.address: ", PREFIX_USER+'01'+address.substring(8,40))
 
@@ -980,7 +984,10 @@ $('#visualizacion').on('click', '.editarInvitacion' ,function(){
   })*/
 
 })
-$('#eliminarInvitacion').on('click' ,function(){
+
+
+
+/*$('#eliminarInvitacion').on('click' ,function(){
   console.log("he pulsado BORRAR")
   var invitationSplit = invitacionEditar.invitacion[0].asset.split(',');
   console.log('INVITACION: ', invitacionEditar.invitacion[0])
@@ -1010,16 +1017,17 @@ $('#eliminarInvitacion').on('click' ,function(){
   console.log('BORRAMOS INVITACION CON ASSET=====================', asset)
   console.log('BORRAMOS INVITACION CON  P_KEY=====================', user.keys.private_key)
   var address = invitacionEditar.address
-  deleteInvitation('delete', asset, private_key, owner, address);
-})
+  
+  ('delete', asset, private_key, owner, address);
+})*/
 
-$('#visualizacion').on('click', '.editarUsuario' ,function(){
-  console.log("has pulsado editarUsuario")
+$('#visualizacion').on('click', '.eliminarUsuario' ,function(){
+  console.log("has pulsado eliminarUsuario")
   var valores = $(this).parent().siblings('td').html();
   console.log("hermanos: ",  $(this).parent().siblings('td').html())
 })
 
-$('#visualizacion').on('click', '.editarCoche' ,function(){
+$('#visualizacion').on('click', '.eliminarCoche' ,function(){
   console.log("has pulsado editar desde js")
   var valores = $(this).parent().siblings('td').html();
   console.log("hermanos: ",  $(this).parent().siblings('td').html())

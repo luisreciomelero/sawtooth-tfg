@@ -28722,7 +28722,16 @@ const submitUpdate = (payload, family, version, prefix, privateKeyHex, cb) => {
     error: () => cb(false)
   })
 }
-
+const deleteInvitation =(action, asset, private_key, owner, address)=>{
+  submitUpdate(
+      {action, asset, owner, address},
+      FAMILY_INVITATIONS,
+      VERSION_INVITATIONS,
+      PREFIX_INVITATIONS,
+      private_key,
+      success => success ? console.log("INVITACION ELIMINADA") : null
+    )
+}
 
 module.exports = {
   makeKeyPair,
@@ -28736,7 +28745,9 @@ module.exports = {
   FAMILY_CARS,
   PREFIX_CARS,
   FAMILY_INVITATIONS,
-  PREFIX_INVITATIONS
+  PREFIX_INVITATIONS,
+  VERSION_INVITATIONS,
+  deleteInvitation
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
@@ -30506,7 +30517,8 @@ const {
   mostrarMain,
   generateAddress_user,
   concatString,
-  fillUserInvitation
+  fillUserInvitation,
+  eliminarInvitacionAdmin
 }=__webpack_require__(218)
 
 // Application Object
@@ -30660,9 +30672,7 @@ const ActualizarAssetUser_publicar = (numInvPub, refreshUserMain) =>{
 
 }
 
-const ActualizarAssetUser_Solicitar = ()=>{
 
-}
 
 
 const getBatchUser = (address, cb)=> {
@@ -30742,7 +30752,7 @@ const getAllInvitaciones = cb => {
     
     console.log("FIN Visualizacion")
     cb(data.reduce((processed, datum) => {
-      if (datum.data !== '') {
+      if (datum.data !== '' && datum.data !== null) {
         const parsed = JSON.parse(atob(datum.data))
         console.log("PARSED:", parsed)
         processed.invitaciones.push(parsed)
@@ -30781,6 +30791,8 @@ admin.getUsers = function (tablaUsers) {
 }
 admin.getInvitaciones = function (tablaInvitaciones) {
   getAllInvitaciones((invitaciones) =>{
+    this.invitaciones = []
+    console.log("INVITACIONES DESCARGADAS: ", invitaciones)
     this.invitaciones = invitaciones
     tablaInvitaciones()
   }) 
@@ -31409,14 +31421,14 @@ $('#verUsuarios').on('click', function () {
 
   console.log("TODOS LOS USUARIOS REGISTRADOS: ", admin.users)
   admin.getUsers(()=>{
-    addTableUsers(admin.users, "editar")
+    addTableUsers('#visualizacion', admin.users, "eliminar")
   })
 })
 
 $('#verCoches').on('click', function () {
   console.log("TODOS LOS COCHES REGISTRADOS: ", admin.coches)
   admin.getCoches(()=>{
-    addTableCoches(admin.coches, "editar")
+    addTableCoches('#visualizacion',admin.coches, "eliminar")
   })
 })
 
@@ -31424,22 +31436,25 @@ $('#verInvitaciones').on('click', function () {
   
   admin.getInvitaciones(()=>{
     console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
-    addTableInvitaciones('#visualizacion', admin.invitaciones, "editar")
+    addTableInvitaciones('#visualizacion', admin.invitaciones, "eliminar")
   })
   //getbbdd()
 })
 
-$('#visualizacion').on('click', '.editarInvitacion' ,function(){
-  console.log("has pulsado editarInvitacion")
+$('#visualizacion').on('click', '.eliminarInvitacion' ,function(){
+  console.log("has pulsado editarInvitacion", $(this))
   var address = $(this).parent().siblings('td').attr('data-address');
-  $('#mainAdmin').attr('style', 'display:none')
-  $('#editarInvitacion').attr('style', '')
+  console.log("address invitacion: ", address)
+  /*$('#mainAdmin').attr('style', 'display:none')
+  $('#editarInvitacion').attr('style', '')*/
   invitacionEditar.refresh(address, ()=>{
     user.address = PREFIX_USER+'01'+address.substring(8,40)
     user.refresh(user.address,()=>{
-      console.log('invitacionEditar', invitacionEditar)
-    fillUserInvitation(user, invitacionEditar.invitacion[0].asset)
-  })
+      eliminarInvitacionAdmin(invitacionEditar, user)
+      /*fillUserInvitation(user, invitacionEditar.invitacion[0].asset, ()=>{
+        
+      })*/
+    })
   })
   console.log("user.address: ", PREFIX_USER+'01'+address.substring(8,40))
 
@@ -31449,7 +31464,10 @@ $('#visualizacion').on('click', '.editarInvitacion' ,function(){
   })*/
 
 })
-$('#eliminarInvitacion').on('click' ,function(){
+
+
+
+/*$('#eliminarInvitacion').on('click' ,function(){
   console.log("he pulsado BORRAR")
   var invitationSplit = invitacionEditar.invitacion[0].asset.split(',');
   console.log('INVITACION: ', invitacionEditar.invitacion[0])
@@ -31479,16 +31497,17 @@ $('#eliminarInvitacion').on('click' ,function(){
   console.log('BORRAMOS INVITACION CON ASSET=====================', asset)
   console.log('BORRAMOS INVITACION CON  P_KEY=====================', user.keys.private_key)
   var address = invitacionEditar.address
-  deleteInvitation('delete', asset, private_key, owner, address);
-})
+  
+  ('delete', asset, private_key, owner, address);
+})*/
 
-$('#visualizacion').on('click', '.editarUsuario' ,function(){
-  console.log("has pulsado editarUsuario")
+$('#visualizacion').on('click', '.eliminarUsuario' ,function(){
+  console.log("has pulsado eliminarUsuario")
   var valores = $(this).parent().siblings('td').html();
   console.log("hermanos: ",  $(this).parent().siblings('td').html())
 })
 
-$('#visualizacion').on('click', '.editarCoche' ,function(){
+$('#visualizacion').on('click', '.eliminarCoche' ,function(){
   console.log("has pulsado editar desde js")
   var valores = $(this).parent().siblings('td').html();
   console.log("hermanos: ",  $(this).parent().siblings('td').html())
@@ -34662,7 +34681,7 @@ module.exports.makeKey = makeKey
 /* 150 */
 /***/ (function(module, exports) {
 
-module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-cars/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-cars/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
+module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-user/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-user/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
 
 /***/ }),
 /* 151 */
@@ -45022,7 +45041,9 @@ const {
   FAMILY_CARS,
   PREFIX_CARS,
   FAMILY_INVITATIONS,
-  PREFIX_INVITATIONS
+  PREFIX_INVITATIONS,
+  VERSION_INVITATIONS,
+  deleteInvitation
 } = __webpack_require__(90)
 
 const addSesion = (parent, current_number, current_id) => {
@@ -45038,12 +45059,12 @@ const addOriginal = (parent, original_number, original_id) => {
   );
 }
 
-const addTableUsers = (users, claseFila) => {
-  $(`#visualizacion`).empty();
+const addTableUsers = (parent, users, claseFila) => {
+  $(parent).empty();
   var clase = claseFila+'Usuario'
   console.log("Users que llegan al metodo: ", users)
   
-  $(`#visualizacion`).append(`<tr id="cabecera">
+  $(parent).append(`<tr id="cabecera">
                             <th>Nombre</th>
                             <th>DNI</th>
                             <th>Telefono</th>
@@ -45077,7 +45098,7 @@ const addTableUsers = (users, claseFila) => {
       }
     }
     console.log("usuario: ",usuario)
-    $(`#visualizacion`).append(`<tr>
+    $(parent).append(`<tr>
                               <td>${usuario.nombre}<td>
                               <td>${usuario.dni}<td>
                               <td>${usuario.telefono}<td>
@@ -45088,12 +45109,12 @@ const addTableUsers = (users, claseFila) => {
   
   }
 }
-const addTableCoches = (coches, claseFila) => {
-  $(`#visualizacion`).empty();
+const addTableCoches = (parent, coches, claseFila) => {
+  $(parent).empty();
   var clase = claseFila+'Coche'
   console.log("coches que llegan al metodo: ", coches)
   
-  $(`#visualizacion`).append(`<tr id="cabecera">
+  $(parent).append(`<tr id="cabecera">
                             <th>Matricula</th>
                             <th>Modelo</th>
                             <th>Propietario</th>
@@ -45116,7 +45137,7 @@ const addTableCoches = (coches, claseFila) => {
       }
     }
     console.log("usuario: ",coche)
-    $(`#visualizacion`).append(`<tr>
+    $(parent).append(`<tr>
                               <td>${coche.matricula}<td>
                               <td>${coche.modelo}<td>
                               <td>${coches.coches[i].signer}<td>
@@ -45156,21 +45177,21 @@ const addTableInvitaciones = (parent, invitaciones, claseFila) => {
           invitacion.fecha = field[1];
           break;
         case "address":
-          console.log("Address dentro de addTaable: ", field[1])
+          console.log("Address dentro de addTable: ", field[1])
           invitacion.address = field[1];
           break;
       }
     }
     console.log("invitacion: ",invitacion)
     $(parent).append(`<tr>
-                        <td data-address="${invitacion.address}">${invitacion.invitacion_de}<td>
+                        <td data-address="${invitacion.address}" data-asset="${invitacionAsset.join()}">${invitacion.invitacion_de}<td>
                         <td>${invitacion.fecha}<td>
                         <button class="${clase}">${claseFila} Invitacion</button>
                         
                       </tr>`)
 
   
-  console.log('data-address: ', $(`#${invitacion.invitacion_de}`).attr('data-address'))
+  console.log('data-asset: ', $(`#${invitacion.invitacion_de}`).attr('data-asset'))
   }
 
 }
@@ -45284,7 +45305,7 @@ const concatString = (var1, var2) =>{
   return string1.concat(string2)
 }
 
-const fillUserInvitation = (user, invitacionAsset)=>{
+const fillUserInvitation = (user, invitacionAsset, eliminar)=>{
   var invitacion ={invitacion_de:null, fecha:null, address: null} 
   var invitationSplit =invitacionAsset.split(',')
   for(var j=0; j<invitationSplit.length;j++){
@@ -45308,7 +45329,40 @@ const fillUserInvitation = (user, invitacionAsset)=>{
   $('#estadoInvitacion').text('AUN POR IMPLEMENTAR')
   $('#propietarioInvitacion').text('AUN POR IMPLEMENTAR')
   $('#validaInvitacion').text('AUN POR IMPLEMENTAR')
+  eliminar()
+}
 
+const eliminarInvitacionAdmin =(invitacionEditar, user)=>{
+  console.log('invitacionEditar', invitacionEditar)
+  var invitationSplit = invitacionEditar.invitacion[0].asset.split(',');
+  console.log('INVITACION: ', invitacionEditar.invitacion[0])
+  console.log('InvitacionSplit', invitationSplit)
+  for(var j=0; j<invitationSplit.length;j++){
+      var field = invitationSplit[j].split(":");
+      console.log("field", field)
+      switch(field[0]){
+        case "invitacion_de":
+          invitacionEditar.invitacion_de = field[1];
+          break;
+        case "timestamp":
+          invitacionEditar.fecha = field[1];
+          break;
+        case "address":
+          invitacionEditar.address = field[1];
+          break;
+        case "private_key":
+          invitacionEditar.private_key = field[1];
+          break;
+      }
+    }  
+  var asset = invitacionEditar.invitacion[0].asset.replace("\n"," ");
+  asset = asset.split(',address')[0]
+  var private_key = user.keys.private_key;
+  var owner = invitacionEditar.address.substring(8,40);
+  console.log('BORRAMOS INVITACION CON ASSET=====================', asset)
+  console.log('BORRAMOS INVITACION CON  P_KEY=====================', user.keys.private_key)
+  var address = invitacionEditar.address
+  deleteInvitation('delete', asset, private_key, owner, address);
 }
 
 
@@ -45327,7 +45381,8 @@ module.exports = {
   mostrarMain,
   generateAddress_user,
   concatString,
-  fillUserInvitation
+  fillUserInvitation,
+  eliminarInvitacionAdmin
 }
 
 

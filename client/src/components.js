@@ -16,7 +16,9 @@ const {
   FAMILY_CARS,
   PREFIX_CARS,
   FAMILY_INVITATIONS,
-  PREFIX_INVITATIONS
+  PREFIX_INVITATIONS,
+  VERSION_INVITATIONS,
+  deleteInvitation
 } = require('./state.js')
 
 const addSesion = (parent, current_number, current_id) => {
@@ -32,12 +34,12 @@ const addOriginal = (parent, original_number, original_id) => {
   );
 }
 
-const addTableUsers = (users, claseFila) => {
-  $(`#visualizacion`).empty();
+const addTableUsers = (parent, users, claseFila) => {
+  $(parent).empty();
   var clase = claseFila+'Usuario'
   console.log("Users que llegan al metodo: ", users)
   
-  $(`#visualizacion`).append(`<tr id="cabecera">
+  $(parent).append(`<tr id="cabecera">
                             <th>Nombre</th>
                             <th>DNI</th>
                             <th>Telefono</th>
@@ -71,8 +73,8 @@ const addTableUsers = (users, claseFila) => {
       }
     }
     console.log("usuario: ",usuario)
-    $(`#visualizacion`).append(`<tr>
-                              <td>${usuario.nombre}<td>
+    $(parent).append(`<tr>
+                              <td data-asset="${userAsset.join()}>${usuario.nombre}<td>
                               <td>${usuario.dni}<td>
                               <td>${usuario.telefono}<td>
                               <td>${usuario.rol}<td>
@@ -82,12 +84,12 @@ const addTableUsers = (users, claseFila) => {
   
   }
 }
-const addTableCoches = (coches, claseFila) => {
-  $(`#visualizacion`).empty();
+const addTableCoches = (parent, coches, claseFila) => {
+  $(parent).empty();
   var clase = claseFila+'Coche'
   console.log("coches que llegan al metodo: ", coches)
   
-  $(`#visualizacion`).append(`<tr id="cabecera">
+  $(parent).append(`<tr id="cabecera">
                             <th>Matricula</th>
                             <th>Modelo</th>
                             <th>Propietario</th>
@@ -110,8 +112,8 @@ const addTableCoches = (coches, claseFila) => {
       }
     }
     console.log("usuario: ",coche)
-    $(`#visualizacion`).append(`<tr>
-                              <td>${coche.matricula}<td>
+    $(parent).append(`<tr>
+                              <td data-asset="${cocheAsset.join()}>${coche.matricula}<td>
                               <td>${coche.modelo}<td>
                               <td>${coches.coches[i].signer}<td>
                               <button class="${clase}">${claseFila} Coche</button>
@@ -150,21 +152,21 @@ const addTableInvitaciones = (parent, invitaciones, claseFila) => {
           invitacion.fecha = field[1];
           break;
         case "address":
-          console.log("Address dentro de addTaable: ", field[1])
+          console.log("Address dentro de addTable: ", field[1])
           invitacion.address = field[1];
           break;
       }
     }
     console.log("invitacion: ",invitacion)
     $(parent).append(`<tr>
-                        <td data-address="${invitacion.address}">${invitacion.invitacion_de}<td>
+                        <td data-address="${invitacion.address}" data-asset="${invitacionAsset.join()}">${invitacion.invitacion_de}<td>
                         <td>${invitacion.fecha}<td>
                         <button class="${clase}">${claseFila} Invitacion</button>
                         
                       </tr>`)
 
   
-  console.log('data-address: ', $(`#${invitacion.invitacion_de}`).attr('data-address'))
+  console.log('data-asset: ', $(`#${invitacion.invitacion_de}`).attr('data-asset'))
   }
 
 }
@@ -278,7 +280,7 @@ const concatString = (var1, var2) =>{
   return string1.concat(string2)
 }
 
-const fillUserInvitation = (user, invitacionAsset)=>{
+const fillUserInvitation = (user, invitacionAsset, eliminar)=>{
   var invitacion ={invitacion_de:null, fecha:null, address: null} 
   var invitationSplit =invitacionAsset.split(',')
   for(var j=0; j<invitationSplit.length;j++){
@@ -302,7 +304,40 @@ const fillUserInvitation = (user, invitacionAsset)=>{
   $('#estadoInvitacion').text('AUN POR IMPLEMENTAR')
   $('#propietarioInvitacion').text('AUN POR IMPLEMENTAR')
   $('#validaInvitacion').text('AUN POR IMPLEMENTAR')
+  eliminar()
+}
 
+const eliminarInvitacionAdmin =(invitacionEditar, user)=>{
+  console.log('invitacionEditar', invitacionEditar)
+  var invitationSplit = invitacionEditar.invitacion[0].asset.split(',');
+  console.log('INVITACION: ', invitacionEditar.invitacion[0])
+  console.log('InvitacionSplit', invitationSplit)
+  for(var j=0; j<invitationSplit.length;j++){
+      var field = invitationSplit[j].split(":");
+      console.log("field", field)
+      switch(field[0]){
+        case "invitacion_de":
+          invitacionEditar.invitacion_de = field[1];
+          break;
+        case "timestamp":
+          invitacionEditar.fecha = field[1];
+          break;
+        case "address":
+          invitacionEditar.address = field[1];
+          break;
+        case "private_key":
+          invitacionEditar.private_key = field[1];
+          break;
+      }
+    }  
+  var asset = invitacionEditar.invitacion[0].asset.replace("\n"," ");
+  asset = asset.split(',address')[0]
+  var private_key = user.keys.private_key;
+  var owner = invitacionEditar.address.substring(8,40);
+  console.log('BORRAMOS INVITACION CON ASSET=====================', asset)
+  console.log('BORRAMOS INVITACION CON  P_KEY=====================', user.keys.private_key)
+  var address = invitacionEditar.address
+  deleteInvitation('delete', asset, private_key, owner, address);
 }
 
 
@@ -321,5 +356,6 @@ module.exports = {
   mostrarMain,
   generateAddress_user,
   concatString,
-  fillUserInvitation
+  fillUserInvitation,
+  eliminarInvitacionAdmin
 }

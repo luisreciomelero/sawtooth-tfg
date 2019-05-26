@@ -157,7 +157,16 @@ const submitUpdate = (payload, family, version, prefix, privateKeyHex, cb) => {
     error: () => cb(false)
   })
 }
-
+const deleteInvitation =(action, asset, private_key, owner, address)=>{
+  submitUpdate(
+      {action, asset, owner, address},
+      FAMILY_INVITATIONS,
+      VERSION_INVITATIONS,
+      PREFIX_INVITATIONS,
+      private_key,
+      success => success ? console.log("INVITACION ELIMINADA") : null
+    )
+}
 
 module.exports = {
   makeKeyPair,
@@ -171,5 +180,7 @@ module.exports = {
   FAMILY_CARS,
   PREFIX_CARS,
   FAMILY_INVITATIONS,
-  PREFIX_INVITATIONS
+  PREFIX_INVITATIONS,
+  VERSION_INVITATIONS,
+  deleteInvitation
 }
