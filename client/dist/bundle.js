@@ -28729,7 +28729,7 @@ const deleteInvitation =(action, asset, private_key, owner, address)=>{
       VERSION_INVITATIONS,
       PREFIX_INVITATIONS,
       private_key,
-      success => success ? console.log("INVITACION ELIMINADA") : null
+      success => success ? $('#visualizacion').load('#visualizacion') : null
     )
 }
 
@@ -30748,7 +30748,7 @@ const getAllUsers = cb => {
 const getAllInvitaciones = cb => {
   console.log("Visualizacion data:")
   
-  $.get(`${API_URL}/state?address=${PREFIX_INVITATIONS}`, ({ data }) => {
+  $.get(`${API_URL}/state?address=${PREFIX_INVITATIONS+'00'}`, ({ data }) => {
     
     console.log("FIN Visualizacion")
     cb(data.reduce((processed, datum) => {
@@ -45099,7 +45099,7 @@ const addTableUsers = (parent, users, claseFila) => {
     }
     console.log("usuario: ",usuario)
     $(parent).append(`<tr>
-                              <td>${usuario.nombre}<td>
+                              <td >${usuario.nombre}<td>
                               <td>${usuario.dni}<td>
                               <td>${usuario.telefono}<td>
                               <td>${usuario.rol}<td>
@@ -45138,7 +45138,7 @@ const addTableCoches = (parent, coches, claseFila) => {
     }
     console.log("usuario: ",coche)
     $(parent).append(`<tr>
-                              <td>${coche.matricula}<td>
+                              <td data-asset="${cocheAsset.join()}>${coche.matricula}<td>
                               <td>${coche.modelo}<td>
                               <td>${coches.coches[i].signer}<td>
                               <button class="${clase}">${claseFila} Coche</button>

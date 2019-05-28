@@ -268,7 +268,7 @@ const getAllUsers = cb => {
 const getAllInvitaciones = cb => {
   console.log("Visualizacion data:")
   
-  $.get(`${API_URL}/state?address=${PREFIX_INVITATIONS}`, ({ data }) => {
+  $.get(`${API_URL}/state?address=${PREFIX_INVITATIONS+'00'}`, ({ data }) => {
     
     console.log("FIN Visualizacion")
     cb(data.reduce((processed, datum) => {

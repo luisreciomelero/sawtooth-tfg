@@ -74,7 +74,7 @@ const addTableUsers = (parent, users, claseFila) => {
     }
     console.log("usuario: ",usuario)
     $(parent).append(`<tr>
-                              <td data-asset="${userAsset.join()}>${usuario.nombre}<td>
+                              <td >${usuario.nombre}<td>
                               <td>${usuario.dni}<td>
                               <td>${usuario.telefono}<td>
                               <td>${usuario.rol}<td>
