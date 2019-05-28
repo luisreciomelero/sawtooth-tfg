@@ -255,6 +255,9 @@ const mostrarMain = (rol, invitaciones=null, inviEdit=null)=>{
        $('#login').attr('style', 'display:none')
        $('#logout').attr('style', '')
        break;
+    default:
+      alert("No hay ningun usuario registrado con esas credenciales")
+      break;
        
   }
   

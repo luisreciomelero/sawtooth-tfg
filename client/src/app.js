@@ -526,6 +526,15 @@ const comprobarRegistro = (address, cb) =>{
   })
 }
 
+const comprobarAdmin = () =>{
+  console.log("COMPROBAMOS")
+  registro.refresh(PREFIX_USER+'00', ()=>{
+      deleteOptionAdmin()
+    },()=>{
+      
+  })
+}
+
 registro.refresh = function( address, getAlert, postUser){
   comprobarRegistro(address, ({user}) => {
 
@@ -537,10 +546,7 @@ registro.refresh = function( address, getAlert, postUser){
       return
     }
     else{
-      console.log("ENTRAMOS")
-      console.log("pasamos: ", registro.user.asset)
-      processAsset(registro.user.asset)
-      console.log("rol: ", user.rol, ", address: ", user.address)
+      
       getAlert()
       
     }
@@ -549,6 +555,10 @@ registro.refresh = function( address, getAlert, postUser){
 }
 
 const getAlert = (rol, address) =>{
+  console.log("ENTRAMOS")
+  console.log("pasamos: ", registro.user.asset)
+  processAsset(registro.user.asset)
+  console.log("rol: ", user.rol, ", address: ", user.address)
   console.log("Entramos en getAlert con rol: ", rol)
   if(rol == 'Admin'){
     alert('No puedes registrarte como Administrador')
@@ -563,6 +573,9 @@ const getAlert = (rol, address) =>{
 
 $('#registerUser').on('click', function () {
   
+  
+
+
   const action = 'register'
   console.log("pulso registro")
 
@@ -673,6 +686,7 @@ $('#loginButton').on('click', function () {
 
 $('#goToRegister').on('click', function () {
   limpiaInputs()
+  comprobarAdmin()
   $('#register').attr('style', '')
   $('#login').attr('style', 'display:none')
 })
