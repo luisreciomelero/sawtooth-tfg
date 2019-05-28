@@ -965,12 +965,15 @@ $('#visualizacion').on('click', '.eliminarInvitacion' ,function(){
   console.log("has pulsado editarInvitacion", $(this))
   var address = $(this).parent().siblings('td').attr('data-address');
   console.log("address invitacion: ", address)
-  /*$('#mainAdmin').attr('style', 'display:none')
-  $('#editarInvitacion').attr('style', '')*/
   invitacionEditar.refresh(address, ()=>{
     user.address = PREFIX_USER+'01'+address.substring(8,40)
     user.refresh(user.address,()=>{
-      eliminarInvitacionAdmin(invitacionEditar, user)
+      eliminarInvitacionAdmin(invitacionEditar, user, ()=>{
+        admin.getInvitaciones(()=>{
+          console.log("TODOS LAS INVITACIONES REGISTRADAS: ", admin.invitaciones)
+          addTableInvitaciones('#visualizacion', admin.invitaciones, "eliminar")
+        })
+      })
       /*fillUserInvitation(user, invitacionEditar.invitacion[0].asset, ()=>{
         
       })*/

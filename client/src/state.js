@@ -157,14 +157,14 @@ const submitUpdate = (payload, family, version, prefix, privateKeyHex, cb) => {
     error: () => cb(false)
   })
 }
-const deleteInvitation =(action, asset, private_key, owner, address)=>{
+const deleteInvitation =(action, asset, private_key, owner, address, refresh)=>{
   submitUpdate(
       {action, asset, owner, address},
       FAMILY_INVITATIONS,
       VERSION_INVITATIONS,
       PREFIX_INVITATIONS,
       private_key,
-      success => success ? console.log("INVITACION ELIMINADA") : null
+      success => success ? refresh() : null
     )
 }
 

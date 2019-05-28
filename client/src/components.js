@@ -307,7 +307,7 @@ const fillUserInvitation = (user, invitacionAsset, eliminar)=>{
   eliminar()
 }
 
-const eliminarInvitacionAdmin =(invitacionEditar, user)=>{
+const eliminarInvitacionAdmin =(invitacionEditar, user, refresh)=>{
   console.log('invitacionEditar', invitacionEditar)
   var invitationSplit = invitacionEditar.invitacion[0].asset.split(',');
   console.log('INVITACION: ', invitacionEditar.invitacion[0])
@@ -337,7 +337,10 @@ const eliminarInvitacionAdmin =(invitacionEditar, user)=>{
   console.log('BORRAMOS INVITACION CON ASSET=====================', asset)
   console.log('BORRAMOS INVITACION CON  P_KEY=====================', user.keys.private_key)
   var address = invitacionEditar.address
-  deleteInvitation('delete', asset, private_key, owner, address);
+  deleteInvitation('delete', asset, private_key, owner, address, ()=>{
+    refresh()
+  });
+
 }
 
 
