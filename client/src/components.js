@@ -74,7 +74,7 @@ const addTableUsers = (parent, users, claseFila) => {
     }
     console.log("usuario: ",usuario)
     $(parent).append(`<tr>
-                              <td >${usuario.nombre}<td>
+                              <td data-asset="${userAsset.join()}">${usuario.nombre}<td>
                               <td>${usuario.dni}<td>
                               <td>${usuario.telefono}<td>
                               <td>${usuario.rol}<td>
@@ -113,7 +113,7 @@ const addTableCoches = (parent, coches, claseFila) => {
     }
     console.log("usuario: ",coche)
     $(parent).append(`<tr>
-                              <td data-asset="${cocheAsset.join()}>${coche.matricula}<td>
+                              <td data-asset="${cocheAsset.join()}">${coche.matricula}<td>
                               <td>${coche.modelo}<td>
                               <td>${coches.coches[i].signer}<td>
                               <button class="${clase}">${claseFila} Coche</button>
