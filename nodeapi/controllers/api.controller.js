@@ -63,7 +63,7 @@ exports.getUser = function(req,res,next){
   })
   .catch(error => console.error('Error:', error))
   .then(function(response){
-      var address ="Not Found"
+      var address ="No encontrado"
       for (var i =0; i<response.data.length; i++){
         if (response.data[i].address.indexOf([req.params.address])> -1){
           address = response.data[i].address;
@@ -94,7 +94,7 @@ exports.getInvitation = function(req,res,next){
   })
   .catch(error => console.error('Error:', error))
   .then(function(response){
-    var address ="Not Found"
+    var address ="No encontrado"
       for (var i =0; i<response.data.length; i++){
         if (response.data[i].address.indexOf([req.params.prefix])> -1){
           address = response.data[i].address;
@@ -125,7 +125,8 @@ exports.getAddressUser = function(req,res,next){
   })
   .catch(error => console.error('Error:', error))
   .then(function(response){
-    var address ="Not Found"
+    var address ="No encontrado"
+    
       for (var i =0; i<response.data.length; i++){
         const parsed = JSON.parse(atob(response.data[i].data))
         if (parsed.asset == req.params.asset){
@@ -156,7 +157,7 @@ exports.getAddressCoche = function(req,res,next){
   })
   .catch(error => console.error('Error:', error))
   .then(function(response){
-    var address ="Not Found"
+    var address ="No encontrado"
       for (var i =0; i<response.data.length; i++){
         const parsed = JSON.parse(atob(response.data[i].data))
         if (parsed.asset.indexOf(req.params.asset) > -1){
@@ -169,6 +170,39 @@ exports.getAddressCoche = function(req,res,next){
         success: 'true',
         message: 'invitation retrieved successfully',
         address: address
+  })
+
+  })
+}
+
+
+exports.getUserInvitations = function(req,res, next){
+  fetch('http://rest-api:8008/state?address=1a733500', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    } 
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response) {
+    return response.json();
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response){
+      const addresses = []
+      for (let i = 0; i<response.data.length; i++){
+        console.log("direccion: ", response.data[i].address)
+        const invitationAddress = response.data[i].address
+        if (invitationAddress.indexOf(req.params.userToken)){
+          addresses.push(invitationAddress)
+        }
+      }
+
+      console.log("INVITACIONES: ", addresses)
+      res.status(200).send({
+        success: 'true',
+        message: 'invitation retrieved successfully',
+        addresses: addresses
   })
 
   })

@@ -11,5 +11,6 @@ router.get('/luis/users/:address', controller.getUser)
 router.get('/luis/invitation/:prefix', controller.getInvitation)
 router.get('/luis/user/:asset', controller.getAddressUser)
 router.get('/luis/car/:asset', controller.getAddressCoche)
+router.get('/luis/invitations/address/:userToken', controller.getUserInvitations)
 
 module.exports = router;

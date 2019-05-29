@@ -30528,7 +30528,8 @@ const {
   FAMILY_INVITATIONS,
   PREFIX_INVITATIONS,
   deleteCarByAddress,
-  deleteUserByAddress
+  deleteUserByAddress,
+  deleteInvitation
 } = __webpack_require__(90)
 
 const {
@@ -30657,6 +30658,20 @@ const getAddressUserByAsset = (asset)=>{
             return myJson.address
           })
 }
+const getAddressesInvitations = (prefix)=>{
+  console.log("ENTRAMOS EN getAddressesInvitations")
+  return fetch(`${API_NODE}/luis/invitations/address/${prefix}`)
+          .then(function(response) {
+            console.log("response addresses: ", response)
+            return response.json();
+          })
+          .then(function(myJson){
+            console.log("recibimos: ", myJson.addresses)
+            return myJson.addresses
+          })
+} 
+
+
 
 const processAsset = (data) => {
   const arrayDataComas = data.split(',');
@@ -30930,17 +30945,6 @@ const deleteUser =(action, asset, private_key, owner, refreshUserMain)=>{
 }
 
 
-
-const deleteInvitation =(action, asset, private_key, owner, address)=>{
-  submitUpdate(
-      {action, asset, owner, address},
-      FAMILY_INVITATIONS,
-      version,
-      PREFIX_INVITATIONS,
-      private_key,
-      success => success ? console.log("INVITACION ELIMINADA") : null
-    )
-}
 
 const updateUserSolicitar =(action, asset, private_key, owner, address, rol, update)=>{
   submitUpdate(
@@ -31571,11 +31575,13 @@ $('#visualizacion').on('click', '.eliminarCoche' ,function(){
   var asset = $(this).parent().siblings('td').attr('data-asset');
   asset = asset.split('/')[0]
   getAddressCar(asset).then(function(address){
+    
     deleteCarByAddress('deleteAdmin', asset, user.keys.private_key, user.owner, address, ()=>{
       admin.getCoches(()=>{
         addTableCoches('#visualizacion',admin.coches, "eliminar")
       })
     })
+    
   })
 
 })
@@ -31584,10 +31590,23 @@ $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
   console.log("has pulsado eliminarUsuario")
   var asset = $(this).parent().siblings('td').attr('data-asset');
   getAddressUserByAsset(asset).then(function(address){
+    const token = address.substring(8,40)
+    console.log("token: ", token)
+    getAddressesInvitations(token).then(function(addresses){
+      console.log('entramos')
+      console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
+      for (var i=0; i<addresses.length; i++){
+        deleteInvitation('delete', 'asset', user.keys.private_key, user.owner, addresses[i], ()=>{
+          console.log("ELIMINADA ADDRESS: ", addresses[i])
+        })
+      }
+    })
     deleteUserByAddress('deleteAdmin', asset, user.keys.private_key, user.owner, address, ()=>{
       admin.getUsers(()=>{
         addTableUsers('#visualizacion',admin.users, "eliminar")
       })
+    
+    
     })
   })
 
