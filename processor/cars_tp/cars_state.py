@@ -30,12 +30,17 @@ def _serialize(data):
     return json.dumps(data, sort_keys=True).encode('utf-8')
 
 
+
+
 class CarsState(object):
 
     TIMEOUT = 3
 
     def __init__(self, context):
         self._context = context
+
+    def get_assetAddress(self, address):
+        return self._get_state(address)
 
     def get_asset(self, asset, owner):
         return self._get_state(_get_asset_address(asset, owner))
@@ -76,3 +81,10 @@ class CarsState(object):
         else:
             entry = None
         return entry
+
+
+    def delete_asset_address (self, address):
+        return self._context.delete_state(
+            [address],
+            timeout=self.TIMEOUT)
+

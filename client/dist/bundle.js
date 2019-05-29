@@ -28732,7 +28732,16 @@ const deleteInvitation =(action, asset, private_key, owner, address, refresh)=>{
       success => success ? refresh() : null
     )
 }
-
+const deleteCarByAddress =(action, asset, private_key, owner, address, refresh)=>{
+  submitUpdate(
+      {action, asset, owner, address},
+      FAMILY_CARS,
+      VERSION_CARS,
+      PREFIX_CARS,
+      private_key,
+      success => success ? refresh() : null
+    )
+}
 module.exports = {
   makeKeyPair,
   getStateUser,
@@ -28747,7 +28756,8 @@ module.exports = {
   FAMILY_INVITATIONS,
   PREFIX_INVITATIONS,
   VERSION_INVITATIONS,
-  deleteInvitation
+  deleteInvitation,
+  deleteCarByAddress
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
@@ -30502,7 +30512,8 @@ const {
   FAMILY_CARS,
   PREFIX_CARS,
   FAMILY_INVITATIONS,
-  PREFIX_INVITATIONS
+  PREFIX_INVITATIONS,
+  deleteCarByAddress
 } = __webpack_require__(90)
 
 const {
@@ -30608,6 +30619,17 @@ const getAddressBatch = (prefix)=>{
             return myJson.address;
           })
           
+}
+
+const getAddressCar = (asset)=>{
+  return fetch(`${API_NODE}/luis/car/${asset}`)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(myJson){
+            console.log("recibimos: ", myJson.address)
+            return myJson.address
+          })
 }
 
 const processAsset = (data) => {
@@ -31518,13 +31540,21 @@ $('#visualizacion').on('click', '.eliminarInvitacion' ,function(){
   ('delete', asset, private_key, owner, address);
 })*/
 
-$('#visualizacion').on('click', '.eliminarUsuario' ,function(){
-  console.log("has pulsado eliminarUsuario")
-  var valores = $(this).parent().siblings('td').html();
-  console.log("hermanos: ",  $(this).parent().siblings('td').html())
+$('#visualizacion').on('click', '.eliminarCoche' ,function(){
+  console.log("has pulsado eliminarCoche")
+  var asset = $(this).parent().siblings('td').attr('data-asset');
+  asset = asset.split('/')[0]
+  getAddressCar(asset).then(function(address){
+    deleteCarByAddress('delete', asset, user.keys.private_key, user.owner, address, ()=>{
+      admin.getCoches(()=>{
+        addTableCoches('#visualizacion',admin.coches, "eliminar")
+      })
+    })
+  })
+
 })
 
-$('#visualizacion').on('click', '.eliminarCoche' ,function(){
+$('#visualizacion').on('click', '.eliminarUsuario' ,function(){
   console.log("has pulsado editar desde js")
   var valores = $(this).parent().siblings('td').html();
   console.log("hermanos: ",  $(this).parent().siblings('td').html())

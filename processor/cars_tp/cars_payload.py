@@ -14,15 +14,17 @@ class CarsPayload(object):
         action = data.get('action')
         asset = data.get('asset')
         owner = data.get('owner')
+        address = data.get('address')
 
         if not action:
             raise InvalidTransaction('Action is required')
-        if action not in ('register'):
+        if action not in ('register', 'delete'):
             raise InvalidTransaction('Invalid action: {}'.format(action))
 
         self._action = action
         self._asset = asset
         self._owner = owner
+        self._address = address
 
 
     @property
@@ -36,3 +38,7 @@ class CarsPayload(object):
     @property
     def owner(self):
         return self._owner
+
+    @property
+    def address(self):
+        return self._address

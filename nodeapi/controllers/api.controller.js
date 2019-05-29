@@ -159,7 +159,7 @@ exports.getAddressCoche = function(req,res,next){
     var address ="Not Found"
       for (var i =0; i<response.data.length; i++){
         const parsed = JSON.parse(atob(response.data[i].data))
-        if (parsed.asset == req.params.asset){
+        if (parsed.asset.indexOf(req.params.asset) > -1){
           address = response.data[i].address;
           
         }

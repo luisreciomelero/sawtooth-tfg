@@ -144,6 +144,9 @@ class CarsTransactionHandler(TransactionHandler):
                           signer=signer,
                           state=state,
                           owner= payload.owner)
+        elif payload.action == 'delete':
+            _delete_by_address(address=payload.address,
+                                state=state)
         
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
