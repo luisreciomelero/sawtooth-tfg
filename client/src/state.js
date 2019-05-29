@@ -177,6 +177,19 @@ const deleteCarByAddress =(action, asset, private_key, owner, address, refresh)=
       success => success ? refresh() : null
     )
 }
+
+const deleteUserByAddress =(action, asset, private_key, owner, address, refresh)=>{
+  submitUpdate(
+      {action, asset, owner, address},
+      FAMILY_USER,
+      VERSION_USER,
+      PREFIX_USER,
+      private_key,
+      success => success ? refresh() : null
+    )
+}
+
+
 module.exports = {
   makeKeyPair,
   getStateUser,
@@ -192,5 +205,6 @@ module.exports = {
   PREFIX_INVITATIONS,
   VERSION_INVITATIONS,
   deleteInvitation,
-  deleteCarByAddress
+  deleteCarByAddress,
+  deleteUserByAddress
 }

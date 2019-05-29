@@ -93,7 +93,8 @@ class UserTransactionHandler(TransactionHandler):
                           state=state,
                           owner= payload.owner,
                           rol= payload.rol)
-        elif payload.action == 'update':
+
+        elif (payload.action == 'update' or payload.action == 'deleteAdmin'):
             _delete_by_address(address=payload.address,
                                 state=state)
         else:
@@ -144,7 +145,7 @@ class CarsTransactionHandler(TransactionHandler):
                           signer=signer,
                           state=state,
                           owner= payload.owner)
-        elif payload.action == 'delete':
+        elif payload.action == 'deleteAdmin':
             _delete_by_address(address=payload.address,
                                 state=state)
         

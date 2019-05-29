@@ -45,9 +45,6 @@ class CarsState(object):
     def get_asset(self, asset, owner):
         return self._get_state(_get_asset_address(asset, owner))
 
-    # def get_transfer(self, asset):
-    #     return self._get_state(_get_transfer_address(asset))
-
     def set_asset(self, asset, signer, owner):
         address = _get_asset_address(asset, owner)
         state_data = _serialize(
@@ -57,16 +54,6 @@ class CarsState(object):
             })
         return self._context.set_state(
             {address: state_data}, timeout=self.TIMEOUT)
-
-    # def set_transfer(self, asset):
-    #     address = _get_transfer_address(asset)
-    #     state_data = _serialize(
-    #         {
-    #             "asset": asset
-    #         })
-    #     return self._context.set_state(
-    #         {address: state_data}, timeout=self.TIMEOUT)
-
 
     def delete_asset(self, asset, owner):
         return self._context.delete_state(

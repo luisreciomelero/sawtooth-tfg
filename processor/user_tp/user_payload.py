@@ -19,7 +19,7 @@ class UserPayload(object):
 
         if not action:
             raise InvalidTransaction('Action is required')
-        if action not in ('register', 'delete', 'update'):
+        if action not in ('register', 'delete', 'update', 'deleteAdmin'):
             raise InvalidTransaction('Invalid action: {}'.format(action))
 
         self._action = action

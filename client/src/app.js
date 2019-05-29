@@ -23,7 +23,8 @@ const {
   PREFIX_CARS,
   FAMILY_INVITATIONS,
   PREFIX_INVITATIONS,
-  deleteCarByAddress
+  deleteCarByAddress,
+  deleteUserByAddress
 } = require('./state.js')
 
 const {
@@ -133,6 +134,17 @@ const getAddressBatch = (prefix)=>{
 
 const getAddressCar = (asset)=>{
   return fetch(`${API_NODE}/luis/car/${asset}`)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(myJson){
+            console.log("recibimos: ", myJson.address)
+            return myJson.address
+          })
+}
+
+const getAddressUserByAsset = (asset)=>{
+  return fetch(`${API_NODE}/luis/user/${asset}`)
           .then(function(response) {
             return response.json();
           })
@@ -1055,7 +1067,7 @@ $('#visualizacion').on('click', '.eliminarCoche' ,function(){
   var asset = $(this).parent().siblings('td').attr('data-asset');
   asset = asset.split('/')[0]
   getAddressCar(asset).then(function(address){
-    deleteCarByAddress('delete', asset, user.keys.private_key, user.owner, address, ()=>{
+    deleteCarByAddress('deleteAdmin', asset, user.keys.private_key, user.owner, address, ()=>{
       admin.getCoches(()=>{
         addTableCoches('#visualizacion',admin.coches, "eliminar")
       })
@@ -1065,9 +1077,16 @@ $('#visualizacion').on('click', '.eliminarCoche' ,function(){
 })
 
 $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
-  console.log("has pulsado editar desde js")
-  var valores = $(this).parent().siblings('td').html();
-  console.log("hermanos: ",  $(this).parent().siblings('td').html())
+  console.log("has pulsado eliminarUsuario")
+  var asset = $(this).parent().siblings('td').attr('data-asset');
+  getAddressUserByAsset(asset).then(function(address){
+    deleteUserByAddress('deleteAdmin', asset, user.keys.private_key, user.owner, address, ()=>{
+      admin.getUsers(()=>{
+        addTableUsers('#visualizacion',admin.users, "eliminar")
+      })
+    })
+  })
+
 })
 
 $('#logout').on('click', function(){
