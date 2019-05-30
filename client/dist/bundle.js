@@ -30670,6 +30670,20 @@ const getAddressesInvitations = (prefix)=>{
             return myJson.addresses
           })
 } 
+
+const getAddressesInvitationsAssigned = (prefix)=>{
+  console.log("ENTRAMOS EN getAddressesInvitationsAssigned")
+  return fetch(`${API_NODE}/luis/invitationsAssigned/address/${prefix}`)
+          .then(function(response) {
+            console.log("response addresses: ", response)
+            return response.json();
+          })
+          .then(function(myJson){
+            console.log("recibimos: ", myJson.addresses)
+            return myJson.addresses
+          })
+} 
+
 const getAddressesCars = (prefix)=>{
   console.log("ENTRAMOS EN getAddressesCars")
   return fetch(`${API_NODE}/luis/cars/address/${prefix}`)
@@ -30683,6 +30697,17 @@ const getAddressesCars = (prefix)=>{
           })
 } 
 
+const getUserRol = (address)=>{
+  return fetch(`${API_NODE}/luis/user/rol/${address}`)
+          .then(function(response) {
+            console.log("response addresses: ", response)
+            return response.json();
+          })
+          .then(function(myJson){
+            console.log("recibimos: ", myJson.addresses)
+            return myJson.userRol
+          })
+}
 
 
 const processAsset = (data) => {
@@ -31532,55 +31557,13 @@ $('#visualizacion').on('click', '.eliminarInvitacion' ,function(){
           addTableInvitaciones('#visualizacion', admin.invitaciones, "eliminar")
         })
       })
-      /*fillUserInvitation(user, invitacionEditar.invitacion[0].asset, ()=>{
-        
-      })*/
     })
   })
-  console.log("user.address: ", PREFIX_USER+'01'+address.substring(8,40))
-
-  /*user.address = PREFIX_USER+'01'+address.substring(6,38)
-  user.refresh(()=>{
-    fillUserInvitation(user, invitacionEditar.invitacion[0].asset)
-  })*/
-
 })
 
 
 
-/*$('#eliminarInvitacion').on('click' ,function(){
-  console.log("he pulsado BORRAR")
-  var invitationSplit = invitacionEditar.invitacion[0].asset.split(',');
-  console.log('INVITACION: ', invitacionEditar.invitacion[0])
-  console.log('InvitacionSplit', invitationSplit)
-  for(var j=0; j<invitationSplit.length;j++){
-      var field = invitationSplit[j].split(":");
-      console.log("field", field)
-      switch(field[0]){
-        case "invitacion_de":
-          invitacionEditar.invitacion_de = field[1];
-          break;
-        case "timestamp":
-          invitacionEditar.fecha = field[1];
-          break;
-        case "address":
-          invitacionEditar.address = field[1];
-          break;
-        case "private_key":
-          invitacionEditar.private_key = field[1];
-          break;
-      }
-    }  
-  var asset = invitacionEditar.invitacion[0].asset.replace("\n"," ");
-  asset = asset.split(',address')[0]
-  var private_key = user.keys.private_key;
-  var owner = invitacionEditar.address.substring(8,40);
-  console.log('BORRAMOS INVITACION CON ASSET=====================', asset)
-  console.log('BORRAMOS INVITACION CON  P_KEY=====================', user.keys.private_key)
-  var address = invitacionEditar.address
-  
-  ('delete', asset, private_key, owner, address);
-})*/
+
 
 $('#visualizacion').on('click', '.eliminarCoche' ,function(){
   console.log("has pulsado eliminarCoche")
@@ -31601,18 +31584,37 @@ $('#visualizacion').on('click', '.eliminarCoche' ,function(){
 $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
   console.log("has pulsado eliminarUsuario")
   var asset = $(this).parent().siblings('td').attr('data-asset');
+  console.log("ASSET QUE RECIBO AL PULSAR ELIMINAR: ", asset)
   getAddressUserByAsset(asset).then(function(address){
+
+
+    console.log("ADDDDRESSSS: ", address)
     const token = address.substring(8,40)
     console.log("token: ", token)
-    getAddressesInvitations(token).then(function(addresses){
-      console.log('entramos')
-      console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
-      for (var i=0; i<addresses.length; i++){
-        deleteInvitation('delete', 'asset', user.keys.private_key, user.owner, addresses[i], ()=>{
-          console.log("ELIMINADA ADDRESS: ", addresses[i])
+    getUserRol(address).then(function(rol){
+      if(rol == 'Invitado'){
+        getAddressesInvitationsAssigned(token.substring(0,16)).then(function(addresses){
+          console.log('entramos')
+          console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
+          for (var i=0; i<addresses.length; i++){
+            deleteInvitation('delete', 'asset', user.keys.private_key, user.owner, addresses[i], ()=>{
+              console.log("ELIMINADA ADDRESS: ", addresses[i])
+          })
+        }
         })
       }
-    })
+
+      getAddressesInvitations(token).then(function(addresses){
+        console.log('entramos')
+        console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
+        for (var i=0; i<addresses.length; i++){
+          deleteInvitation('delete', 'asset', user.keys.private_key, user.owner, addresses[i], ()=>{
+            console.log("ELIMINADA ADDRESS: ", addresses[i])
+          })
+        }
+      })
+
+
     getAddressesCars(token).then(function(addresses){
       console.log('entramos en getAddressesCars')
       console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
@@ -31622,6 +31624,8 @@ $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
         })
       }
     })
+
+
     deleteUserByAddress('deleteAdmin', asset, user.keys.private_key, user.owner, address, ()=>{
       admin.getUsers(()=>{
         addTableUsers('#visualizacion',admin.users, "eliminar")
@@ -31631,6 +31635,9 @@ $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
     })
   })
 
+    })
+
+    
 })
 
 $('#logout').on('click', function(){

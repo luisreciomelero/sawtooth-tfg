@@ -208,6 +208,77 @@ exports.getUserInvitations = function(req,res, next){
   })
 }
 
+exports.getUserInvitationsAssigned = function(req,res, next){
+  fetch('http://rest-api:8008/state?address=1a733501', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    } 
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response) {
+    return response.json();
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response){
+      const addresses = []
+      for (let i = 0; i<response.data.length; i++){
+        console.log("direccion: ", response.data[i].address)
+        const invitationAddress = response.data[i].address
+        if (invitationAddress.indexOf(req.params.userToken)>-1){
+          addresses.push(invitationAddress)
+        }
+      }
+
+      console.log("INVITACIONES: ", addresses)
+      res.status(200).send({
+        success: 'true',
+        message: 'invitation retrieved successfully',
+        addresses: addresses
+  })
+
+  })
+}
+
+exports.getUserRol = function(req, res, next){
+  fetch(`http://rest-api:8008/state?address=71418301`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    } 
+  })
+
+  .catch(error => console.error('Error:', error))
+  .then(function(response) {
+    return response.json();
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response){
+      let asset = "Not found asset with this address"
+      for(let i = 0; i<response.data.length; i++){
+        if(response.data[i].address == req.params.address){
+          asset = JSON.parse(atob(response.data[i].data)).asset
+        }
+      }
+      return asset
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(asset){
+      let rol = 'Usuario'
+      if(asset.indexOf('rol:Invitado') > -1){
+        rol = 'Invitado'
+      }
+
+      res.status(200).send({
+        success: 'true',
+        message: 'invitation retrieved successfully',
+        userRol: rol,
+        address: req.params.address
+  })
+
+  })
+}
+
 
 
 
