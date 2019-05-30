@@ -166,6 +166,18 @@ const getAddressesInvitations = (prefix)=>{
             return myJson.addresses
           })
 } 
+const getAddressesCars = (prefix)=>{
+  console.log("ENTRAMOS EN getAddressesCars")
+  return fetch(`${API_NODE}/luis/cars/address/${prefix}`)
+          .then(function(response) {
+            console.log("response addresses: ", response)
+            return response.json();
+          })
+          .then(function(myJson){
+            console.log("recibimos: ", myJson.addresses)
+            return myJson.addresses
+          })
+} 
 
 
 
@@ -1085,7 +1097,9 @@ $('#visualizacion').on('click', '.eliminarCoche' ,function(){
 $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
   console.log("has pulsado eliminarUsuario")
   var asset = $(this).parent().siblings('td').attr('data-asset');
+  console.log("ASSET QUE RECIBO AL PULSAR ELIMINAR: ", asset)
   getAddressUserByAsset(asset).then(function(address){
+    console.log("ADDDDRESSSS: ", address)
     const token = address.substring(8,40)
     console.log("token: ", token)
     getAddressesInvitations(token).then(function(addresses){
@@ -1093,6 +1107,15 @@ $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
       console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
       for (var i=0; i<addresses.length; i++){
         deleteInvitation('delete', 'asset', user.keys.private_key, user.owner, addresses[i], ()=>{
+          console.log("ELIMINADA ADDRESS: ", addresses[i])
+        })
+      }
+    })
+    getAddressesCars(token).then(function(addresses){
+      console.log('entramos en getAddressesCars')
+      console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
+      for (var i=0; i<addresses.length; i++){
+        deleteCarByAddress('deleteAdmin', asset, user.keys.private_key, user.owner, addresses[i], ()=>{
           console.log("ELIMINADA ADDRESS: ", addresses[i])
         })
       }

@@ -193,7 +193,7 @@ exports.getUserInvitations = function(req,res, next){
       for (let i = 0; i<response.data.length; i++){
         console.log("direccion: ", response.data[i].address)
         const invitationAddress = response.data[i].address
-        if (invitationAddress.indexOf(req.params.userToken)){
+        if (invitationAddress.indexOf(req.params.userToken)>-1){
           addresses.push(invitationAddress)
         }
       }
@@ -210,3 +210,35 @@ exports.getUserInvitations = function(req,res, next){
 
 
 
+
+exports.getUserCars = function(req,res, next){
+  fetch('http://rest-api:8008/state?address=812fb5', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    } 
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response) {
+    return response.json();
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response){
+      const addresses = []
+      for (let i = 0; i<response.data.length; i++){
+        console.log("direccion: ", response.data[i].address)
+        const invitationAddress = response.data[i].address
+        if (invitationAddress.indexOf(req.params.userToken)>-1){
+          addresses.push(invitationAddress)
+        }
+      }
+
+      console.log("INVITACIONES: ", addresses)
+      res.status(200).send({
+        success: 'true',
+        message: 'invitation retrieved successfully',
+        addresses: addresses
+  })
+
+  })
+}
