@@ -741,7 +741,7 @@ $('#loginButton').on('click', function () {
   user.address = address
   user.rol = null;
   user.refresh(user.address,()=>{
-    mostrarMain(user.rol)
+    mostrarMain(user.rol, user)
   })
   limpiaInputs()
 })
@@ -871,7 +871,7 @@ $('#publicarInv').on('click', function () {
     invitaciones.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
       ActualizarAssetUser_publicar(numInvPub,()=>{
         user.refresh(user.address,()=>{
-          mostrarMain(user.rol)
+          mostrarMain(user.rol, user)
         })
       });
     })

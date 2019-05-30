@@ -51,20 +51,8 @@
         <button type="submit" id="createCocheRC">Registrar coche</button>
       </div>
 
-      <div id="acceptCoche" style="display:none"> ACEPTAR COCHE
-        <div></div>
-        <label id="dniOwnerAC">DNI del propietario del coche: </label>
-        <label id="emailOwnerAC">Email del propietario del coche: </label>
-        <label id="cocheOwnerAC">matricula y modelo del coche: </label>
-        <button type="submit" id="acceptCocheAC">Aceptar coche</button>
-        <button type="submit" id="rejectCocheAC">Rechazar coche</button>
-      </div>
-
       <div id="mainUser" style="display:none"> PRINCIPAL USUARIO
-        <label id="userMU">Nombre del usuario: </label>
-        <label id="userMU">DNI del usuario: </label>
-        <div id="cochesMU">Coches del usuario: </div>
-        <label id="numeroInvitacionesMU">El usuario dispone de:</label>
+        <div id="datosUser"></div>
         <div id="publicarInvitacionMU">
           <input type="number" id="numInv" placeholder="Numero de invitaciones a publicar" class="form-control"required>
           <button type="submit" id="publicarInv">Publicar</button>
@@ -82,7 +70,7 @@
 
       </div>
       <div id="mainInvitado" style="display:none"> PRINCIPAL INVITADO
-        <div id="listaInvitacionesDisponibles"></div>
+        <div id="datosInvitado"></div>
         <button type="submit" id="createCocheMI">Registrar coche</button>
         <button type="submit" id="solicitarMI">Solicitar Invitacion</button>
         <table id="invitacionesTableSI"></table>

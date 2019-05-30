@@ -31245,7 +31245,7 @@ $('#loginButton').on('click', function () {
   user.address = address
   user.rol = null;
   user.refresh(user.address,()=>{
-    mostrarMain(user.rol)
+    mostrarMain(user.rol, user)
   })
   limpiaInputs()
 })
@@ -31375,7 +31375,7 @@ $('#publicarInv').on('click', function () {
     invitaciones.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
       ActualizarAssetUser_publicar(numInvPub,()=>{
         user.refresh(user.address,()=>{
-          mostrarMain(user.rol)
+          mostrarMain(user.rol, user)
         })
       });
     })
@@ -45186,6 +45186,25 @@ const addOriginal = (parent, original_number, original_id) => {
   );
 }
 
+const addDataDiv = (parent, user, rol)=>{
+  $(parent).empty();
+  if (rol == 'Usuario'){
+    $(parent).append(`<label>Nombre: ${user.nombre} \n</label>
+                    <label>DNI: ${user.dni} \n</label>
+                    <label>El usuario dispone de: ${user.numInvitaciones} invitaciones \n</label>
+                    <label>Email: ${user.email} \n</label>
+                    <label>Invitaciones a cobrar: ${user.wallet} \n</label>`)
+  }
+  else if(rol == 'Invitado'){
+    $(parent).append(`<label>Nombre: ${user.nombre} \n</label>
+                    <label>DNI: ${user.dni} \n</label>
+                    <label>El usuario dispone de: ${user.numInvitaciones} invitaciones \n</label>
+                    <label>Email: ${user.email} \n</label>
+                    <label>Invitaciones a pagar: ${user.wallet} \n</label>`)
+  }
+
+}
+
 const addTableUsers = (parent, users, claseFila) => {
   $(parent).empty();
   var clase = claseFila+'Usuario'
@@ -45386,7 +45405,7 @@ const limpiaInputs = () =>{
 
 }
 
-const mostrarMain = (rol, invitaciones=null, inviEdit=null)=>{
+const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
   if(inviEdit!=null){
     return;
   }
@@ -45395,12 +45414,13 @@ const mostrarMain = (rol, invitaciones=null, inviEdit=null)=>{
       $('#mainInvitado').attr('style', '')
       $('#login').attr('style', 'display:none')
       $('#logout').attr('style', '')
-        
+      addDataDiv('#datosInvitado', user, rol)
       break;
     case 'Usuario':
       $('#mainUser').attr('style', '')
       $('#login').attr('style', 'display:none')
       $('#logout').attr('style', '')
+      addDataDiv('#datosUser', user, rol)
       break;
     case 'Admin':
        $('#mainAdmin').attr('style', '')
