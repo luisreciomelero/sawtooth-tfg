@@ -35,6 +35,7 @@ const addOriginal = (parent, original_number, original_id) => {
 }
 
 const addDataDiv = (parent, user, rol)=>{
+  console.log("entramos en addDataDiv")
   $(parent).empty();
   if (rol == 'Usuario'){
     $(parent).append(`<label>Nombre: ${user.nombre} \n</label>
@@ -262,6 +263,7 @@ const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
       $('#mainInvitado').attr('style', '')
       $('#login').attr('style', 'display:none')
       $('#logout').attr('style', '')
+      console.log("user y rol que le pasamos al invitado: ", user, rol)
       addDataDiv('#datosInvitado', user, rol)
       break;
     case 'Usuario':

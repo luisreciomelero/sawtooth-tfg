@@ -987,7 +987,7 @@ $('#solicitarMI').on('click', function () {
                       updateUserSolicitar("update", assetInvitado, user.keys.private_key, user.owner, completeAddress, "Invitado",()=>{
                         updateUserSolicitar("register", assetInvitado, user.keys.private_key, user.owner, completeAddress,'Invitado', ()=>{
                          user.refresh(user.address, ()=>{
-                            console.log("USER.ADDRESS EN SOL: ", user.address)
+                            mostrarMain(user.rol, user)
                          } )
                       })
                     })
@@ -1149,3 +1149,9 @@ $('#logout').on('click', function(){
    $('#editarInvitacion').attr('style', 'display:none')
   
 })
+/*if (user.address!== null){
+  user.refresh(user.address, ()=>{
+    mostrarMain(user.rol, user)
+  })
+}*/
+
