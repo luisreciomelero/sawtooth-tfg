@@ -14,6 +14,7 @@ const secp256k1 = require('sawtooth-sdk/signing/secp256k1')
 // Config variables
 const KEY_NAME_USER = 'users-chain.keys'
 const API_URL = 'http://localhost:8000/api'
+const API_NODE = 'http://localhost:5000/api'
 
 /*
     FAMILY_USER,
@@ -189,6 +190,19 @@ const deleteUserByAddress =(action, asset, private_key, owner, address, refresh)
     )
 }
 
+const getAddressesInvitationsAssigned = (prefix)=>{
+  console.log("ENTRAMOS EN getAddressesInvitationsAssigned")
+  return fetch(`${API_NODE}/luis/invitationsAssigned/address/${prefix}`)
+          .then(function(response) {
+            console.log("response addresses: ", response)
+            return response.json();
+          })
+          .then(function(myJson){
+            console.log("recibimos: ", myJson.addresses)
+            return myJson.addresses
+          })
+} 
+
 
 module.exports = {
   makeKeyPair,
@@ -206,5 +220,6 @@ module.exports = {
   VERSION_INVITATIONS,
   deleteInvitation,
   deleteCarByAddress,
-  deleteUserByAddress
+  deleteUserByAddress,
+  getAddressesInvitationsAssigned
 }

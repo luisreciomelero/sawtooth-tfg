@@ -18,7 +18,8 @@ const {
   FAMILY_INVITATIONS,
   PREFIX_INVITATIONS,
   VERSION_INVITATIONS,
-  deleteInvitation
+  deleteInvitation,
+  getAddressesInvitationsAssigned
 } = require('./state.js')
 
 const addSesion = (parent, current_number, current_id) => {
@@ -254,36 +255,6 @@ const limpiaInputs = () =>{
 
 }
 
-const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
-  if(inviEdit!=null){
-    return;
-  }
-  switch (rol) {
-    case 'Invitado':
-      $('#mainInvitado').attr('style', '')
-      $('#login').attr('style', 'display:none')
-      $('#logout').attr('style', '')
-      console.log("user y rol que le pasamos al invitado: ", user, rol)
-      addDataDiv('#datosInvitado', user, rol)
-      break;
-    case 'Usuario':
-      $('#mainUser').attr('style', '')
-      $('#login').attr('style', 'display:none')
-      $('#logout').attr('style', '')
-      addDataDiv('#datosUser', user, rol)
-      break;
-    case 'Admin':
-       $('#mainAdmin').attr('style', '')
-       $('#login').attr('style', 'display:none')
-       $('#logout').attr('style', '')
-       break;
-    default:
-      alert("No hay ningun usuario registrado con esas credenciales")
-      break;
-       
-  }
-  
-}
 
 const generateAddress_user = (email, psw, rol)=>{
   const hashUP32 = getHashUser(email);
@@ -368,6 +339,63 @@ const eliminarInvitacionAdmin =(invitacionEditar, user, refresh)=>{
 
 }
 
+const addTableInvitacionesSolicitadas = (parent, invitacionesAssets) =>{
+   $(parent).empty();
+   $(parent).append(`<tr>
+                        <td>Invitacion de</td>
+                        <td>Nuevo propietario</td>
+                        <td>Publicada</td>
+                        <td>Solicitada</td>
+                        <td>Valida</td>
+                      <tr>`)
+   
+   var invitacionAdd = {invDe:null, nuevoProp:null, publicada:null, solicitada:null, valida:null}
+   for (let i =0; i<invitacionesAssets.length; i++){
+    var asset = invitacionesAssets[i].asset.split(',')
+    for (let j = 0; j<asset.length; j++){
+      var fields = asset[j].split(':')
+      switch(fields[0]){
+        case "invitacionPublicadaPor":
+          invitacionAdd.invDe = fields[1]
+          break;
+        case "nuevoPropietario":
+          invitacionAdd.nuevoProp = fields[1]
+          break;
+        case 'publicada':
+          invitacionAdd.publicada = fields[1]
+          break;
+        case "solicitada":
+          invitacionAdd.solicitada = fields[1]
+          break;
+        case "valida":
+          invitacionAdd.valida = fields[1]
+          break;
+      }
+    }
+    $(parent).append(`<tr>
+                        <td>${invitacionAdd.invDe}</td>
+                        <td>${invitacionAdd.nuevoProp}</td>
+                        <td>${invitacionAdd.publicada}</td>
+                        <td>${invitacionAdd.solicitada}</td>
+                        <td>${invitacionAdd.valida}</td>
+                      <tr>`)
+   }
+}
+
+
+const addTableInvPublicUsuario = (invitaciones, user)=>{
+
+}
+
+
+
+const addTableCochesInvitado = (coches)=>{
+
+}
+
+const addTableInvSolInvitado = (invitaciones)=>{
+
+}
 
 
 module.exports = {
@@ -381,9 +409,10 @@ module.exports = {
   addTableCoches,
   addTableInvitaciones,
   limpiaInputs,
-  mostrarMain,
   generateAddress_user,
   concatString,
   fillUserInvitation,
-  eliminarInvitacionAdmin
+  eliminarInvitacionAdmin,
+  addDataDiv,
+  addTableInvitacionesSolicitadas
 }

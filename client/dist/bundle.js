@@ -28579,6 +28579,7 @@ const secp256k1 = __webpack_require__(102)
 // Config variables
 const KEY_NAME_USER = 'users-chain.keys'
 const API_URL = 'http://localhost:8000/api'
+const API_NODE = 'http://localhost:5000/api'
 
 /*
     FAMILY_USER,
@@ -28754,6 +28755,19 @@ const deleteUserByAddress =(action, asset, private_key, owner, address, refresh)
     )
 }
 
+const getAddressesInvitationsAssigned = (prefix)=>{
+  console.log("ENTRAMOS EN getAddressesInvitationsAssigned")
+  return fetch(`${API_NODE}/luis/invitationsAssigned/address/${prefix}`)
+          .then(function(response) {
+            console.log("response addresses: ", response)
+            return response.json();
+          })
+          .then(function(myJson){
+            console.log("recibimos: ", myJson.addresses)
+            return myJson.addresses
+          })
+} 
+
 
 module.exports = {
   makeKeyPair,
@@ -28771,7 +28785,8 @@ module.exports = {
   VERSION_INVITATIONS,
   deleteInvitation,
   deleteCarByAddress,
-  deleteUserByAddress
+  deleteUserByAddress,
+  getAddressesInvitationsAssigned
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
@@ -30529,7 +30544,8 @@ const {
   PREFIX_INVITATIONS,
   deleteCarByAddress,
   deleteUserByAddress,
-  deleteInvitation
+  deleteInvitation,
+  getAddressesInvitationsAssigned
 } = __webpack_require__(90)
 
 const {
@@ -30541,11 +30557,12 @@ const {
   addTableCoches,
   addTableInvitaciones,
   limpiaInputs,
-  mostrarMain,
   generateAddress_user,
   concatString,
   fillUserInvitation,
-  eliminarInvitacionAdmin
+  eliminarInvitacionAdmin,
+  addDataDiv,
+  addTableInvitacionesSolicitadas
 }=__webpack_require__(218)
 
 // Application Object
@@ -30559,7 +30576,7 @@ const version = VERSION_USER
 const admin = {users:[], invitaciones:[], coches:[], admin:0}
 const registro = {user:null}
 const invitacionEditar={ invitacion:[], address:null, fecha:null, invitacion_de:null, private_key:null, numTotal:null}
-
+const invitacionesSolicitadas = {assets:[]}
 
 
 const getFecha=(currentDate, addTime=null)=>{
@@ -30671,19 +30688,6 @@ const getAddressesInvitations = (prefix)=>{
           })
 } 
 
-const getAddressesInvitationsAssigned = (prefix)=>{
-  console.log("ENTRAMOS EN getAddressesInvitationsAssigned")
-  return fetch(`${API_NODE}/luis/invitationsAssigned/address/${prefix}`)
-          .then(function(response) {
-            console.log("response addresses: ", response)
-            return response.json();
-          })
-          .then(function(myJson){
-            console.log("recibimos: ", myJson.addresses)
-            return myJson.addresses
-          })
-} 
-
 const getAddressesCars = (prefix)=>{
   console.log("ENTRAMOS EN getAddressesCars")
   return fetch(`${API_NODE}/luis/cars/address/${prefix}`)
@@ -30751,6 +30755,64 @@ const processAsset = (data) => {
   console.log("user: ", user)
 }
 
+/*const getDataInvSol = (address, cb)=> {
+  console.log("Visualizacion data:")
+  
+  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.assets.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {assets: []}))
+  })
+}*/
+
+const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
+  if(inviEdit!=null){
+    return;
+  }
+  switch (rol) {
+    case 'Invitado':
+      $('#mainInvitado').attr('style', '')
+      $('#login').attr('style', 'display:none')
+      $('#logout').attr('style', '')
+      console.log("user y rol que le pasamos al invitado: ", user, rol)
+      addDataDiv('#datosInvitado', user, rol)
+      getAddressesInvitationsAssigned(user.owner.substring(0,16))
+      .then(function(invitacionesSolAddress){
+        for (let i =0; i<invitacionesSolAddress.length; i++){
+          invitacionesSolicitadas.getInvitation(invitacionesSolAddress[i])
+
+          //data = getDataInvSol(invitacionesSolicitadas[i])
+          //addDataTableInvSolMI(data)
+        }
+      })
+      break;
+    case 'Usuario':
+      $('#mainUser').attr('style', '')
+      $('#login').attr('style', 'display:none')
+      $('#logout').attr('style', '')
+      addDataDiv('#datosUser', user, rol)
+      break;
+    case 'Admin':
+       $('#mainAdmin').attr('style', '')
+       $('#login').attr('style', 'display:none')
+       $('#logout').attr('style', '')
+       break;
+    default:
+      alert("No hay ningun usuario registrado con esas credenciales")
+      break;
+       
+  }
+  
+}
+
 
 
 const ActualizarAssetUser_publicar = (numInvPub, refreshUserMain) =>{
@@ -30793,24 +30855,6 @@ const getBatchUser = (address, cb)=> {
   })
 }
 
-/*const getAddressBatch =(address, cb)=> {
- 
-  
-  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
-    
-    console.log("FIN Visualizacion")
-    cb(data.reduce((processed, datum) => {
-      if (datum.address !== '') {
-        const parsed = JSON.parse(atob(datum.address))
-        console.log("PARSED:", parsed)
-        processed.address.push(parsed)
-        console.log("processed: ", processed)
-      }
-      return processed
-    }, {address: []}))
-  })
-}*/
-
 const getBatchInv = cb =>{
   $.get(`${API_URL}/state?address=${invitaciones.address}`, ({ data }) => {
     
@@ -30826,6 +30870,36 @@ const getBatchInv = cb =>{
     }, {assets: []}))
   })
 }
+
+
+const getAssetInv = (address, cb)=> {
+  console.log("Visualizacion data:")
+  
+  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.asset.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {asset: []}))
+  })
+}
+
+invitacionesSolicitadas.getInvitation = function(address) {
+  getAssetInv(address, ({ asset }) =>{
+    this.assets.push(asset[0])
+    console.log("asset recuperado: ", asset, "con address: ", address)
+    console.log("assets: ", this.assets)
+    addTableInvitacionesSolicitadas('#invitacionesTableSol',this.assets)
+  }) 
+}
+
+
 
 const getAllUsers = cb => {
   console.log("Visualizacion data:")
@@ -31223,7 +31297,6 @@ $('#loginAdmin').on('click', function () {
   console.log("ADDRESS")
   user.owner = hashUP32
   user.address = address
-  //user.rol = null;
   user.refresh(user.address,()=>{
     mostrarMain(user.rol, invitaciones)
   })
@@ -31231,7 +31304,7 @@ $('#loginAdmin').on('click', function () {
 })
 
 $('#loginButton').on('click', function () {
-  //limpiarUser()
+
   var mail = addCategory('email',$('#mailInputL').val());
   var psw = addCategory('psw',$('#passInputL').val());
   var mailPsw = addCategory(mail, psw)
@@ -31285,15 +31358,40 @@ const getNuevoAssetCrearCoche =(assetPropietario)=>{
 
 }
 
+const eliminarInvSol = (address)=>{
+  for (var i= 0; i<invitacionesSolicitadas.assets.length ; i++){
+    if(invitacionesSolicitadas.assets[i].asset.indexOf(address)>-1){
+      updateInvitation('delete', 'nuevoAsset', user.keys.private_key, user.owner,  address, ()=>{
+        console.log('Eliminamos: ', address)
+        console.log("inviSOlANTES: ", invitacionesSolicitadas.assets)
+
+        invitacionesSolicitadas.assets.slice(i,1)
+        console.log("inviSOlDESPIUES: ", invitacionesSolicitadas.assets)
+      })
+
+    }
+  }
+}
+
+
 
 $('#createCocheRC').on('click', function () {
+  $('#invitacionesTableSol').empty()
   console.log("user.assets en create coche: ", user.assets)
   const matricula = addCategory("matricula", $('#matriculaRC').val());
   const model = addCategory("modelo", $('#modelRC').val());
   const propietario = addCategory("propietario", user.owner);
   const currentDate = new Date()
   const fecha = addCategory("registrado_el", getFecha(currentDate))
-  const asset = [matricula, model, propietario, fecha]
+  console.log("invitacionesSolicitadas: ", invitacionesSolicitadas)
+  const randomInvSol = getRandomNumber(invitacionesSolicitadas.assets.length)
+  let invAddress = invitacionesSolicitadas.assets[randomInvSol]
+  invAddress = invAddress.asset.split('address:')[1]
+  eliminarInvSol(invAddress)
+  console.log('Sacamos address de inv: ', invAddress)
+  invAddress = addCategory("Invitacion", invAddress)
+  
+  const asset = [matricula, model, propietario, fecha, invAddress]
   const prefixOwner = user.owner.substring(0,16)
   console.log("asset coche: ", asset.join())
   coches.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
@@ -31304,22 +31402,14 @@ $('#createCocheRC').on('click', function () {
       updateUserSolicitar("update", 'assetInvitado', user.keys.private_key, user.owner, address, "Invitado",()=>{
         updateUserSolicitar("register", nuevoAsset, user.keys.private_key, user.owner, address,'Invitado', ()=>{
           user.refresh(user.address, ()=>{
-
+            mostrarMain('Invitado', user)
           })
         })
       })
     })
-    
-
-    /*getInvitation(prefixOwner).then(function(address){
-      updateInvitation('update', 'nuevoAsset', user.keys.private_key, user.owner, 'address', ()=>{
-        console.log("INVITACION: ", address, "ELIMINADA")
-      })
-
-    })*/
   })
   $('#regCoche').attr('style', 'display:none')
-  $('#mainInvitado').attr('style', '')
+  //$('#mainInvitado').attr('style', '')
   limpiaInputs()
   
 })
@@ -31452,7 +31542,7 @@ const getNuevoAssetUsuario =(assetPropietario, rol)=>{
 }
 
 $('#solicitarMI').on('click', function () {
-  
+  invitacionesSolicitadas.assets = []
   //addTableInvitaciones('#invitacionesTableSI', invitaciones.assets, "solicitar")
    getRandomInvitation().then(function (randomNum) {
     getNodeapiInvitacion(randomNum).then(function(invitacion){
@@ -31492,34 +31582,22 @@ $('#solicitarMI').on('click', function () {
                         updateUserSolicitar("register", assetInvitado, user.keys.private_key, user.owner, completeAddress,'Invitado', ()=>{
                          user.refresh(user.address, ()=>{
                             mostrarMain(user.rol, user)
-                         } )
+                         })
+                        })
                       })
                     })
-                  })
-                });
+                  });
                 })
               })
             })
           })
-          
-      
         })    
       })
-  /*$('#solicitarInvitacion').attr('style', '')
-  $('#mainInvitado').attr('style', '')*/
-  limpiaInputs()
+      limpiaInputs()
+    })
+  })
 })
-})
-})
-/*$('#solicitarInv').on('click', function () {
-  //var randomNum = getRandomNum(invitacionEditar.numTotal)
 
- 
-  
-  
-  
-  limpiaInputs()
-})*/
 $('#verUsuarios').on('click', function () {
 
   console.log("TODOS LOS USUARIOS REGISTRADOS: ", admin.users)
@@ -31599,8 +31677,8 @@ $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
           for (var i=0; i<addresses.length; i++){
             deleteInvitation('delete', 'asset', user.keys.private_key, user.owner, addresses[i], ()=>{
               console.log("ELIMINADA ADDRESS: ", addresses[i])
-          })
-        }
+            })
+          }
         })
       }
 
@@ -31615,29 +31693,24 @@ $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
       })
 
 
-    getAddressesCars(token).then(function(addresses){
-      console.log('entramos en getAddressesCars')
-      console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
-      for (var i=0; i<addresses.length; i++){
-        deleteCarByAddress('deleteAdmin', asset, user.keys.private_key, user.owner, addresses[i], ()=>{
-          console.log("ELIMINADA ADDRESS: ", addresses[i])
-        })
-      }
-    })
+      getAddressesCars(token).then(function(addresses){
+        console.log('entramos en getAddressesCars')
+        console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
+        for (var i=0; i<addresses.length; i++){
+          deleteCarByAddress('deleteAdmin', asset, user.keys.private_key, user.owner, addresses[i], ()=>{
+            console.log("ELIMINADA ADDRESS: ", addresses[i])
+          })
+        }
+      })
 
 
     deleteUserByAddress('deleteAdmin', asset, user.keys.private_key, user.owner, address, ()=>{
       admin.getUsers(()=>{
         addTableUsers('#visualizacion',admin.users, "eliminar")
       })
-    
-    
     })
   })
-
-    })
-
-    
+})   
 })
 
 $('#logout').on('click', function(){
@@ -31650,14 +31723,12 @@ $('#logout').on('click', function(){
   $('#regCoche').attr('style', 'display:none')
   $('#solicitarInvitacion').attr('style', 'display:none')
   $('#logout').attr('style', 'display:none')
-   $('#editarInvitacion').attr('style', 'display:none')
+  $('#editarInvitacion').attr('style', 'display:none')
+  $('#invitacionesTableSol').empty()
+  invitacionesSolicitadas.assets= []
   
 })
-/*if (user.address!== null){
-  user.refresh(user.address, ()=>{
-    mostrarMain(user.rol, user)
-  })
-}*/
+
 
 
 
@@ -34814,7 +34885,7 @@ module.exports.makeKey = makeKey
 /* 150 */
 /***/ (function(module, exports) {
 
-module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-cars/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-cars/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
+module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-user/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-user/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
 
 /***/ }),
 /* 151 */
@@ -45176,7 +45247,8 @@ const {
   FAMILY_INVITATIONS,
   PREFIX_INVITATIONS,
   VERSION_INVITATIONS,
-  deleteInvitation
+  deleteInvitation,
+  getAddressesInvitationsAssigned
 } = __webpack_require__(90)
 
 const addSesion = (parent, current_number, current_id) => {
@@ -45412,36 +45484,6 @@ const limpiaInputs = () =>{
 
 }
 
-const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
-  if(inviEdit!=null){
-    return;
-  }
-  switch (rol) {
-    case 'Invitado':
-      $('#mainInvitado').attr('style', '')
-      $('#login').attr('style', 'display:none')
-      $('#logout').attr('style', '')
-      console.log("user y rol que le pasamos al invitado: ", user, rol)
-      addDataDiv('#datosInvitado', user, rol)
-      break;
-    case 'Usuario':
-      $('#mainUser').attr('style', '')
-      $('#login').attr('style', 'display:none')
-      $('#logout').attr('style', '')
-      addDataDiv('#datosUser', user, rol)
-      break;
-    case 'Admin':
-       $('#mainAdmin').attr('style', '')
-       $('#login').attr('style', 'display:none')
-       $('#logout').attr('style', '')
-       break;
-    default:
-      alert("No hay ningun usuario registrado con esas credenciales")
-      break;
-       
-  }
-  
-}
 
 const generateAddress_user = (email, psw, rol)=>{
   const hashUP32 = getHashUser(email);
@@ -45526,6 +45568,63 @@ const eliminarInvitacionAdmin =(invitacionEditar, user, refresh)=>{
 
 }
 
+const addTableInvitacionesSolicitadas = (parent, invitacionesAssets) =>{
+   $(parent).empty();
+   $(parent).append(`<tr>
+                        <td>Invitacion de</td>
+                        <td>Nuevo propietario</td>
+                        <td>Publicada</td>
+                        <td>Solicitada</td>
+                        <td>Valida</td>
+                      <tr>`)
+   
+   var invitacionAdd = {invDe:null, nuevoProp:null, publicada:null, solicitada:null, valida:null}
+   for (let i =0; i<invitacionesAssets.length; i++){
+    var asset = invitacionesAssets[i].asset.split(',')
+    for (let j = 0; j<asset.length; j++){
+      var fields = asset[j].split(':')
+      switch(fields[0]){
+        case "invitacionPublicadaPor":
+          invitacionAdd.invDe = fields[1]
+          break;
+        case "nuevoPropietario":
+          invitacionAdd.nuevoProp = fields[1]
+          break;
+        case 'publicada':
+          invitacionAdd.publicada = fields[1]
+          break;
+        case "solicitada":
+          invitacionAdd.solicitada = fields[1]
+          break;
+        case "valida":
+          invitacionAdd.valida = fields[1]
+          break;
+      }
+    }
+    $(parent).append(`<tr>
+                        <td>${invitacionAdd.invDe}</td>
+                        <td>${invitacionAdd.nuevoProp}</td>
+                        <td>${invitacionAdd.publicada}</td>
+                        <td>${invitacionAdd.solicitada}</td>
+                        <td>${invitacionAdd.valida}</td>
+                      <tr>`)
+   }
+}
+
+
+const addTableInvPublicUsuario = (invitaciones, user)=>{
+
+}
+
+
+
+const addTableCochesInvitado = (coches)=>{
+
+}
+
+const addTableInvSolInvitado = (invitaciones)=>{
+
+}
 
 
 module.exports = {
@@ -45539,11 +45638,12 @@ module.exports = {
   addTableCoches,
   addTableInvitaciones,
   limpiaInputs,
-  mostrarMain,
   generateAddress_user,
   concatString,
   fillUserInvitation,
-  eliminarInvitacionAdmin
+  eliminarInvitacionAdmin,
+  addDataDiv,
+  addTableInvitacionesSolicitadas
 }
 
 

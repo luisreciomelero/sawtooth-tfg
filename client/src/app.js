@@ -25,7 +25,8 @@ const {
   PREFIX_INVITATIONS,
   deleteCarByAddress,
   deleteUserByAddress,
-  deleteInvitation
+  deleteInvitation,
+  getAddressesInvitationsAssigned
 } = require('./state.js')
 
 const {
@@ -37,11 +38,12 @@ const {
   addTableCoches,
   addTableInvitaciones,
   limpiaInputs,
-  mostrarMain,
   generateAddress_user,
   concatString,
   fillUserInvitation,
-  eliminarInvitacionAdmin
+  eliminarInvitacionAdmin,
+  addDataDiv,
+  addTableInvitacionesSolicitadas
 }=require('./components')
 
 // Application Object
@@ -55,7 +57,7 @@ const version = VERSION_USER
 const admin = {users:[], invitaciones:[], coches:[], admin:0}
 const registro = {user:null}
 const invitacionEditar={ invitacion:[], address:null, fecha:null, invitacion_de:null, private_key:null, numTotal:null}
-
+const invitacionesSolicitadas = {assets:[]}
 
 
 const getFecha=(currentDate, addTime=null)=>{
@@ -167,19 +169,6 @@ const getAddressesInvitations = (prefix)=>{
           })
 } 
 
-const getAddressesInvitationsAssigned = (prefix)=>{
-  console.log("ENTRAMOS EN getAddressesInvitationsAssigned")
-  return fetch(`${API_NODE}/luis/invitationsAssigned/address/${prefix}`)
-          .then(function(response) {
-            console.log("response addresses: ", response)
-            return response.json();
-          })
-          .then(function(myJson){
-            console.log("recibimos: ", myJson.addresses)
-            return myJson.addresses
-          })
-} 
-
 const getAddressesCars = (prefix)=>{
   console.log("ENTRAMOS EN getAddressesCars")
   return fetch(`${API_NODE}/luis/cars/address/${prefix}`)
@@ -247,6 +236,64 @@ const processAsset = (data) => {
   console.log("user: ", user)
 }
 
+/*const getDataInvSol = (address, cb)=> {
+  console.log("Visualizacion data:")
+  
+  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.assets.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {assets: []}))
+  })
+}*/
+
+const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
+  if(inviEdit!=null){
+    return;
+  }
+  switch (rol) {
+    case 'Invitado':
+      $('#mainInvitado').attr('style', '')
+      $('#login').attr('style', 'display:none')
+      $('#logout').attr('style', '')
+      console.log("user y rol que le pasamos al invitado: ", user, rol)
+      addDataDiv('#datosInvitado', user, rol)
+      getAddressesInvitationsAssigned(user.owner.substring(0,16))
+      .then(function(invitacionesSolAddress){
+        for (let i =0; i<invitacionesSolAddress.length; i++){
+          invitacionesSolicitadas.getInvitation(invitacionesSolAddress[i])
+
+          //data = getDataInvSol(invitacionesSolicitadas[i])
+          //addDataTableInvSolMI(data)
+        }
+      })
+      break;
+    case 'Usuario':
+      $('#mainUser').attr('style', '')
+      $('#login').attr('style', 'display:none')
+      $('#logout').attr('style', '')
+      addDataDiv('#datosUser', user, rol)
+      break;
+    case 'Admin':
+       $('#mainAdmin').attr('style', '')
+       $('#login').attr('style', 'display:none')
+       $('#logout').attr('style', '')
+       break;
+    default:
+      alert("No hay ningun usuario registrado con esas credenciales")
+      break;
+       
+  }
+  
+}
+
 
 
 const ActualizarAssetUser_publicar = (numInvPub, refreshUserMain) =>{
@@ -289,24 +336,6 @@ const getBatchUser = (address, cb)=> {
   })
 }
 
-/*const getAddressBatch =(address, cb)=> {
- 
-  
-  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
-    
-    console.log("FIN Visualizacion")
-    cb(data.reduce((processed, datum) => {
-      if (datum.address !== '') {
-        const parsed = JSON.parse(atob(datum.address))
-        console.log("PARSED:", parsed)
-        processed.address.push(parsed)
-        console.log("processed: ", processed)
-      }
-      return processed
-    }, {address: []}))
-  })
-}*/
-
 const getBatchInv = cb =>{
   $.get(`${API_URL}/state?address=${invitaciones.address}`, ({ data }) => {
     
@@ -322,6 +351,36 @@ const getBatchInv = cb =>{
     }, {assets: []}))
   })
 }
+
+
+const getAssetInv = (address, cb)=> {
+  console.log("Visualizacion data:")
+  
+  $.get(`${API_URL}/state?address=${address}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.asset.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {asset: []}))
+  })
+}
+
+invitacionesSolicitadas.getInvitation = function(address) {
+  getAssetInv(address, ({ asset }) =>{
+    this.assets.push(asset[0])
+    console.log("asset recuperado: ", asset, "con address: ", address)
+    console.log("assets: ", this.assets)
+    addTableInvitacionesSolicitadas('#invitacionesTableSol',this.assets)
+  }) 
+}
+
+
 
 const getAllUsers = cb => {
   console.log("Visualizacion data:")
@@ -719,7 +778,6 @@ $('#loginAdmin').on('click', function () {
   console.log("ADDRESS")
   user.owner = hashUP32
   user.address = address
-  //user.rol = null;
   user.refresh(user.address,()=>{
     mostrarMain(user.rol, invitaciones)
   })
@@ -727,7 +785,7 @@ $('#loginAdmin').on('click', function () {
 })
 
 $('#loginButton').on('click', function () {
-  //limpiarUser()
+
   var mail = addCategory('email',$('#mailInputL').val());
   var psw = addCategory('psw',$('#passInputL').val());
   var mailPsw = addCategory(mail, psw)
@@ -781,15 +839,40 @@ const getNuevoAssetCrearCoche =(assetPropietario)=>{
 
 }
 
+const eliminarInvSol = (address)=>{
+  for (var i= 0; i<invitacionesSolicitadas.assets.length ; i++){
+    if(invitacionesSolicitadas.assets[i].asset.indexOf(address)>-1){
+      updateInvitation('delete', 'nuevoAsset', user.keys.private_key, user.owner,  address, ()=>{
+        console.log('Eliminamos: ', address)
+        console.log("inviSOlANTES: ", invitacionesSolicitadas.assets)
+
+        invitacionesSolicitadas.assets.slice(i,1)
+        console.log("inviSOlDESPIUES: ", invitacionesSolicitadas.assets)
+      })
+
+    }
+  }
+}
+
+
 
 $('#createCocheRC').on('click', function () {
+  $('#invitacionesTableSol').empty()
   console.log("user.assets en create coche: ", user.assets)
   const matricula = addCategory("matricula", $('#matriculaRC').val());
   const model = addCategory("modelo", $('#modelRC').val());
   const propietario = addCategory("propietario", user.owner);
   const currentDate = new Date()
   const fecha = addCategory("registrado_el", getFecha(currentDate))
-  const asset = [matricula, model, propietario, fecha]
+  console.log("invitacionesSolicitadas: ", invitacionesSolicitadas)
+  const randomInvSol = getRandomNumber(invitacionesSolicitadas.assets.length)
+  let invAddress = invitacionesSolicitadas.assets[randomInvSol]
+  invAddress = invAddress.asset.split('address:')[1]
+  eliminarInvSol(invAddress)
+  console.log('Sacamos address de inv: ', invAddress)
+  invAddress = addCategory("Invitacion", invAddress)
+  
+  const asset = [matricula, model, propietario, fecha, invAddress]
   const prefixOwner = user.owner.substring(0,16)
   console.log("asset coche: ", asset.join())
   coches.update("register", asset.join(), user.keys.private_key, user.owner, ()=>{
@@ -800,22 +883,14 @@ $('#createCocheRC').on('click', function () {
       updateUserSolicitar("update", 'assetInvitado', user.keys.private_key, user.owner, address, "Invitado",()=>{
         updateUserSolicitar("register", nuevoAsset, user.keys.private_key, user.owner, address,'Invitado', ()=>{
           user.refresh(user.address, ()=>{
-
+            mostrarMain('Invitado', user)
           })
         })
       })
     })
-    
-
-    /*getInvitation(prefixOwner).then(function(address){
-      updateInvitation('update', 'nuevoAsset', user.keys.private_key, user.owner, 'address', ()=>{
-        console.log("INVITACION: ", address, "ELIMINADA")
-      })
-
-    })*/
   })
   $('#regCoche').attr('style', 'display:none')
-  $('#mainInvitado').attr('style', '')
+  //$('#mainInvitado').attr('style', '')
   limpiaInputs()
   
 })
@@ -948,7 +1023,7 @@ const getNuevoAssetUsuario =(assetPropietario, rol)=>{
 }
 
 $('#solicitarMI').on('click', function () {
-  
+  invitacionesSolicitadas.assets = []
   //addTableInvitaciones('#invitacionesTableSI', invitaciones.assets, "solicitar")
    getRandomInvitation().then(function (randomNum) {
     getNodeapiInvitacion(randomNum).then(function(invitacion){
@@ -988,34 +1063,22 @@ $('#solicitarMI').on('click', function () {
                         updateUserSolicitar("register", assetInvitado, user.keys.private_key, user.owner, completeAddress,'Invitado', ()=>{
                          user.refresh(user.address, ()=>{
                             mostrarMain(user.rol, user)
-                         } )
+                         })
+                        })
                       })
                     })
-                  })
-                });
+                  });
                 })
               })
             })
           })
-          
-      
         })    
       })
-  /*$('#solicitarInvitacion').attr('style', '')
-  $('#mainInvitado').attr('style', '')*/
-  limpiaInputs()
+      limpiaInputs()
+    })
+  })
 })
-})
-})
-/*$('#solicitarInv').on('click', function () {
-  //var randomNum = getRandomNum(invitacionEditar.numTotal)
 
- 
-  
-  
-  
-  limpiaInputs()
-})*/
 $('#verUsuarios').on('click', function () {
 
   console.log("TODOS LOS USUARIOS REGISTRADOS: ", admin.users)
@@ -1095,8 +1158,8 @@ $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
           for (var i=0; i<addresses.length; i++){
             deleteInvitation('delete', 'asset', user.keys.private_key, user.owner, addresses[i], ()=>{
               console.log("ELIMINADA ADDRESS: ", addresses[i])
-          })
-        }
+            })
+          }
         })
       }
 
@@ -1111,29 +1174,24 @@ $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
       })
 
 
-    getAddressesCars(token).then(function(addresses){
-      console.log('entramos en getAddressesCars')
-      console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
-      for (var i=0; i<addresses.length; i++){
-        deleteCarByAddress('deleteAdmin', asset, user.keys.private_key, user.owner, addresses[i], ()=>{
-          console.log("ELIMINADA ADDRESS: ", addresses[i])
-        })
-      }
-    })
+      getAddressesCars(token).then(function(addresses){
+        console.log('entramos en getAddressesCars')
+        console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
+        for (var i=0; i<addresses.length; i++){
+          deleteCarByAddress('deleteAdmin', asset, user.keys.private_key, user.owner, addresses[i], ()=>{
+            console.log("ELIMINADA ADDRESS: ", addresses[i])
+          })
+        }
+      })
 
 
     deleteUserByAddress('deleteAdmin', asset, user.keys.private_key, user.owner, address, ()=>{
       admin.getUsers(()=>{
         addTableUsers('#visualizacion',admin.users, "eliminar")
       })
-    
-    
     })
   })
-
-    })
-
-    
+})   
 })
 
 $('#logout').on('click', function(){
@@ -1146,12 +1204,10 @@ $('#logout').on('click', function(){
   $('#regCoche').attr('style', 'display:none')
   $('#solicitarInvitacion').attr('style', 'display:none')
   $('#logout').attr('style', 'display:none')
-   $('#editarInvitacion').attr('style', 'display:none')
+  $('#editarInvitacion').attr('style', 'display:none')
+  $('#invitacionesTableSol').empty()
+  invitacionesSolicitadas.assets= []
   
 })
-/*if (user.address!== null){
-  user.refresh(user.address, ()=>{
-    mostrarMain(user.rol, user)
-  })
-}*/
+
 

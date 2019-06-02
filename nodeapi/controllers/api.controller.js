@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const atob = require('atob');
 
-exports.invitations = function (req, res, next) {
+exports.getRandomInvitation = function (req, res, next) {
 
 	fetch('http://rest-api:8008/state?address=1a733500', {
     method: 'GET',
@@ -313,3 +313,21 @@ exports.getUserCars = function(req,res, next){
 
   })
 }
+
+
+/*exports.getAssetInvitation = function(req,res, next)=>{
+  fetch('http://rest-api:8008/state?address=1a733501', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    } 
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response) {
+    return response.json();
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response){
+    
+  }
+}*/
