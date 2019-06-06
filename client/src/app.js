@@ -43,7 +43,8 @@ const {
   fillUserInvitation,
   eliminarInvitacionAdmin,
   addDataDiv,
-  addTableInvitacionesSolicitadas
+  addTableInvitacionesSolicitadas,
+  addTableCochesInvitado
 }=require('./components')
 
 // Application Object
@@ -260,11 +261,14 @@ const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
   }
   switch (rol) {
     case 'Invitado':
+      invitacionesSolicitadas.assets= []
       $('#mainInvitado').attr('style', '')
       $('#login').attr('style', 'display:none')
       $('#logout').attr('style', '')
       console.log("user y rol que le pasamos al invitado: ", user, rol)
       addDataDiv('#datosInvitado', user, rol)
+      coches.getCochesReg()
+      console.log("Coches registrados: ", coches.assets)
       getAddressesInvitationsAssigned(user.owner.substring(0,16))
       .then(function(invitacionesSolAddress){
         for (let i =0; i<invitacionesSolAddress.length; i++){
@@ -377,6 +381,33 @@ invitacionesSolicitadas.getInvitation = function(address) {
     console.log("asset recuperado: ", asset, "con address: ", address)
     console.log("assets: ", this.assets)
     addTableInvitacionesSolicitadas('#invitacionesTableSol',this.assets)
+  }) 
+}
+
+const getAllCochesUser = cb => {
+  console.log("Visualizacion data:")
+  
+  $.get(`${API_URL}/state?address=${PREFIX_CARS + user.owner}`, ({ data }) => {
+    
+    console.log("FIN Visualizacion")
+    cb(data.reduce((processed, datum) => {
+      if (datum.data !== '') {
+        const parsed = JSON.parse(atob(datum.data))
+        console.log("PARSED:", parsed)
+        processed.assets.push(parsed)
+        console.log("processed: ", processed)
+      }
+      return processed
+    }, {assets: []}))
+  })
+}
+
+coches.getCochesReg = function(){
+  getAllCochesUser((assets) =>{
+    this.assets = assets
+    if(assets.length != 0){
+      addTableCochesInvitado('#cochesRegistrados', assets)
+    }
   }) 
 }
 

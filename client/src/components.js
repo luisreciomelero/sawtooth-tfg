@@ -39,18 +39,18 @@ const addDataDiv = (parent, user, rol)=>{
   console.log("entramos en addDataDiv")
   $(parent).empty();
   if (rol == 'Usuario'){
-    $(parent).append(`<label>Nombre: ${user.nombre} \n</label>
-                    <label>DNI: ${user.dni} \n</label>
-                    <label>El usuario dispone de: ${user.numInvitaciones} invitaciones \n</label>
-                    <label>Email: ${user.email} \n</label>
-                    <label>Invitaciones a cobrar: ${user.wallet} \n</label>`)
+    $(parent).append(`<div>Nombre: ${user.nombre} \n</div>
+                    <div>DNI: ${user.dni} \n</div>
+                    <div>El usuario dispone de: ${user.numInvitaciones} invitaciones \n</div>
+                    <div>Email: ${user.email} \n</div>
+                    <div>Invitaciones a cobrar: ${user.wallet} \n</div>`)
   }
   else if(rol == 'Invitado'){
-    $(parent).append(`<label>Nombre: ${user.nombre} \n</label>
-                    <label>DNI: ${user.dni} \n</label>
-                    <label>El usuario dispone de: ${user.numInvitaciones} invitaciones \n</label>
-                    <label>Email: ${user.email} \n</label>
-                    <label>Invitaciones a pagar: ${user.wallet} \n</label>`)
+    $(parent).append(`<div>Nombre: ${user.nombre} \n</div>
+                    <div>DNI: ${user.dni} \n</div>
+                    <div>El usuario dispone de: ${user.numInvitaciones} invitaciones \n</div>
+                    <div>Email: ${user.email} \n</div>
+                    <div>Invitaciones a pagar: ${user.wallet} \n</div>`)
   }
 
 }
@@ -66,6 +66,7 @@ const addTableUsers = (parent, users, claseFila) => {
                             <th>Telefono</th>
                             <th>Rol</th>
                             <th>Clave publica</th>
+                            <th></th>
                           </tr>`)
   for(var i=0; i<users.users.length; i++){
     const usuario ={nombre:null, dni:null, telefono:null, public_key:null, rol:null}
@@ -95,12 +96,12 @@ const addTableUsers = (parent, users, claseFila) => {
     }
     console.log("usuario: ",usuario)
     $(parent).append(`<tr>
-                              <td data-asset="${userAsset.join()}">${usuario.nombre}<td>
-                              <td>${usuario.dni}<td>
-                              <td>${usuario.telefono}<td>
-                              <td>${usuario.rol}<td>
-                              <td>${usuario.public_key}<td>
-                              <button class="${clase}">${claseFila} Usuario</button>
+                              <td data-asset="${userAsset.join()}">${usuario.nombre}</td>
+                              <td>${usuario.dni}</td>
+                              <td>${usuario.telefono}</td>
+                              <td>${usuario.rol}</td>
+                              <td>${usuario.public_key}</td>
+                              <td><button class="${clase} btn"><span class="glyphicon glyphicon-trash"></span></button></td>
                               </tr>`)
   
   }
@@ -114,6 +115,7 @@ const addTableCoches = (parent, coches, claseFila) => {
                             <th>Matricula</th>
                             <th>Modelo</th>
                             <th>Propietario</th>
+                            <th></th>
                           </tr>`)
   for(var i=0; i<coches.coches.length; i++){
     const coche ={matricula:null, modelo:null, propietario:null}
@@ -134,10 +136,10 @@ const addTableCoches = (parent, coches, claseFila) => {
     }
     console.log("usuario: ",coche)
     $(parent).append(`<tr>
-                              <td data-asset="${cocheAsset.join()}">${coche.matricula}<td>
-                              <td>${coche.modelo}<td>
-                              <td>${coches.coches[i].signer}<td>
-                              <button class="${clase}">${claseFila} Coche</button>
+                              <td data-asset="${cocheAsset.join()}">${coche.matricula}</td>
+                              <td>${coche.modelo}</td>
+                              <td>${coches.coches[i].signer}</td>
+                              <td><button class="${clase} btn"><span class="glyphicon glyphicon-trash"></span></button></td>
                             </tr>`)
   
   }
@@ -180,9 +182,9 @@ const addTableInvitaciones = (parent, invitaciones, claseFila) => {
     }
     console.log("invitacion: ",invitacion)
     $(parent).append(`<tr>
-                        <td data-address="${invitacion.address}" data-asset="${invitacionAsset.join()}">${invitacion.invitacion_de}<td>
-                        <td>${invitacion.fecha}<td>
-                        <button class="${clase}">${claseFila} Invitacion</button>
+                        <td data-address="${invitacion.address}" data-asset="${invitacionAsset.join()}">${invitacion.invitacion_de}</td>
+                        <td>${invitacion.fecha}</td>
+                        <td><button class="${clase} btn"><span class="glyphicon glyphicon-trash"></span></button></td>
                         
                       </tr>`)
 
@@ -194,7 +196,7 @@ const addTableInvitaciones = (parent, invitaciones, claseFila) => {
 
 const deleteOptionAdmin = () =>{
   
-    var opciones = ["none:Selecciona Rol...","Invitado:Invitado", "Usuario:Usuario"]
+    var opciones = ["none:Select Role...","Invitado:Invitado", "Usuario:Usuario"]
   
     console.log("opciones: ", opciones)
     $("#roles").empty();
@@ -342,11 +344,11 @@ const eliminarInvitacionAdmin =(invitacionEditar, user, refresh)=>{
 const addTableInvitacionesSolicitadas = (parent, invitacionesAssets) =>{
    $(parent).empty();
    $(parent).append(`<tr>
-                        <td>Invitacion de</td>
-                        <td>Nuevo propietario</td>
-                        <td>Publicada</td>
-                        <td>Solicitada</td>
-                        <td>Valida</td>
+                        <th>Invitacion de</th>
+                        <th>Nuevo propietario</th>
+                        <th>Publicada</th>
+                        <th>Solicitada</th>
+                        <th>Valida</th>
                       <tr>`)
    
    var invitacionAdd = {invDe:null, nuevoProp:null, publicada:null, solicitada:null, valida:null}
@@ -373,8 +375,8 @@ const addTableInvitacionesSolicitadas = (parent, invitacionesAssets) =>{
       }
     }
     $(parent).append(`<tr>
-                        <td>${invitacionAdd.invDe}</td>
-                        <td>${invitacionAdd.nuevoProp}</td>
+                        <td>${invitacionAdd.invDe.substring(0,20)}</td>
+                        <td>${invitacionAdd.nuevoProp.substring(0,20)}</td>
                         <td>${invitacionAdd.publicada}</td>
                         <td>${invitacionAdd.solicitada}</td>
                         <td>${invitacionAdd.valida}</td>
@@ -389,13 +391,45 @@ const addTableInvPublicUsuario = (invitaciones, user)=>{
 
 
 
-const addTableCochesInvitado = (coches)=>{
-
+const addTableCochesInvitado = (parent, coches)=>{
+   $(parent).empty();
+   $(parent).append(`<tr>
+                        <th>Propietario</th>
+                        <th>Matricula</th>
+                        <th>Modelo</th>
+                        <th>Registrado el</th>
+                      <tr>`)
+   
+   var coche = {propietario:null, matricula:null, modelo:null, registrado:null}
+   for (let i =0; i<coches.length; i++){
+    var asset = coches[i].asset.split(',')
+    for (let j = 0; j<asset.length; j++){
+      var fields = asset[j].split(':')
+      switch(fields[0]){
+        case "matricula":
+          coche.matricula = fields[1]
+          break;
+        case "modelo":
+          coche.modelo = fields[1]
+          break;
+        case 'propietario':
+          coche.propietario = fields[1]
+          break;
+        case "registrado_el":
+          coche.registrado = fields[1]
+          break;
+      }
+    }
+    $(parent).append(`<tr>
+                        <td>${coche.propietario}</td>
+                        <td>${coche.matricula}</td>
+                        <td>${coche.modelo}</td>
+                        <td>${coche.registrado}</td>
+                      <tr>`)
+   }
 }
 
-const addTableInvSolInvitado = (invitaciones)=>{
 
-}
 
 
 module.exports = {
@@ -414,5 +448,6 @@ module.exports = {
   fillUserInvitation,
   eliminarInvitacionAdmin,
   addDataDiv,
-  addTableInvitacionesSolicitadas
+  addTableInvitacionesSolicitadas,
+  addTableCochesInvitado
 }
