@@ -11,6 +11,7 @@ router.get('/luis/car/:asset', controller.getAddressCoche)
 router.get('/luis/user/rol/:address', controller.getUserRol)
 router.get('/luis/invitations/address/:userToken', controller.getUserInvitations)
 router.get('/luis/invitationsAssigned/address/:userToken', controller.getUserInvitationsAssigned)
+router.get('/luis/invitationsAssignedCar/address/:userToken', controller.getUserInvitationsAssignedCar)
 router.get('/luis/cars/address/:userToken', controller.getUserCars)
 //router.get('/luis/invitation/asset/:address', controller.getAssetInvitation)
 

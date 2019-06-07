@@ -203,6 +203,18 @@ const getAddressesInvitationsAssigned = (prefix)=>{
           })
 } 
 
+const getAddressesInvitationsAssignedCar = (prefix)=>{
+  console.log("ENTRAMOS EN getAddressesInvitationsAssigned")
+  return fetch(`${API_NODE}/luis/invitationsAssignedCar/address/${prefix}`)
+          .then(function(response) {
+            console.log("response addresses: ", response)
+            return response.json();
+          })
+          .then(function(myJson){
+            console.log("recibimos: ", myJson.addresses)
+            return myJson.addresses
+          })
+} 
 
 module.exports = {
   makeKeyPair,
@@ -221,5 +233,7 @@ module.exports = {
   deleteInvitation,
   deleteCarByAddress,
   deleteUserByAddress,
-  getAddressesInvitationsAssigned
+  getAddressesInvitationsAssigned,
+  getAddressesInvitationsAssignedCar
+
 }

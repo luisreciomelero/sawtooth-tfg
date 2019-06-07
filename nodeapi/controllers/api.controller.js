@@ -239,6 +239,37 @@ exports.getUserInvitationsAssigned = function(req,res, next){
 
   })
 }
+exports.getUserInvitationsAssignedCar = function(req,res, next){
+  fetch('http://rest-api:8008/state?address=1a733502', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    } 
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response) {
+    return response.json();
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response){
+      const addresses = []
+      for (let i = 0; i<response.data.length; i++){
+        console.log("direccion: ", response.data[i].address)
+        const invitationAddress = response.data[i].address
+        if (invitationAddress.indexOf(req.params.userToken)>-1){
+          addresses.push(invitationAddress)
+        }
+      }
+
+      console.log("INVITACIONES: ", addresses)
+      res.status(200).send({
+        success: 'true',
+        message: 'invitation retrieved successfully',
+        addresses: addresses
+  })
+
+  })
+}
 
 exports.getUserRol = function(req, res, next){
   fetch(`http://rest-api:8008/state?address=71418301`, {

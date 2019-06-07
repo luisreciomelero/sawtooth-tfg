@@ -26,7 +26,8 @@ const {
   deleteCarByAddress,
   deleteUserByAddress,
   deleteInvitation,
-  getAddressesInvitationsAssigned
+  getAddressesInvitationsAssigned,
+  getAddressesInvitationsAssignedCar
 } = require('./state.js')
 
 const {
@@ -271,6 +272,7 @@ const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
       console.log("Coches registrados: ", coches.assets)
       getAddressesInvitationsAssigned(user.owner.substring(0,16))
       .then(function(invitacionesSolAddress){
+        console.log('invitacionesSolAddress', invitacionesSolAddress)
         for (let i =0; i<invitacionesSolAddress.length; i++){
           invitacionesSolicitadas.getInvitation(invitacionesSolAddress[i])
 
@@ -1187,6 +1189,15 @@ $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
       if(rol == 'Invitado'){
         getAddressesInvitationsAssigned(token.substring(0,16)).then(function(addresses){
           console.log('entramos')
+          console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
+          for (var i=0; i<addresses.length; i++){
+            deleteInvitation('delete', 'asset', user.keys.private_key, user.owner, addresses[i], ()=>{
+              console.log("ELIMINADA ADDRESS: ", addresses[i])
+            })
+          }
+        })
+        getAddressesInvitationsAssignedCar(token.substring(0,16)).then(function(addresses){
+          console.log('entramos en addCar')
           console.log("RECIBIMOS COMO DIRECCIONES: ", addresses)
           for (var i=0; i<addresses.length; i++){
             deleteInvitation('delete', 'asset', user.keys.private_key, user.owner, addresses[i], ()=>{
