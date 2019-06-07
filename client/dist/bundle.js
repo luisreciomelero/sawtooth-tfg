@@ -31389,10 +31389,11 @@ const getNuevoAssetCrearCoche =(assetPropietario)=>{
 
 }
 
-const eliminarInvSol = (address)=>{
+const eliminarInvSol = (address, asset)=>{
+  console.log("Asset que llega a eliminarSol: ", asset, "address: ", address)
   for (var i= 0; i<invitacionesSolicitadas.assets.length ; i++){
     if(invitacionesSolicitadas.assets[i].asset.indexOf(address)>-1){
-      updateInvitation('delete', 'nuevoAsset', user.keys.private_key, user.owner,  address, ()=>{
+      updateInvitation('createCar', asset, user.keys.private_key, user.owner,  address, ()=>{
         console.log('Eliminamos: ', address)
         console.log("inviSOlANTES: ", invitacionesSolicitadas.assets)
 
@@ -31416,9 +31417,10 @@ $('#createCocheRC').on('click', function () {
   const fecha = addCategory("registrado_el", getFecha(currentDate))
   console.log("invitacionesSolicitadas: ", invitacionesSolicitadas)
   const randomInvSol = getRandomNumber(invitacionesSolicitadas.assets.length)
-  let invAddress = invitacionesSolicitadas.assets[randomInvSol]
-  invAddress = invAddress.asset.split('address:')[1]
-  eliminarInvSol(invAddress)
+  let assetInvRandom = invitacionesSolicitadas.assets[randomInvSol]
+  let invAddress = assetInvRandom.asset.split('address:')[1]
+
+  eliminarInvSol(invAddress, assetInvRandom.asset.split(',address:')[0])
   console.log('Sacamos address de inv: ', invAddress)
   invAddress = addCategory("Invitacion", invAddress)
   
@@ -45361,7 +45363,7 @@ const addTableUsers = (parent, users, claseFila) => {
                               <td>${usuario.telefono}</td>
                               <td>${usuario.rol}</td>
                               <td>${usuario.public_key}</td>
-                              <td><button class="${clase}"><span class="glyphicon glyphicon-trash"></span></button></td>
+                              <td><button class="${clase} btn"><span class="glyphicon glyphicon-trash"></span></button></td>
                               </tr>`)
   
   }
@@ -45444,7 +45446,7 @@ const addTableInvitaciones = (parent, invitaciones, claseFila) => {
     $(parent).append(`<tr>
                         <td data-address="${invitacion.address}" data-asset="${invitacionAsset.join()}">${invitacion.invitacion_de}</td>
                         <td>${invitacion.fecha}</td>
-                        <td><button class="${clase}"><span class="glyphicon glyphicon-trash"></span></button></td>
+                        <td><button class="${clase} btn"><span class="glyphicon glyphicon-trash"></span></button></td>
                         
                       </tr>`)
 

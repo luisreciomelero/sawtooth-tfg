@@ -18,7 +18,7 @@ class InvitationsPayload(object):
 
         if not action:
             raise InvalidTransaction('Action is required')
-        if action not in ('register','delete', 'assign'):
+        if action not in ('register','delete', 'assign', 'createCar'):
             raise InvalidTransaction('Invalid action: {}'.format(action))
 
         self._action = action

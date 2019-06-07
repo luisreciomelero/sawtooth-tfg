@@ -207,6 +207,14 @@ class InvitationsTransactionHandler(TransactionHandler):
                           state=state,
                           owner= payload.owner,
                           address=payload.address)
+        elif payload.action == 'createCar':
+            _change_address_inv(asset=payload.asset,
+                          signer=signer,
+                          state=state,
+                          owner= payload.owner,
+                          address=payload.address,
+                          action = payload.action)
+
         else:
             raise InvalidTransaction('Unhandled action: {}'.format(
                 payload.action))
@@ -298,6 +306,15 @@ def _delete_by_address(state, address):
     print('DIrecciones exitosas eliminadas: ')
     print(state.delete_asset_address(address))
     state.delete_asset_address(address)
+
+def _change_address_inv(asset, signer, state, owner, address, action):
+    if state.get_assetAddress(address) is None:
+        raise InvalidTransaction(
+            'Invalid action: Asset not exists con address: {}'.format(address))
+    print('DIrecciones exitosas createCar: ')
+    print(state.set_asset_by_address(asset, signer, owner, action, address))
+    state.set_asset_by_address(asset, signer, owner, action, address)
+    state.delete_asset(address)
 
 
 

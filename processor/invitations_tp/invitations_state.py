@@ -23,7 +23,10 @@ def _get_asset_address(asset_name, owner, action):
     elif (action == "assign"):
         return  INVITATIONSCHAIN_NAMESPACE + '01' +owner+  _get_address(asset_name)[:14]
 
-
+def _get_asset_by_address(address, action):
+    if(action == "createCar"):
+        newAddress = address[0:6] + '02' + address[8:]
+        return  newAddress
 
 def _deserialize(data):
     return json.loads(data.decode('utf-8'))
@@ -66,6 +69,25 @@ class InvitationsState(object):
         
         return self._context.set_state(
             {address: state_data}, timeout=self.TIMEOUT)
+
+
+
+    def set_asset_by_address(self, asset, signer, owner, action, address):
+        
+        new_address = _get_asset_by_address(address, action)
+       
+        print("DIRECCION CREADA: ", new_address)
+        newAsset= _addAddress2Asset(asset, new_address)
+        state_data = _serialize(
+            {
+                "asset": newAsset,
+                "signer": signer
+            })
+
+        
+        return self._context.set_state(
+            {new_address: state_data}, timeout=self.TIMEOUT)
+
 
   
     def delete_asset(self, address):
