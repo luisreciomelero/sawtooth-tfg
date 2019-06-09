@@ -164,7 +164,7 @@
             <option></option>
             <option value="none" selected>Select Role...</option>
             <option value="Invitado">Invitado</option>
-            <option value="Usuario">Usuario</option>
+            <option value="Vecino">Vecino</option>
             <option value='Admin' id="AdminOp">Admin</option>
           </select>
         </div>   
@@ -203,7 +203,7 @@
 
       <div id="mainUser" style="display:none" class="col-sm-12"> 
         <div class="menu col-sm-3">
-          <h4>Usuario</h4>
+          <h4>Vecino</h4>
           <div id="datosUser"></div>
           <hr>
           <div id="publicarInvitacionMU">
@@ -260,29 +260,7 @@
         <button type="submit" id="solicitarInv">Solicitar</button>      
       </div>
 
-      <div id="editarInvitacion" style="display:none">
-        <label id="publicadaInvitacion">Publicada por: </label> 
-        <label id="fechaInvitacion">Publicada en: </label> 
-        <label id="estadoInvitacion">Estado: </label> 
-        <label id="propietarioInvitacion">Propietario: </label> 
-        <label id="validaInvitacion">Valida hasta: </label> 
-        <button type="submit" id="eliminarInvitacion">Borrar</button>
-      </div>
-
-      <div id="editarUsuario" style="display:none">
-        <label id="nombreUsuario">Nombre: </label> 
-        <label id="numeroInvitaciones">Numero de invitaciones: </label> 
-        <table id="invitacionesUsuario"/>
-        <button type="submit" id="eliminarUsuario">Dar de baja</button>
-      </div>
-
-      <div id="editarCoche" style="display:none">
-        <label id="matriculaCoche">Matricula: </label> 
-        <label id="modeloCoche">Modelo: </label> 
-        <label id="invitadoPor">Invitado por:</label>
-        <label id="accesoCoche">Acceso permitido:</label>
-        <button type="submit" id="eliminarCoche">Restringir acceso</button>
-      </div>
+      
 
 
   <script src="dist/bundle.js"></script>  
