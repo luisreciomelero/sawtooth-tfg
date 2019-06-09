@@ -38,7 +38,7 @@ const addOriginal = (parent, original_number, original_id) => {
 const addDataDiv = (parent, user, rol)=>{
   console.log("entramos en addDataDiv")
   $(parent).empty();
-  if (rol == 'Vecino'){
+  if (rol == 'Usuario'){
     $(parent).append(`<div>Nombre: ${user.nombre} \n</div>
                     <div>DNI: ${user.dni} \n</div>
                     <div>El usuario dispone de: ${user.numInvitaciones} invitaciones \n</div>
@@ -57,7 +57,7 @@ const addDataDiv = (parent, user, rol)=>{
 
 const addTableUsers = (parent, users, claseFila) => {
   $(parent).empty();
-  var clase = claseFila+'Vecino'
+  var clase = claseFila+'Usuario'
   console.log("Users que llegan al metodo: ", users)
   
   $(parent).append(`<tr id="cabecera">
@@ -196,7 +196,7 @@ const addTableInvitaciones = (parent, invitaciones, claseFila) => {
 
 const deleteOptionAdmin = () =>{
   
-    var opciones = ["none:Select Role...","Invitado:Invitado", "Vecino:Vecino"]
+    var opciones = ["none:Select Role...","Invitado:Invitado", "Usuario:Usuario"]
   
     console.log("opciones: ", opciones)
     $("#roles").empty();
@@ -263,7 +263,7 @@ const generateAddress_user = (email, psw, rol)=>{
   switch(rol){
     case 'Admin':
       return PREFIX_USER + '00' + hashUP32;
-    case 'Vecino':
+    case 'Usuario':
       return PREFIX_USER + '01' + hashUP32;
     case 'Invitado':
       return PREFIX_USER + '01' + hashUP32;

@@ -281,7 +281,7 @@ const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
         }
       })
       break;
-    case 'Vecino':
+    case 'Usuario':
       $('#mainUser').attr('style', '')
       $('#login').attr('style', 'display:none')
       $('#logout').attr('style', '')
@@ -773,7 +773,7 @@ $('#registerUser').on('click', function () {
       postUser(action,asset_admin.join(), keys.private, hashUP32, roleSelect)
   })
   }
-  else if (roleSelect == 'Vecino'){
+  else if (roleSelect == 'Usuario'){
     registro.refresh(address, ()=>{
       getAlert(user.rol, user.address)
     },()=>{
@@ -1028,7 +1028,7 @@ const getNuevoAssetUsuario =(assetPropietario, rol)=>{
   for (let i = 0; i<assetSplit.length; i++){
   var compara = ((assetSplit[i].substring(0,15)=='numInvitaciones') || (assetSplit[i].substring(0,6)=='wallet'))
 
-    if(rol=="Vecino"){
+    if(rol=="Usuario"){
       compara = (assetSplit[i].substring(0,6)=='wallet')
     }
     if (compara){
@@ -1080,12 +1080,12 @@ $('#solicitarMI').on('click', function () {
             console.log("address:", assets)
             var assetPropietario = assets[0].asset;
             console.log("ASSET NUEVO PROPIETARIO")
-            assetPropietario = getNuevoAssetUsuario(assetPropietario, "Vecino")
+            assetPropietario = getNuevoAssetUsuario(assetPropietario, "Usuario")
             getAddressBatch(propietarioAddress).then(function(address){
               var completeAddress = address;
               console.log("llega address propietario: ", address)
-              updateUserSolicitar("update", "asset", user.keys.private_key, propietario, completeAddress, "Vecino",()=>{
-                updateUserSolicitar("register", assetPropietario, user.keys.private_key, propietario, completeAddress,'Vecino', ()=>{
+              updateUserSolicitar("update", "asset", user.keys.private_key, propietario, completeAddress, "Usuario",()=>{
+                updateUserSolicitar("register", assetPropietario, user.keys.private_key, propietario, completeAddress,'Usuario', ()=>{
                   console.log("UPDATED PROPIETARIO")
                   getBatchUser(invitadoAddress,({assets})=>{
                     var assetInvitado=assets[0].asset;

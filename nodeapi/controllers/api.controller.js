@@ -295,7 +295,7 @@ exports.getUserRol = function(req, res, next){
   })
   .catch(error => console.error('Error:', error))
   .then(function(asset){
-      let rol = 'Vecino'
+      let rol = 'Usuario'
       if(asset.indexOf('rol:Invitado') > -1){
         rol = 'Invitado'
       }
