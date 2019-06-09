@@ -30814,7 +30814,7 @@ const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
         }
       })
       break;
-    case 'Usuario':
+    case 'Vecino':
       $('#mainUser').attr('style', '')
       $('#login').attr('style', 'display:none')
       $('#logout').attr('style', '')
@@ -31306,7 +31306,7 @@ $('#registerUser').on('click', function () {
       postUser(action,asset_admin.join(), keys.private, hashUP32, roleSelect)
   })
   }
-  else if (roleSelect == 'Usuario'){
+  else if (roleSelect == 'Vecino'){
     registro.refresh(address, ()=>{
       getAlert(user.rol, user.address)
     },()=>{
@@ -31561,7 +31561,7 @@ const getNuevoAssetUsuario =(assetPropietario, rol)=>{
   for (let i = 0; i<assetSplit.length; i++){
   var compara = ((assetSplit[i].substring(0,15)=='numInvitaciones') || (assetSplit[i].substring(0,6)=='wallet'))
 
-    if(rol=="Usuario"){
+    if(rol=="Vecino"){
       compara = (assetSplit[i].substring(0,6)=='wallet')
     }
     if (compara){
@@ -31613,12 +31613,12 @@ $('#solicitarMI').on('click', function () {
             console.log("address:", assets)
             var assetPropietario = assets[0].asset;
             console.log("ASSET NUEVO PROPIETARIO")
-            assetPropietario = getNuevoAssetUsuario(assetPropietario, "Usuario")
+            assetPropietario = getNuevoAssetUsuario(assetPropietario, "Vecino")
             getAddressBatch(propietarioAddress).then(function(address){
               var completeAddress = address;
               console.log("llega address propietario: ", address)
-              updateUserSolicitar("update", "asset", user.keys.private_key, propietario, completeAddress, "Usuario",()=>{
-                updateUserSolicitar("register", assetPropietario, user.keys.private_key, propietario, completeAddress,'Usuario', ()=>{
+              updateUserSolicitar("update", "asset", user.keys.private_key, propietario, completeAddress, "Vecino",()=>{
+                updateUserSolicitar("register", assetPropietario, user.keys.private_key, propietario, completeAddress,'Vecino', ()=>{
                   console.log("UPDATED PROPIETARIO")
                   getBatchUser(invitadoAddress,({assets})=>{
                     var assetInvitado=assets[0].asset;
@@ -45325,7 +45325,7 @@ const addOriginal = (parent, original_number, original_id) => {
 const addDataDiv = (parent, user, rol)=>{
   console.log("entramos en addDataDiv")
   $(parent).empty();
-  if (rol == 'Usuario'){
+  if (rol == 'Vecino'){
     $(parent).append(`<div>Nombre: ${user.nombre} \n</div>
                     <div>DNI: ${user.dni} \n</div>
                     <div>El usuario dispone de: ${user.numInvitaciones} invitaciones \n</div>
@@ -45344,7 +45344,7 @@ const addDataDiv = (parent, user, rol)=>{
 
 const addTableUsers = (parent, users, claseFila) => {
   $(parent).empty();
-  var clase = claseFila+'Usuario'
+  var clase = claseFila+'Vecino'
   console.log("Users que llegan al metodo: ", users)
   
   $(parent).append(`<tr id="cabecera">
@@ -45483,7 +45483,7 @@ const addTableInvitaciones = (parent, invitaciones, claseFila) => {
 
 const deleteOptionAdmin = () =>{
   
-    var opciones = ["none:Select Role...","Invitado:Invitado", "Usuario:Usuario"]
+    var opciones = ["none:Select Role...","Invitado:Invitado", "Vecino:Vecino"]
   
     console.log("opciones: ", opciones)
     $("#roles").empty();
@@ -45550,7 +45550,7 @@ const generateAddress_user = (email, psw, rol)=>{
   switch(rol){
     case 'Admin':
       return PREFIX_USER + '00' + hashUP32;
-    case 'Usuario':
+    case 'Vecino':
       return PREFIX_USER + '01' + hashUP32;
     case 'Invitado':
       return PREFIX_USER + '01' + hashUP32;
