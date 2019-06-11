@@ -47,7 +47,29 @@ exports.numInvitations = function (req, res, next) {
   })
 }
 
+exports.numUsers = function (req, res, next) {
 
+  fetch('http://rest-api:8008/state?address=714183', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    } 
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response) {
+    return response.json();
+  })
+  .catch(error => console.error('Error:', error))
+  .then(function(response){
+
+      res.status(200).send({
+        success: 'true',
+        message: 'invitation retrieved successfully',
+        numUsers: response.data.length
+  })
+
+  })
+}
 
 exports.getUser = function(req,res,next){
 

@@ -6,6 +6,7 @@
 'use strict'
 const API_URL = 'http://localhost:8000/api'
 const API_NODE = 'http://localhost:5000/api'
+const KEY_NAME = 'user-chain.keys'
 
 
 const {createHash} = require('crypto')
@@ -111,6 +112,18 @@ const getRandomInvitation = ()=>{
           })
           
 }
+const getNumUsers = () =>{
+  return fetch(`${API_NODE}/luis/NumUsers/`)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(myJson) {
+            console.log(myJson);
+            
+            return myJson.numUsers;
+          })
+}
+
 const getInvitation= (prefix) =>{
 
   return fetch(`${API_NODE}/luis/invitation/${prefix}`)
@@ -727,6 +740,49 @@ const getAlert = (rol, address) =>{
   }
   
 }
+const createObjectForStorage= (name, rol, email, password, public_key, private_key)=>{
+  var user = new Object();
+  var keys = new Object();
+  user.nombre = name;
+  user.rol = rol;
+  user.email = email;
+  user.psw = password;
+
+  keys.public_key = public_key;
+  keys.private_key = private_key;
+  user.keys = keys;
+  
+
+  return user;
+}
+
+const addNewUserObject = (userObject)=>{
+  getNumUsers().then(function(numUsers){
+    console.log("numero de usuarios: ", numUsers)
+    if (numUsers == 0){
+      localStorage.clear()
+      console.log("localStorage al iniciar: ", localStorage.getItem(KEY_NAME))
+      localStorage.setItem(KEY_NAME, [JSON.stringify(userObject)])
+      console.log("localStorage al guardar primer user: ", localStorage.getItem(KEY_NAME))
+
+    }
+    else{
+      if(!localStorage.getItem(KEY_NAME)){
+        localStorage.setItem(KEY_NAME, [JSON.stringify(userObject)])
+      }
+      else{
+        var users = [localStorage.getItem(KEY_NAME)]
+
+        users.push([JSON.stringify(userObject)])
+        console.log('users', users)
+        localStorage.clear()
+        localStorage.setItem(KEY_NAME, users)
+        console.log('localStorage: ', localStorage.getItem(KEY_NAME))
+      }
+    }
+  })
+  
+}
 
 $('#registerUser').on('click', function () {
   
@@ -742,19 +798,25 @@ $('#registerUser').on('click', function () {
   const psw = addCategory("psw", $('#passInputR').val());
   const hashUP16A = getHashUser($('#emailInputR').val());
   const hashUP16B = getHashUser($('#passInputR').val());
-  const hashUP32 = hashUP16A + hashUP16B
+  const owner = hashUP16A + hashUP16B
   const telefono = addCategory("telefono", $('#tfnInputR').val());
   const roleSelect = $('[name="roleSelect"]').val();
   const rol = addCategory("rol", roleSelect);
   const keys = makeKeyPair();
+  console.log('keys: ', keys)
+  var userObject = createObjectForStorage($('#nameInputR').val(), roleSelect, $('#emailInputR').val(), $('#passInputR').val(), keys.public, keys.private)
+  console.log("objeto que creamos: ", JSON.stringify(userObject))
+  addNewUserObject(userObject)
+  //localStorage.setItem(KEY_NAME, JSON.stringify(userObject));
+  //console.log('localStorage: ', localStorage.getItem(KEY_NAME))
   const private_key = addCategory("private", keys.private)
   const public_key = addCategory("public", keys.public)
   const invitaciones = addCategory("numInvitaciones", "20")
   const invitaciones_invAdm = addCategory("numInvitaciones", "0")
   const wallet = addCategory("wallet", "0")
-  const asset_admin = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, email, psw, wallet, invitaciones_invAdm]
-  const asset_user = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, email, psw, wallet, invitaciones]
-  const asset_invitado = [nombre, dni, hashUP32, telefono, rol, private_key, public_key, email, psw, wallet, invitaciones_invAdm]
+  const asset_admin = [nombre, dni, owner, telefono, rol, private_key, public_key, email, psw, wallet, invitaciones_invAdm]
+  const asset_user = [nombre, dni, owner, telefono, rol, private_key, public_key, email, psw, wallet, invitaciones]
+  const asset_invitado = [nombre, dni, owner, telefono, rol, private_key, public_key, email, psw, wallet, invitaciones_invAdm]
   
 
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
@@ -770,20 +832,20 @@ $('#registerUser').on('click', function () {
     registro.refresh(PREFIX_USER+'00', ()=>{
       getAlert(user.rol, user.address)
     },()=>{
-      postUser(action,asset_admin.join(), keys.private, hashUP32, roleSelect)
+      postUser(action,asset_admin.join(), keys.private, owner, roleSelect)
   })
   }
   else if (roleSelect == 'Vecino'){
     registro.refresh(address, ()=>{
       getAlert(user.rol, user.address)
     },()=>{
-      postUser(action,asset_user.join(), keys.private, hashUP32, roleSelect)
+      postUser(action,asset_user.join(), keys.private, owner, roleSelect)
     })
   }else{
     registro.refresh(address, ()=>{
       getAlert(user.rol, user.address)
     },()=>{
-      postUser(action,asset_invitado.join(), keys.private, hashUP32, roleSelect)
+      postUser(action,asset_invitado.join(), keys.private, owner, roleSelect)
     })
   }
   
