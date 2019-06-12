@@ -807,9 +807,9 @@ $('#registerUser').on('click', function () {
   const invitaciones = addCategory("numInvitaciones", "20")
   const invitaciones_invAdm = addCategory("numInvitaciones", "0")
   const wallet = addCategory("wallet", "0")
-  const asset_admin = [nombre, dni, owner, telefono, rol, public_key, email, psw, wallet, invitaciones_invAdm]
-  const asset_user = [nombre, dni, owner, telefono, rol, public_key, email, psw, wallet, invitaciones]
-  const asset_invitado = [nombre, dni, owner, telefono, rol, public_key, email, psw, wallet, invitaciones_invAdm]
+  const asset_admin = [nombre, dni, owner, telefono, rol, public_key, email, wallet, invitaciones_invAdm]
+  const asset_user = [nombre, dni, owner, telefono, rol, public_key, email, wallet, invitaciones]
+  const asset_invitado = [nombre, dni, owner, telefono, rol, public_key, email, wallet, invitaciones_invAdm]
   
 
   const campos = [$('#nameInputR').val(), $('#dniInputR').val(), $('#emailInputR').val(), 
