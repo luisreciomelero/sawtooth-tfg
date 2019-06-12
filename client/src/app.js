@@ -737,20 +737,10 @@ const getAlert = (rol, address) =>{
   }
   
 }
+
 const createObjectForStorage= (name, rol, email, password, public_key, private_key)=>{
-  var usuario = new Object();
-  var keys = new Object();
-  usuario.nombre = name;
-  usuario.rol = rol;
-  usuario.email = getHashUser(email);
-  usuario.psw = getHashUser(password);
-
-  keys.public_key = public_key;
-  keys.private_key = private_key;
-  usuario.keys = keys;
-  
-
-  return usuario;
+  var usuario = "nombre:"+name+","+"rol:"+rol+","+"email:"+getHashUser(email)+","+"password:"+ getHashUser(password)+","+"public_key:"+public_key+","+"private_key:"+private_key+"//";
+  return usuario
 }
 const comprobarStorageSession = ()=>{
   getNumUsers().then(function(numUsers){
@@ -766,16 +756,25 @@ const addNewUserObject = (userObject)=>{
     console.log("numero de usuarios: ", numUsers)
     
       if(!localStorage.getItem(KEY_NAME)){
-        localStorage.setItem(KEY_NAME, [JSON.stringify(userObject)])
+        var usuarios = []
+        usuarios.push(userObject)
+        
+        console.log("usuarios: ", usuarios)
+
+        localStorage.setItem(KEY_NAME, usuarios)
+        console.log('localStorage: ', localStorage.getItem(KEY_NAME))
       }
       else{
-        var users = [localStorage.getItem(KEY_NAME)]
-
-        users.push([JSON.stringify(userObject)])
+        
+        var users = localStorage.getItem(KEY_NAME)
+        users = users + userObject;
         console.log('users', users)
+      
+
         localStorage.clear()
         localStorage.setItem(KEY_NAME, users)
         console.log('localStorage: ', localStorage.getItem(KEY_NAME))
+
       
     }
   })
@@ -803,11 +802,7 @@ $('#registerUser').on('click', function () {
   const keys = makeKeyPair();
   console.log('keys: ', keys)
   var userObject = createObjectForStorage($('#nameInputR').val(), roleSelect, $('#emailInputR').val(), $('#passInputR').val(), keys.public, keys.private)
-  console.log("objeto que creamos: ", JSON.stringify(userObject))
   
-  //localStorage.setItem(KEY_NAME, JSON.stringify(userObject));
-  //console.log('localStorage: ', localStorage.getItem(KEY_NAME))
-  //const private_key = addCategory("private", keys.private)
   const public_key = addCategory("public", keys.public)
   const invitaciones = addCategory("numInvitaciones", "20")
   const invitaciones_invAdm = addCategory("numInvitaciones", "0")
@@ -876,6 +871,7 @@ $('#loginAdmin').on('click', function () {
   const hashEmail = getHashUser($('#mailInputL').val());
   const hashPsw = getHashUser( $('#passInputL').val());
   const hashUP32 = hashEmail+hashPsw
+  getKeys(hashEmail,hashPsw)
   const address = PREFIX_USER +'00'+ hashUP32;
   console.log("ADDRESS")
   user.owner = hashUP32
@@ -886,18 +882,29 @@ $('#loginAdmin').on('click', function () {
   limpiaInputs()
 })
 
-const getKeys =(hashEmail, hashPsw)=>{
-  var usuarios =[localStorage.getItem(KEY_NAME)] 
-  for (let i=0; i<usuarios.length;i++){
-    var usuario = JSON.parse(usuarios[i])
-    console.log("usuario: ", usuario)
-    console.log("email llega: ", hashEmail)
-    console.log("pass llega: ", hashPsw)
 
-    if(usuario.email == hashEmail && usuario.psw== hashPsw){
-      console.log("Se cumplen las condiciones")
-      user.keys.private_key = usuario.keys.private_key;
+const getKeys =(hashEmail, hashPsw)=>{
+  console.log('Entro en getKeys')
+  var usuarios =localStorage.getItem(KEY_NAME)
+  console.log("usuarios: ", usuarios)
+  usuarios = usuarios.split('//')
+  console.log('email:'+hashEmail+',password:'+hashPsw)
+  for (let i=0; i<usuarios.length;i++){
+    var usuario = usuarios[i]
+
+    if(usuario.indexOf('email:'+hashEmail+',password:'+hashPsw)>-1){
+      var fields = usuario.split(',')
+      for (let j =0; j<fields.length; j++){
+        var field = fields[j].split(':');
+        switch (field[0]){
+          case 'private_key':
+            user.keys.private_key = field[1];
+            break
+        }
+      }
     }
+
+    
   }
 }
 
@@ -1119,6 +1126,7 @@ const getNuevoAssetInvitacion=(invitationSplit)=>{
     console.log("Asset nuevo: ", nuevoAsset.join())
     return nuevoAsset.join()
 }
+
 const getNuevoAssetUsuario =(assetPropietario, rol)=>{
   var assetSplit = assetPropietario.split(',')
   var nuevoAsset = []
