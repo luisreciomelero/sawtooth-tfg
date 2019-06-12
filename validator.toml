@@ -124,3 +124,5 @@ maximum_peer_connectivity = 10
 [permissions]
 transactor = "policy.toml"
 "transactor.transaction_signer.user-tp" = "policy.toml"
+"transactor.transaction_signer.cars-tp" = "policy.toml"
+"transactor.transaction_signer.invitations-tp" = "policy.toml"

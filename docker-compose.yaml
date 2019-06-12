@@ -197,9 +197,6 @@ services:
       - '4004:4004'
     command: |
       bash -c "
-        apt-get update
-        apt-get install vim
-        echo Y
         if [ ! -f /etc/sawtooth/keys/validator.priv ]; then
           sawadm keygen
           sawtooth keygen my_key
