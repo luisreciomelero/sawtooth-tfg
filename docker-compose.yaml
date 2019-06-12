@@ -188,17 +188,26 @@ services:
   validator:
     image: hyperledger/sawtooth-validator:1.0
     container_name: sawtooth-validator
+    volumes:
+      - ./validator.toml:/etc/sawtooth/validator.toml
+      - ./policy.toml:/etc/sawtooth/policy/policy.toml
     expose:
       - 4004
     ports:
       - '4004:4004'
     command: |
       bash -c "
+        apt-get update
+        apt-get install vim
+        echo Y
         if [ ! -f /etc/sawtooth/keys/validator.priv ]; then
           sawadm keygen
           sawtooth keygen my_key
           sawset genesis -k /root/.sawtooth/keys/my_key.priv
           sawadm genesis config-genesis.batch
+        fi;
+        if [ ! -d /etc/sawtooth/policy ]; then
+          mkdir /etc/sawtooth/policy
         fi;
         sawtooth-validator -vv \
           --endpoint tcp://validator:8800 \
