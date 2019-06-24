@@ -278,7 +278,7 @@ const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
       $('#logout').attr('style', '')
       console.log("user y rol que le pasamos al invitado: ", user, rol)
       addDataDiv('#datosInvitado', user, rol)
-      coches.getCochesReg()
+      
       console.log("Coches registrados: ", coches.assets)
       getAddressesInvitationsAssigned(user.owner.substring(0,16))
       .then(function(invitacionesSolAddress){
@@ -392,7 +392,7 @@ invitacionesSolicitadas.getInvitation = function(address) {
     this.assets.push(asset[0])
     console.log("asset recuperado: ", asset, "con address: ", address)
     console.log("assets: ", this.assets)
-    addTableInvitacionesSolicitadas('#invitacionesTableSol',this.assets)
+    addTableInvitacionesSolicitadas('#visualizacionInvitado',this.assets)
   }) 
 }
 
@@ -414,14 +414,13 @@ const getAllCochesUser = cb => {
   })
 }
 
-coches.getCochesReg = function(){
+coches.getCochesReg = function(addTableCochesInvitado){
   getAllCochesUser((assets) =>{
     this.assets = assets
-    if(assets.length != 0){
-      addTableCochesInvitado('#cochesRegistrados', assets)
-    }
+    addTableCochesInvitado()
   }) 
 }
+
 
 
 
@@ -992,7 +991,7 @@ const eliminarInvSol = (address, asset)=>{
 
 $('#createCocheRC').on('click', function () {
   comprobarPrivateKey()
-  $('#invitacionesTableSol').empty()
+  $('#visualizacionInvitado').empty()
   console.log("user.assets en create coche: ", user.assets)
   const matricula = addCategory("matricula", $('#matriculaRC').val());
   const model = addCategory("modelo", $('#modelRC').val());
@@ -1169,17 +1168,17 @@ $('#solicitarMI').on('click', function () {
    getRandomInvitation().then(function (randomNum) {
     getNodeapiInvitacion(randomNum).then(function(invitacion){
       console.log("llega invitacion: ", invitacion)
-      var data = JSON.parse(atob(invitacion.data))
+        var data = JSON.parse(atob(invitacion.data))
       console.log("data: ", data)
-      var invitationSplit = data.asset.split(',');
-      var nuevoAsset = getNuevoAssetInvitacion(invitationSplit)
+        var invitationSplit = data.asset.split(',');
+        var nuevoAsset = getNuevoAssetInvitacion(invitationSplit)
       console.log("nuevo asset devuelto: ", nuevoAsset)
-      const propietarioInv = invitacion.address.substring(8,40)+user.owner.substring(0,16)
-      const propietario = invitacion.address.substring(8,40)
-      const propietarioAddress =  PREFIX_USER+'01'+ propietario 
+        const propietarioInv = invitacion.address.substring(8,40)+user.owner.substring(0,16)
+        const propietario = invitacion.address.substring(8,40)
+        const propietarioAddress =  PREFIX_USER+'01'+ propietario 
       console.log("PROPIETARIO.ADDRESS: ", propietario)
       console.log("USER.ADDRESS: ", user.address)
-      const invitadoAddress = PREFIX_USER+'01'+user.address.substring(8,40)
+        const invitadoAddress = PREFIX_USER+'01'+user.address.substring(8,40)
       updateInvitation('delete', nuevoAsset, user.keys.private_key, user.owner, invitacion.address, ()=>{
         updateInvitation("assign", nuevoAsset, user.keys.private_key, propietarioInv , invitacion.address, ()=>{
           getBatchUser(propietarioAddress, ({ assets }) => {
@@ -1346,6 +1345,28 @@ $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
     })
   })
 })   
+})
+
+$('#volverRC').on('click', function(){
+  $('#regCoche').attr('style', 'display:none')
+  $('#mainInvitado').attr('style', '')
+})
+
+$('#verCochesInv').on('click', function(){
+  coches.getCochesReg(()=>{
+    addTableCochesInvitado('#visualizacionInvitado', coches.assets)
+  })
+})
+
+$('#verInvitacionesInv').on('click', function(){
+  $('#visualizacionInvitado').empty()
+  invitacionesSolicitadas.assets = []
+  getAddressesInvitationsAssigned(user.owner.substring(0,16))
+      .then(function(invitacionesSolAddress){
+        console.log('invitacionesSolAddress', invitacionesSolAddress)
+        for (let i =0; i<invitacionesSolAddress.length; i++){
+          invitacionesSolicitadas.getInvitation(invitacionesSolAddress[i])}
+        }) 
 })
 
 $('#logout').on('click', function(){

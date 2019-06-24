@@ -393,16 +393,18 @@ const addTableInvPublicUsuario = (invitaciones, user)=>{
 
 const addTableCochesInvitado = (parent, coches)=>{
    $(parent).empty();
+   console.log("coches que llegan: ", coches)
    $(parent).append(`<tr>
                         <th>Propietario</th>
                         <th>Matricula</th>
                         <th>Modelo</th>
                         <th>Registrado el</th>
+                        <th>Con invitacion</th>
                       <tr>`)
    
-   var coche = {propietario:null, matricula:null, modelo:null, registrado:null}
-   for (let i =0; i<coches.length; i++){
-    var asset = coches[i].asset.split(',')
+   var coche = {propietario:null, matricula:null, modelo:null, registrado:null, invitacion:null}
+   for (let i =0; i<coches.assets.length; i++){
+    var asset = coches.assets[i].asset.split(',')
     for (let j = 0; j<asset.length; j++){
       var fields = asset[j].split(':')
       switch(fields[0]){
@@ -418,6 +420,8 @@ const addTableCochesInvitado = (parent, coches)=>{
         case "registrado_el":
           coche.registrado = fields[1]
           break;
+        case "Invitacion":
+          coche.invitacion = fields[1]
       }
     }
     $(parent).append(`<tr>
@@ -425,6 +429,7 @@ const addTableCochesInvitado = (parent, coches)=>{
                         <td>${coche.matricula}</td>
                         <td>${coche.modelo}</td>
                         <td>${coche.registrado}</td>
+                        <td>${coche.invitacion}</td>
                       <tr>`)
    }
 }

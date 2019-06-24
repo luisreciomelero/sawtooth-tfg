@@ -5409,9 +5409,9 @@ var roots = __webpack_require__(94);
 var Type, // cyclic
     Enum;
 
-util.codegen = __webpack_require__(205);
-util.fetch   = __webpack_require__(206);
-util.path    = __webpack_require__(207);
+util.codegen = __webpack_require__(204);
+util.fetch   = __webpack_require__(205);
+util.path    = __webpack_require__(206);
 
 /**
  * Node's fs module if available.
@@ -6125,25 +6125,25 @@ var util = exports;
 util.asPromise = __webpack_require__(91);
 
 // converts to / from base64 encoded strings
-util.base64 = __webpack_require__(196);
+util.base64 = __webpack_require__(195);
 
 // base class of rpc.Service
-util.EventEmitter = __webpack_require__(197);
+util.EventEmitter = __webpack_require__(196);
 
 // float handling accross browsers
-util.float = __webpack_require__(198);
+util.float = __webpack_require__(197);
 
 // requires modules optionally and hides the call from bundlers
 util.inquire = __webpack_require__(92);
 
 // converts to / from utf8 encoded strings
-util.utf8 = __webpack_require__(199);
+util.utf8 = __webpack_require__(198);
 
 // provides a node-like buffer pool in the browser
-util.pool = __webpack_require__(200);
+util.pool = __webpack_require__(199);
 
 // utility to work with the low and high bits of a 64 bit value
-util.LongBits = __webpack_require__(201);
+util.LongBits = __webpack_require__(200);
 
 // global object reference
 util.global = typeof window !== "undefined" && window
@@ -8178,8 +8178,8 @@ asn1.bignum = __webpack_require__(2);
 asn1.define = __webpack_require__(172).define;
 asn1.base = __webpack_require__(24);
 asn1.constants = __webpack_require__(83);
-asn1.decoders = __webpack_require__(178);
-asn1.encoders = __webpack_require__(180);
+asn1.decoders = __webpack_require__(177);
+asn1.encoders = __webpack_require__(179);
 
 
 /***/ }),
@@ -8188,10 +8188,10 @@ asn1.encoders = __webpack_require__(180);
 
 var base = exports;
 
-base.Reporter = __webpack_require__(175).Reporter;
+base.Reporter = __webpack_require__(174).Reporter;
 base.DecoderBuffer = __webpack_require__(82).DecoderBuffer;
 base.EncoderBuffer = __webpack_require__(82).EncoderBuffer;
-base.Node = __webpack_require__(176);
+base.Node = __webpack_require__(175);
 
 
 /***/ }),
@@ -8684,9 +8684,9 @@ exports.Sign = sign.Sign
 exports.createVerify = sign.createVerify
 exports.Verify = sign.Verify
 
-exports.createECDH = __webpack_require__(186)
+exports.createECDH = __webpack_require__(185)
 
-var publicEncrypt = __webpack_require__(187)
+var publicEncrypt = __webpack_require__(186)
 
 exports.publicEncrypt = publicEncrypt.publicEncrypt
 exports.privateEncrypt = publicEncrypt.privateEncrypt
@@ -8706,7 +8706,7 @@ exports.privateDecrypt = publicEncrypt.privateDecrypt
 //   }
 // })
 
-var rf = __webpack_require__(190)
+var rf = __webpack_require__(189)
 
 exports.randomFill = rf.randomFill
 exports.randomFillSync = rf.randomFillSync
@@ -9095,8 +9095,8 @@ curve.edwards = __webpack_require__(155);
 /***/ (function(module, exports, __webpack_require__) {
 
 var asn1 = __webpack_require__(171)
-var aesid = __webpack_require__(183)
-var fixProc = __webpack_require__(184)
+var aesid = __webpack_require__(182)
+var fixProc = __webpack_require__(183)
 var ciphers = __webpack_require__(42)
 var compat = __webpack_require__(66)
 var Buffer = __webpack_require__(0).Buffer
@@ -11484,7 +11484,7 @@ hash.ripemd160 = hash.ripemd.ripemd160;
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
- * jQuery JavaScript Library v3.4.0
+ * jQuery JavaScript Library v3.4.1
  * https://jquery.com/
  *
  * Includes Sizzle.js
@@ -11494,7 +11494,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
  * Released under the MIT license
  * https://jquery.org/license
  *
- * Date: 2019-04-10T19:48Z
+ * Date: 2019-05-01T21:04Z
  */
 ( function( global, factory ) {
 
@@ -11627,7 +11627,7 @@ function toType( obj ) {
 
 
 var
-	version = "3.4.0",
+	version = "3.4.1",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -15983,8 +15983,12 @@ var documentElement = document.documentElement;
 		},
 		composed = { composed: true };
 
+	// Support: IE 9 - 11+, Edge 12 - 18+, iOS 10.0 - 10.2 only
 	// Check attachment across shadow DOM boundaries when possible (gh-3504)
-	if ( documentElement.attachShadow ) {
+	// Support: iOS 10.0-10.2 only
+	// Early iOS 10 versions support `attachShadow` but not `getRootNode`,
+	// leading to errors. We need to check for `getRootNode`.
+	if ( documentElement.getRootNode ) {
 		isAttached = function( elem ) {
 			return jQuery.contains( elem.ownerDocument, elem ) ||
 				elem.getRootNode( composed ) === elem.ownerDocument;
@@ -16844,8 +16848,7 @@ jQuery.event = {
 
 				// Claim the first handler
 				if ( rcheckableType.test( el.type ) &&
-					el.click && nodeName( el, "input" ) &&
-					dataPriv.get( el, "click" ) === undefined ) {
+					el.click && nodeName( el, "input" ) ) {
 
 					// dataPriv.set( el, "click", ... )
 					leverageNative( el, "click", returnTrue );
@@ -16862,8 +16865,7 @@ jQuery.event = {
 
 				// Force setup before triggering a click
 				if ( rcheckableType.test( el.type ) &&
-					el.click && nodeName( el, "input" ) &&
-					dataPriv.get( el, "click" ) === undefined ) {
+					el.click && nodeName( el, "input" ) ) {
 
 					leverageNative( el, "click" );
 				}
@@ -16904,7 +16906,9 @@ function leverageNative( el, type, expectSync ) {
 
 	// Missing expectSync indicates a trigger call, which must force setup through jQuery.event.add
 	if ( !expectSync ) {
-		jQuery.event.add( el, type, returnTrue );
+		if ( dataPriv.get( el, type ) === undefined ) {
+			jQuery.event.add( el, type, returnTrue );
+		}
 		return;
 	}
 
@@ -16919,9 +16923,13 @@ function leverageNative( el, type, expectSync ) {
 			if ( ( event.isTrigger & 1 ) && this[ type ] ) {
 
 				// Interrupt processing of the outer synthetic .trigger()ed event
-				if ( !saved ) {
+				// Saved data should be false in such cases, but might be a leftover capture object
+				// from an async native handler (gh-4350)
+				if ( !saved.length ) {
 
 					// Store arguments for use when handling the inner native event
+					// There will always be at least one argument (an event object), so this array
+					// will not be confused with a leftover capture object.
 					saved = slice.call( arguments );
 					dataPriv.set( this, type, saved );
 
@@ -16934,14 +16942,14 @@ function leverageNative( el, type, expectSync ) {
 					if ( saved !== result || notAsync ) {
 						dataPriv.set( this, type, false );
 					} else {
-						result = undefined;
+						result = {};
 					}
 					if ( saved !== result ) {
 
 						// Cancel the outer synthetic event
 						event.stopImmediatePropagation();
 						event.preventDefault();
-						return result;
+						return result.value;
 					}
 
 				// If this is an inner synthetic event for an event with a bubbling surrogate
@@ -16956,17 +16964,19 @@ function leverageNative( el, type, expectSync ) {
 
 			// If this is a native event triggered above, everything is now in order
 			// Fire an inner synthetic event with the original arguments
-			} else if ( saved ) {
+			} else if ( saved.length ) {
 
 				// ...and capture the result
-				dataPriv.set( this, type, jQuery.event.trigger(
+				dataPriv.set( this, type, {
+					value: jQuery.event.trigger(
 
-					// Support: IE <=9 - 11+
-					// Extend with the prototype to reset the above stopImmediatePropagation()
-					jQuery.extend( saved.shift(), jQuery.Event.prototype ),
-					saved,
-					this
-				) );
+						// Support: IE <=9 - 11+
+						// Extend with the prototype to reset the above stopImmediatePropagation()
+						jQuery.extend( saved[ 0 ], jQuery.Event.prototype ),
+						saved.slice( 1 ),
+						this
+					)
+				} );
 
 				// Abort handling of the native event
 				event.stopImmediatePropagation();
@@ -27861,7 +27871,7 @@ constants._reverse = function reverse(map) {
   return res;
 };
 
-constants.der = __webpack_require__(177);
+constants.der = __webpack_require__(176);
 
 
 /***/ }),
@@ -28569,11 +28579,11 @@ module.exports = withPublic
 
 const $ = __webpack_require__(46)
 const {createHash} = __webpack_require__(26)
-const protobuf = __webpack_require__(191)
+const protobuf = __webpack_require__(190)
 const {
   createContext,
   Signer
-} = __webpack_require__(211)
+} = __webpack_require__(210)
 const secp256k1 = __webpack_require__(102)
 
 // Config variables
@@ -28928,7 +28938,7 @@ var rpc = exports;
  * @returns {undefined}
  */
 
-rpc.Service = __webpack_require__(204);
+rpc.Service = __webpack_require__(203);
 
 
 /***/ }),
@@ -30397,7 +30407,7 @@ module.exports = {
 
 
 
-const secp256k1 = __webpack_require__(212)
+const secp256k1 = __webpack_require__(211)
 const { createHash, randomBytes } = __webpack_require__(26)
 
 const { PrivateKey, PublicKey, Context, ParseError } = __webpack_require__(101)
@@ -30580,7 +30590,7 @@ const {
   addDataDiv,
   addTableInvitacionesSolicitadas,
   addTableCochesInvitado
-}=__webpack_require__(218)
+}=__webpack_require__(217)
 
 // Application Object
 
@@ -30811,7 +30821,7 @@ const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
       $('#logout').attr('style', '')
       console.log("user y rol que le pasamos al invitado: ", user, rol)
       addDataDiv('#datosInvitado', user, rol)
-      coches.getCochesReg()
+      
       console.log("Coches registrados: ", coches.assets)
       getAddressesInvitationsAssigned(user.owner.substring(0,16))
       .then(function(invitacionesSolAddress){
@@ -30925,7 +30935,7 @@ invitacionesSolicitadas.getInvitation = function(address) {
     this.assets.push(asset[0])
     console.log("asset recuperado: ", asset, "con address: ", address)
     console.log("assets: ", this.assets)
-    addTableInvitacionesSolicitadas('#invitacionesTableSol',this.assets)
+    addTableInvitacionesSolicitadas('#visualizacionInvitado',this.assets)
   }) 
 }
 
@@ -30947,14 +30957,13 @@ const getAllCochesUser = cb => {
   })
 }
 
-coches.getCochesReg = function(){
+coches.getCochesReg = function(addTableCochesInvitado){
   getAllCochesUser((assets) =>{
     this.assets = assets
-    if(assets.length != 0){
-      addTableCochesInvitado('#cochesRegistrados', assets)
-    }
+    addTableCochesInvitado()
   }) 
 }
+
 
 
 
@@ -31525,7 +31534,7 @@ const eliminarInvSol = (address, asset)=>{
 
 $('#createCocheRC').on('click', function () {
   comprobarPrivateKey()
-  $('#invitacionesTableSol').empty()
+  $('#visualizacionInvitado').empty()
   console.log("user.assets en create coche: ", user.assets)
   const matricula = addCategory("matricula", $('#matriculaRC').val());
   const model = addCategory("modelo", $('#modelRC').val());
@@ -31702,17 +31711,17 @@ $('#solicitarMI').on('click', function () {
    getRandomInvitation().then(function (randomNum) {
     getNodeapiInvitacion(randomNum).then(function(invitacion){
       console.log("llega invitacion: ", invitacion)
-      var data = JSON.parse(atob(invitacion.data))
+        var data = JSON.parse(atob(invitacion.data))
       console.log("data: ", data)
-      var invitationSplit = data.asset.split(',');
-      var nuevoAsset = getNuevoAssetInvitacion(invitationSplit)
+        var invitationSplit = data.asset.split(',');
+        var nuevoAsset = getNuevoAssetInvitacion(invitationSplit)
       console.log("nuevo asset devuelto: ", nuevoAsset)
-      const propietarioInv = invitacion.address.substring(8,40)+user.owner.substring(0,16)
-      const propietario = invitacion.address.substring(8,40)
-      const propietarioAddress =  PREFIX_USER+'01'+ propietario 
+        const propietarioInv = invitacion.address.substring(8,40)+user.owner.substring(0,16)
+        const propietario = invitacion.address.substring(8,40)
+        const propietarioAddress =  PREFIX_USER+'01'+ propietario 
       console.log("PROPIETARIO.ADDRESS: ", propietario)
       console.log("USER.ADDRESS: ", user.address)
-      const invitadoAddress = PREFIX_USER+'01'+user.address.substring(8,40)
+        const invitadoAddress = PREFIX_USER+'01'+user.address.substring(8,40)
       updateInvitation('delete', nuevoAsset, user.keys.private_key, user.owner, invitacion.address, ()=>{
         updateInvitation("assign", nuevoAsset, user.keys.private_key, propietarioInv , invitacion.address, ()=>{
           getBatchUser(propietarioAddress, ({ assets }) => {
@@ -31879,6 +31888,28 @@ $('#visualizacion').on('click', '.eliminarUsuario' ,function(){
     })
   })
 })   
+})
+
+$('#volverRC').on('click', function(){
+  $('#regCoche').attr('style', 'display:none')
+  $('#mainInvitado').attr('style', '')
+})
+
+$('#verCochesInv').on('click', function(){
+  coches.getCochesReg(()=>{
+    addTableCochesInvitado('#visualizacionInvitado', coches.assets)
+  })
+})
+
+$('#verInvitacionesInv').on('click', function(){
+  $('#visualizacionInvitado').empty()
+  invitacionesSolicitadas.assets = []
+  getAddressesInvitationsAssigned(user.owner.substring(0,16))
+      .then(function(invitacionesSolAddress){
+        console.log('invitacionesSolAddress', invitacionesSolAddress)
+        for (let i =0; i<invitacionesSolAddress.length; i++){
+          invitacionesSolicitadas.getInvitation(invitacionesSolAddress[i])}
+        }) 
 })
 
 $('#logout').on('click', function(){
@@ -34807,7 +34838,7 @@ function formatReturnValue(bn, enc) {
 var stream = __webpack_require__(34)
 var inherits = __webpack_require__(1)
 var sign = __webpack_require__(149)
-var verify = __webpack_require__(185)
+var verify = __webpack_require__(184)
 
 var algorithms = __webpack_require__(65)
 Object.keys(algorithms).forEach(function (key) {
@@ -35053,7 +35084,7 @@ module.exports.makeKey = makeKey
 /* 150 */
 /***/ (function(module, exports) {
 
-module.exports = {"_args":[[{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"/project/sawtooth-invitations/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.2.3 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.2.3","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.2.3","spec":">=6.2.3 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.2.3","_where":"/project/sawtooth-invitations/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
+module.exports = {"_args":[[{"raw":"elliptic@^6.4.1","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.4.1","spec":">=6.4.1 <7.0.0","type":"range"},"/project/sawtooth-cars/client/node_modules/secp256k1"]],"_from":"elliptic@>=6.4.1 <7.0.0","_id":"elliptic@6.4.1","_inCache":true,"_location":"/elliptic","_nodeVersion":"10.5.0","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/elliptic_6.4.1_1533787091502_0.6309761823717674"},"_npmUser":{"name":"indutny","email":"fedor@indutny.com"},"_npmVersion":"6.3.0","_phantomChildren":{},"_requested":{"raw":"elliptic@^6.4.1","scope":null,"escapedName":"elliptic","name":"elliptic","rawSpec":"^6.4.1","spec":">=6.4.1 <7.0.0","type":"range"},"_requiredBy":["/browserify-sign","/create-ecdh","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_shrinkwrap":null,"_spec":"elliptic@^6.4.1","_where":"/project/sawtooth-cars/client/node_modules/secp256k1","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"directories":{},"dist":{"integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","tarball":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","fileCount":17,"unpackedSize":118371,"npm-signature":"-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJba7vUCRA9TVsSAnZWagAA+gcP/jWaj5GmDZ0YFi/X4g5O\nx+pxu9i3HbP9YqywT7rz3XFXSaytu0LQDeDEbddl523X69tsbKfzHRTcnW8n\n2r0VjPhttRm+0RpEhBwjSIK34VkQA1xIWh2ugOToKXVCFVLM5VFDPGzbiN6x\n/hpL7gj1hoCRVmuhjnqFQ+vPKACKfv1Eq4CsRmu2focmP37kQpWQlweD/z4V\nJF4NxA33Fvp13Fl+9g4sPHyhUVsW9ojVaG3Ijn70pCaGQM18UPlbODkWQ1QX\nAgteOFjkIOtcalJk3B3qsM8GZeHEcAFvt2T73miJkHdCGNmRQS45Ede+gnj0\nlLlZJsCCKUHtTqrlprHo6AgMnBZufmytyozYAHC1/JYniazSBi2yPHtQeniR\nl69BfiRBdD2rNrMPwmCNRkMqrgel5WMGpaD0xdaFAHF1Ru2ZQFKsA7KvPGgp\nA20+LN11cCib67Pg5XDyrZ92T3yXec+6gQ3iq9d9UBZKFGl0P8ebVqq1LrUJ\na6nekwMpRISWnKcqV72XVmQdBmUWHq9VfVLsWJzVIJqtpHmUO7q74ACP3i4W\n0/F1REeI0YEhh3NjeStdDecfjlu7PY0pLQpbk2I3ms+6DO+cAfeDEev5jFBK\nwQabRNhITeT1FVtxZAcApj33fnCdqwaWr1NS00K5ZRqhDTTzPr/O4KRN4CR1\npstU\r\n=UVBB\r\n-----END PGP SIGNATURE-----\r\n"},"files":["lib"],"gitHead":"523da1cf71ddcfd607fbdee1858bc2af47f0e700","homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","maintainers":[{"name":"indutny","email":"fedor@indutny.com"}],"name":"elliptic","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"}
 
 /***/ }),
 /* 151 */
@@ -39461,7 +39492,7 @@ module.exports = Signature;
 
 var asn1 = __webpack_require__(23)
 
-exports.certificate = __webpack_require__(182)
+exports.certificate = __webpack_require__(181)
 
 var RSAPrivateKey = asn1.define('RSAPrivateKey', function () {
   this.seq().obj(
@@ -39648,10 +39679,15 @@ Entity.prototype.encode = function encode(data, enc, /* internal */ reporter) {
 
 /***/ }),
 /* 173 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-var indexOf = __webpack_require__(174);
-
+var indexOf = function (xs, item) {
+    if (xs.indexOf) return xs.indexOf(item);
+    else for (var i = 0; i < xs.length; i++) {
+        if (xs[i] === item) return i;
+    }
+    return -1;
+};
 var Object_keys = function (obj) {
     if (Object.keys) return Object.keys(obj)
     else {
@@ -39761,9 +39797,11 @@ Script.prototype.runInNewContext = function (context) {
     var ctx = Script.createContext(context);
     var res = this.runInContext(ctx);
 
-    forEach(Object_keys(ctx), function (key) {
-        context[key] = ctx[key];
-    });
+    if (context) {
+        forEach(Object_keys(ctx), function (key) {
+            context[key] = ctx[key];
+        });
+    }
 
     return res;
 };
@@ -39774,6 +39812,10 @@ forEach(Object_keys(Script.prototype), function (name) {
         return s[name].apply(s, [].slice.call(arguments, 1));
     };
 });
+
+exports.isContext = function (context) {
+    return context instanceof Context;
+};
 
 exports.createScript = function (code) {
     return exports.Script(code);
@@ -39792,21 +39834,6 @@ exports.createContext = Script.createContext = function (context) {
 
 /***/ }),
 /* 174 */
-/***/ (function(module, exports) {
-
-
-var indexOf = [].indexOf;
-
-module.exports = function(arr, obj){
-  if (indexOf) return arr.indexOf(obj);
-  for (var i = 0; i < arr.length; ++i) {
-    if (arr[i] === obj) return i;
-  }
-  return -1;
-};
-
-/***/ }),
-/* 175 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(1);
@@ -39933,7 +39960,7 @@ ReporterError.prototype.rethrow = function rethrow(msg) {
 
 
 /***/ }),
-/* 176 */
+/* 175 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Reporter = __webpack_require__(24).Reporter;
@@ -40573,7 +40600,7 @@ Node.prototype._isPrintstr = function isPrintstr(str) {
 
 
 /***/ }),
-/* 177 */
+/* 176 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var constants = __webpack_require__(83);
@@ -40621,17 +40648,17 @@ exports.tagByName = constants._reverse(exports.tag);
 
 
 /***/ }),
-/* 178 */
+/* 177 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var decoders = exports;
 
 decoders.der = __webpack_require__(84);
-decoders.pem = __webpack_require__(179);
+decoders.pem = __webpack_require__(178);
 
 
 /***/ }),
-/* 179 */
+/* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(1);
@@ -40686,17 +40713,17 @@ PEMDecoder.prototype.decode = function decode(data, options) {
 
 
 /***/ }),
-/* 180 */
+/* 179 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var encoders = exports;
 
 encoders.der = __webpack_require__(85);
-encoders.pem = __webpack_require__(181);
+encoders.pem = __webpack_require__(180);
 
 
 /***/ }),
-/* 181 */
+/* 180 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits = __webpack_require__(1);
@@ -40723,7 +40750,7 @@ PEMEncoder.prototype.encode = function encode(data, options) {
 
 
 /***/ }),
-/* 182 */
+/* 181 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40819,13 +40846,13 @@ module.exports = X509Certificate
 
 
 /***/ }),
-/* 183 */
+/* 182 */
 /***/ (function(module, exports) {
 
 module.exports = {"2.16.840.1.101.3.4.1.1":"aes-128-ecb","2.16.840.1.101.3.4.1.2":"aes-128-cbc","2.16.840.1.101.3.4.1.3":"aes-128-ofb","2.16.840.1.101.3.4.1.4":"aes-128-cfb","2.16.840.1.101.3.4.1.21":"aes-192-ecb","2.16.840.1.101.3.4.1.22":"aes-192-cbc","2.16.840.1.101.3.4.1.23":"aes-192-ofb","2.16.840.1.101.3.4.1.24":"aes-192-cfb","2.16.840.1.101.3.4.1.41":"aes-256-ecb","2.16.840.1.101.3.4.1.42":"aes-256-cbc","2.16.840.1.101.3.4.1.43":"aes-256-ofb","2.16.840.1.101.3.4.1.44":"aes-256-cfb"}
 
 /***/ }),
-/* 184 */
+/* 183 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // adapted from https://github.com/apatil/pemstrip
@@ -40862,7 +40889,7 @@ module.exports = function (okey, password) {
 
 
 /***/ }),
-/* 185 */
+/* 184 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {// much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
@@ -40952,7 +40979,7 @@ module.exports = verify
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 186 */
+/* 185 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {var elliptic = __webpack_require__(5)
@@ -41083,11 +41110,11 @@ function formatReturnValue (bn, enc, len) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 187 */
+/* 186 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports.publicEncrypt = __webpack_require__(188)
-exports.privateDecrypt = __webpack_require__(189)
+exports.publicEncrypt = __webpack_require__(187)
+exports.privateDecrypt = __webpack_require__(188)
 
 exports.privateEncrypt = function privateEncrypt (key, buf) {
   return exports.publicEncrypt(key, buf, true)
@@ -41099,7 +41126,7 @@ exports.publicDecrypt = function publicDecrypt (key, buf) {
 
 
 /***/ }),
-/* 188 */
+/* 187 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var parseKeys = __webpack_require__(31)
@@ -41193,7 +41220,7 @@ function nonZero (len) {
 
 
 /***/ }),
-/* 189 */
+/* 188 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var parseKeys = __webpack_require__(31)
@@ -41304,7 +41331,7 @@ function compare (a, b) {
 
 
 /***/ }),
-/* 190 */
+/* 189 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41420,7 +41447,7 @@ function randomFillSync (buf, offset, size) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(11)))
 
 /***/ }),
-/* 191 */
+/* 190 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41443,9 +41470,9 @@ function randomFillSync (buf, offset, size) {
 
 
 
-const protobuf = __webpack_require__(192)
+const protobuf = __webpack_require__(191)
 
-const root = protobuf.Root.fromJSON(__webpack_require__(210))
+const root = protobuf.Root.fromJSON(__webpack_require__(209))
 
 const Message = root.lookup('Message')
 Message.MessageType = Message.nested.MessageType.values
@@ -41467,14 +41494,33 @@ module.exports = exportableMessages
 
 
 /***/ }),
-/* 192 */
+/* 191 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 // full library entry point.
 
 
-module.exports = __webpack_require__(193);
+module.exports = __webpack_require__(192);
+
+
+/***/ }),
+/* 192 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var protobuf = module.exports = __webpack_require__(193);
+
+protobuf.build = "full";
+
+// Parser
+protobuf.tokenize         = __webpack_require__(100);
+protobuf.parse            = __webpack_require__(207);
+protobuf.common           = __webpack_require__(208);
+
+// Configure parser
+protobuf.Root._configure(protobuf.Type, protobuf.parse, protobuf.common);
 
 
 /***/ }),
@@ -41484,25 +41530,6 @@ module.exports = __webpack_require__(193);
 "use strict";
 
 var protobuf = module.exports = __webpack_require__(194);
-
-protobuf.build = "full";
-
-// Parser
-protobuf.tokenize         = __webpack_require__(100);
-protobuf.parse            = __webpack_require__(208);
-protobuf.common           = __webpack_require__(209);
-
-// Configure parser
-protobuf.Root._configure(protobuf.Type, protobuf.parse, protobuf.common);
-
-
-/***/ }),
-/* 194 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var protobuf = module.exports = __webpack_require__(195);
 
 protobuf.build = "light";
 
@@ -41608,7 +41635,7 @@ protobuf.Field._configure(protobuf.Type);
 
 
 /***/ }),
-/* 195 */
+/* 194 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41625,9 +41652,9 @@ protobuf.build = "minimal";
 
 // Serialization
 protobuf.Writer       = __webpack_require__(47);
-protobuf.BufferWriter = __webpack_require__(202);
+protobuf.BufferWriter = __webpack_require__(201);
 protobuf.Reader       = __webpack_require__(48);
-protobuf.BufferReader = __webpack_require__(203);
+protobuf.BufferReader = __webpack_require__(202);
 
 // Utility
 protobuf.util         = __webpack_require__(10);
@@ -41651,7 +41678,7 @@ configure();
 
 
 /***/ }),
-/* 196 */
+/* 195 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41797,7 +41824,7 @@ base64.test = function test(string) {
 
 
 /***/ }),
-/* 197 */
+/* 196 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41880,7 +41907,7 @@ EventEmitter.prototype.emit = function emit(evt) {
 
 
 /***/ }),
-/* 198 */
+/* 197 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42222,7 +42249,7 @@ function readUintBE(buf, pos) {
 
 
 /***/ }),
-/* 199 */
+/* 198 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42334,7 +42361,7 @@ utf8.write = function utf8_write(string, buffer, offset) {
 
 
 /***/ }),
-/* 200 */
+/* 199 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42389,7 +42416,7 @@ function pool(alloc, slice, size) {
 
 
 /***/ }),
-/* 201 */
+/* 200 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42596,7 +42623,7 @@ LongBits.prototype.length = function length() {
 
 
 /***/ }),
-/* 202 */
+/* 201 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42684,7 +42711,7 @@ BufferWriter.prototype.string = function write_string_buffer(value) {
 
 
 /***/ }),
-/* 203 */
+/* 202 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42735,7 +42762,7 @@ BufferReader.prototype.string = function read_string_buffer() {
 
 
 /***/ }),
-/* 204 */
+/* 203 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42884,7 +42911,7 @@ Service.prototype.end = function end(endedByRPC) {
 
 
 /***/ }),
-/* 205 */
+/* 204 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42990,7 +43017,7 @@ codegen.verbose = false;
 
 
 /***/ }),
-/* 206 */
+/* 205 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43112,7 +43139,7 @@ fetch.xhr = function fetch_xhr(filename, options, callback) {
 
 
 /***/ }),
-/* 207 */
+/* 206 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43184,7 +43211,7 @@ path.resolve = function resolve(originPath, includePath, alreadyNormalized) {
 
 
 /***/ }),
-/* 208 */
+/* 207 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43949,7 +43976,7 @@ function parse(source, root, options) {
 
 
 /***/ }),
-/* 209 */
+/* 208 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44355,13 +44382,13 @@ common.get = function get(file) {
 
 
 /***/ }),
-/* 210 */
+/* 209 */
 /***/ (function(module, exports) {
 
 module.exports = {"options":{"java_multiple_files":true,"java_package":"sawtooth.sdk.protobuf","go_package":"validator_pb2"},"nested":{"ConnectionRequest":{"fields":{"endpoint":{"type":"string","id":1}}},"RoleType":{"values":{"ROLE_TYPE_UNSET":0,"ALL":1,"NETWORK":2}},"ConnectionResponse":{"fields":{"roles":{"rule":"repeated","type":"RoleEntry","id":1},"status":{"type":"Status","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"ERROR":2}},"AuthorizationType":{"values":{"AUTHORIZATION_TYPE_UNSET":0,"TRUST":1,"CHALLENGE":2}},"RoleEntry":{"fields":{"role":{"type":"RoleType","id":1},"authType":{"type":"AuthorizationType","id":2}}}}},"AuthorizationTrustRequest":{"fields":{"roles":{"rule":"repeated","type":"RoleType","id":1},"publicKey":{"type":"string","id":2}}},"AuthorizationTrustResponse":{"fields":{"roles":{"rule":"repeated","type":"RoleType","id":1}}},"AuthorizationViolation":{"fields":{"violation":{"type":"RoleType","id":1}}},"AuthorizationChallengeRequest":{"fields":{}},"AuthorizationChallengeResponse":{"fields":{"payload":{"type":"bytes","id":1}}},"AuthorizationChallengeSubmit":{"fields":{"publicKey":{"type":"string","id":1},"signature":{"type":"string","id":3},"roles":{"rule":"repeated","type":"RoleType","id":4}}},"AuthorizationChallengeResult":{"fields":{"roles":{"rule":"repeated","type":"RoleType","id":1}}},"BatchHeader":{"fields":{"signerPublicKey":{"type":"string","id":1},"transactionIds":{"rule":"repeated","type":"string","id":2}}},"Batch":{"fields":{"header":{"type":"bytes","id":1},"headerSignature":{"type":"string","id":2},"transactions":{"rule":"repeated","type":"Transaction","id":3},"trace":{"type":"bool","id":4}}},"BatchList":{"fields":{"batches":{"rule":"repeated","type":"Batch","id":1}}},"TransactionHeader":{"fields":{"batcherPublicKey":{"type":"string","id":1},"dependencies":{"rule":"repeated","type":"string","id":2},"familyName":{"type":"string","id":3},"familyVersion":{"type":"string","id":4},"inputs":{"rule":"repeated","type":"string","id":5},"nonce":{"type":"string","id":6},"outputs":{"rule":"repeated","type":"string","id":7},"payloadSha512":{"type":"string","id":9},"signerPublicKey":{"type":"string","id":10}}},"Transaction":{"fields":{"header":{"type":"bytes","id":1},"headerSignature":{"type":"string","id":2},"payload":{"type":"bytes","id":3}}},"TransactionList":{"fields":{"transactions":{"rule":"repeated","type":"Transaction","id":1}}},"BlockHeader":{"fields":{"blockNum":{"type":"uint64","id":1},"previousBlockId":{"type":"string","id":2},"signerPublicKey":{"type":"string","id":3},"batchIds":{"rule":"repeated","type":"string","id":4},"consensus":{"type":"bytes","id":5},"stateRootHash":{"type":"string","id":6}}},"Block":{"fields":{"header":{"type":"bytes","id":1},"headerSignature":{"type":"string","id":2},"batches":{"rule":"repeated","type":"Batch","id":3}}},"ClientBatchListRequest":{"fields":{"headId":{"type":"string","id":1},"batchIds":{"rule":"repeated","type":"string","id":2},"paging":{"type":"ClientPagingControls","id":3},"sorting":{"rule":"repeated","type":"ClientSortControls","id":4}}},"ClientBatchListResponse":{"fields":{"status":{"type":"Status","id":1},"batches":{"rule":"repeated","type":"Batch","id":2},"headId":{"type":"string","id":3},"paging":{"type":"ClientPagingResponse","id":4}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2,"NOT_READY":3,"NO_ROOT":4,"NO_RESOURCE":5,"INVALID_PAGING":6,"INVALID_SORT":7,"INVALID_ID":8}}}},"ClientBatchGetRequest":{"fields":{"batchId":{"type":"string","id":1}}},"ClientBatchGetResponse":{"fields":{"status":{"type":"Status","id":1},"batch":{"type":"Batch","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2,"NO_RESOURCE":5,"INVALID_ID":8}}}},"ClientPagingControls":{"fields":{"start":{"type":"string","id":1},"limit":{"type":"int32","id":2}}},"ClientPagingResponse":{"fields":{"next":{"type":"string","id":1},"start":{"type":"string","id":2},"limit":{"type":"int32","id":3}}},"ClientSortControls":{"fields":{"keys":{"rule":"repeated","type":"string","id":1},"reverse":{"type":"bool","id":2}}},"ClientBatchStatus":{"fields":{"batchId":{"type":"string","id":1},"status":{"type":"Status","id":2},"invalidTransactions":{"rule":"repeated","type":"InvalidTransaction","id":3}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"COMMITTED":1,"INVALID":2,"PENDING":3,"UNKNOWN":4}},"InvalidTransaction":{"fields":{"transactionId":{"type":"string","id":1},"message":{"type":"string","id":2},"extendedData":{"type":"bytes","id":3}}}}},"ClientBatchSubmitRequest":{"fields":{"batches":{"rule":"repeated","type":"Batch","id":1}}},"ClientBatchSubmitResponse":{"fields":{"status":{"type":"Status","id":1}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2,"INVALID_BATCH":3,"QUEUE_FULL":4}}}},"ClientBatchStatusRequest":{"fields":{"batchIds":{"rule":"repeated","type":"string","id":1},"wait":{"type":"bool","id":2},"timeout":{"type":"uint32","id":3}}},"ClientBatchStatusResponse":{"fields":{"status":{"type":"Status","id":1},"batchStatuses":{"rule":"repeated","type":"ClientBatchStatus","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2,"NO_RESOURCE":5,"INVALID_ID":8}}}},"ClientBlockListRequest":{"fields":{"headId":{"type":"string","id":1},"blockIds":{"rule":"repeated","type":"string","id":2},"paging":{"type":"ClientPagingControls","id":3},"sorting":{"rule":"repeated","type":"ClientSortControls","id":4}}},"ClientBlockListResponse":{"fields":{"status":{"type":"Status","id":1},"blocks":{"rule":"repeated","type":"Block","id":2},"headId":{"type":"string","id":3},"paging":{"type":"ClientPagingResponse","id":4}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2,"NOT_READY":3,"NO_ROOT":4,"NO_RESOURCE":5,"INVALID_PAGING":6,"INVALID_SORT":7,"INVALID_ID":8}}}},"ClientBlockGetByIdRequest":{"fields":{"blockId":{"type":"string","id":1}}},"ClientBlockGetByNumRequest":{"fields":{"blockNum":{"type":"uint64","id":1}}},"ClientBlockGetByTransactionIdRequest":{"fields":{"transactionId":{"type":"string","id":1}}},"ClientBlockGetByBatchIdRequest":{"fields":{"batchId":{"type":"string","id":1}}},"ClientBlockGetResponse":{"fields":{"status":{"type":"Status","id":1},"block":{"type":"Block","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2,"NO_RESOURCE":5,"INVALID_ID":8}}}},"ClientEventsSubscribeRequest":{"fields":{"subscriptions":{"rule":"repeated","type":"EventSubscription","id":1},"lastKnownBlockIds":{"rule":"repeated","type":"string","id":2}}},"ClientEventsSubscribeResponse":{"fields":{"status":{"type":"Status","id":1},"responseMessage":{"type":"string","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INVALID_FILTER":2,"UNKNOWN_BLOCK":3}}}},"ClientEventsUnsubscribeRequest":{"fields":{}},"ClientEventsUnsubscribeResponse":{"fields":{"status":{"type":"Status","id":1}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2}}}},"ClientEventsGetRequest":{"fields":{"subscriptions":{"rule":"repeated","type":"EventSubscription","id":1},"blockIds":{"rule":"repeated","type":"string","id":2}}},"ClientEventsGetResponse":{"fields":{"status":{"type":"Status","id":1},"events":{"rule":"repeated","type":"Event","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2,"INVALID_FILTER":3,"UNKNOWN_BLOCK":4}}}},"Event":{"fields":{"eventType":{"type":"string","id":1},"attributes":{"rule":"repeated","type":"Attribute","id":2},"data":{"type":"bytes","id":3}},"nested":{"Attribute":{"fields":{"key":{"type":"string","id":1},"value":{"type":"string","id":2}}}}},"EventList":{"fields":{"events":{"rule":"repeated","type":"Event","id":1}}},"EventFilter":{"fields":{"key":{"type":"string","id":1},"matchString":{"type":"string","id":2},"filterType":{"type":"FilterType","id":3}},"nested":{"FilterType":{"values":{"FILTER_TYPE_UNSET":0,"SIMPLE_ANY":1,"SIMPLE_ALL":2,"REGEX_ANY":3,"REGEX_ALL":4}}}},"EventSubscription":{"fields":{"eventType":{"type":"string","id":1},"filters":{"rule":"repeated","type":"EventFilter","id":2}}},"ClientPeersGetRequest":{"fields":{}},"ClientPeersGetResponse":{"fields":{"status":{"type":"Status","id":1},"peers":{"rule":"repeated","type":"string","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"ERROR":2}}}},"ClientReceiptGetRequest":{"fields":{"transactionIds":{"rule":"repeated","type":"string","id":1}}},"ClientReceiptGetResponse":{"fields":{"status":{"type":"Status","id":1},"receipts":{"rule":"repeated","type":"TransactionReceipt","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2,"NO_RESOURCE":5,"INVALID_ID":8}}}},"TransactionReceipt":{"fields":{"stateChanges":{"rule":"repeated","type":"StateChange","id":1},"events":{"rule":"repeated","type":"Event","id":2},"data":{"rule":"repeated","type":"bytes","id":3},"transactionId":{"type":"string","id":4}}},"StateChange":{"fields":{"address":{"type":"string","id":1},"value":{"type":"bytes","id":2},"type":{"type":"Type","id":3}},"nested":{"Type":{"values":{"TYPE_UNSET":0,"SET":1,"DELETE":2}}}},"StateChangeList":{"fields":{"stateChanges":{"rule":"repeated","type":"StateChange","id":1}}},"ClientStateListRequest":{"fields":{"stateRoot":{"type":"string","id":1},"address":{"type":"string","id":3},"paging":{"type":"ClientPagingControls","id":4},"sorting":{"rule":"repeated","type":"ClientSortControls","id":5}}},"ClientStateListResponse":{"fields":{"status":{"type":"Status","id":1},"entries":{"rule":"repeated","type":"Entry","id":2},"stateRoot":{"type":"string","id":3},"paging":{"type":"ClientPagingResponse","id":4}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2,"NOT_READY":3,"NO_ROOT":4,"NO_RESOURCE":5,"INVALID_PAGING":6,"INVALID_SORT":7,"INVALID_ADDRESS":8,"INVALID_ROOT":9}},"Entry":{"fields":{"address":{"type":"string","id":1},"data":{"type":"bytes","id":2}}}}},"ClientStateGetRequest":{"fields":{"stateRoot":{"type":"string","id":1},"address":{"type":"string","id":3}}},"ClientStateGetResponse":{"fields":{"status":{"type":"Status","id":1},"value":{"type":"bytes","id":2},"stateRoot":{"type":"string","id":3}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2,"NOT_READY":3,"NO_ROOT":4,"NO_RESOURCE":5,"INVALID_ADDRESS":6,"INVALID_ROOT":7}}}},"ClientTransactionListRequest":{"fields":{"headId":{"type":"string","id":1},"transactionIds":{"rule":"repeated","type":"string","id":2},"paging":{"type":"ClientPagingControls","id":3},"sorting":{"rule":"repeated","type":"ClientSortControls","id":4}}},"ClientTransactionListResponse":{"fields":{"status":{"type":"Status","id":1},"transactions":{"rule":"repeated","type":"Transaction","id":2},"headId":{"type":"string","id":3},"paging":{"type":"ClientPagingResponse","id":4}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2,"NOT_READY":3,"NO_ROOT":4,"NO_RESOURCE":5,"INVALID_PAGING":6,"INVALID_SORT":7,"INVALID_ID":8}}}},"ClientTransactionGetRequest":{"fields":{"transactionId":{"type":"string","id":1}}},"ClientTransactionGetResponse":{"fields":{"status":{"type":"Status","id":1},"transaction":{"type":"Transaction","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INTERNAL_ERROR":2,"NO_RESOURCE":5,"INVALID_ID":8}}}},"GenesisData":{"fields":{"batches":{"rule":"repeated","type":"Batch","id":1}}},"Policy":{"fields":{"name":{"type":"string","id":1},"entries":{"rule":"repeated","type":"Entry","id":2}},"nested":{"EntryType":{"values":{"ENTRY_TYPE_UNSET":0,"PERMIT_KEY":1,"DENY_KEY":2}},"Entry":{"fields":{"type":{"type":"EntryType","id":1},"key":{"type":"string","id":2}}}}},"PolicyList":{"fields":{"policies":{"rule":"repeated","type":"Policy","id":1}}},"Role":{"fields":{"name":{"type":"string","id":1},"policyName":{"type":"string","id":2}}},"RoleList":{"fields":{"roles":{"rule":"repeated","type":"Role","id":1}}},"DisconnectMessage":{"fields":{}},"PeerRegisterRequest":{"fields":{"endpoint":{"type":"string","id":1},"protocolVersion":{"type":"uint32","id":2}}},"PeerUnregisterRequest":{"fields":{}},"GetPeersRequest":{"fields":{}},"GetPeersResponse":{"fields":{"peerEndpoints":{"rule":"repeated","type":"string","id":1}}},"PingRequest":{"fields":{}},"PingResponse":{"fields":{}},"GossipMessage":{"fields":{"content":{"type":"bytes","id":1},"contentType":{"type":"ContentType","id":2},"timeToLive":{"type":"uint32","id":3}},"nested":{"ContentType":{"values":{"CONTENT_TYPE_UNSET":0,"BLOCK":1,"BATCH":2}}}},"NetworkAcknowledgement":{"fields":{"status":{"type":"Status","id":1}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"ERROR":2}}}},"GossipBlockRequest":{"fields":{"blockId":{"type":"string","id":1},"nonce":{"type":"string","id":2},"timeToLive":{"type":"uint32","id":3}}},"GossipBlockResponse":{"fields":{"content":{"type":"bytes","id":1}}},"GossipBatchResponse":{"fields":{"content":{"type":"bytes","id":1}}},"GossipBatchByBatchIdRequest":{"fields":{"id":{"type":"string","id":1},"nonce":{"type":"string","id":2},"timeToLive":{"type":"uint32","id":3}}},"GossipBatchByTransactionIdRequest":{"fields":{"ids":{"rule":"repeated","type":"string","id":1},"nonce":{"type":"string","id":2},"timeToLive":{"type":"uint32","id":3}}},"TpRegisterRequest":{"fields":{"family":{"type":"string","id":1},"version":{"type":"string","id":2},"namespaces":{"rule":"repeated","type":"string","id":4}}},"TpRegisterResponse":{"fields":{"status":{"type":"Status","id":1}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"ERROR":2}}}},"TpUnregisterRequest":{"fields":{}},"TpUnregisterResponse":{"fields":{"status":{"type":"Status","id":1}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"ERROR":2}}}},"TpProcessRequest":{"fields":{"header":{"type":"TransactionHeader","id":1},"payload":{"type":"bytes","id":2},"signature":{"type":"string","id":3},"contextId":{"type":"string","id":4}}},"TpProcessResponse":{"fields":{"status":{"type":"Status","id":1},"message":{"type":"string","id":2},"extendedData":{"type":"bytes","id":3}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"INVALID_TRANSACTION":2,"INTERNAL_ERROR":3}}}},"Setting":{"fields":{"entries":{"rule":"repeated","type":"Entry","id":1}},"nested":{"Entry":{"fields":{"key":{"type":"string","id":1},"value":{"type":"string","id":2}}}}},"TpStateEntry":{"fields":{"address":{"type":"string","id":1},"data":{"type":"bytes","id":2}}},"TpStateGetRequest":{"fields":{"contextId":{"type":"string","id":1},"addresses":{"rule":"repeated","type":"string","id":2}}},"TpStateGetResponse":{"fields":{"entries":{"rule":"repeated","type":"TpStateEntry","id":1},"status":{"type":"Status","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"AUTHORIZATION_ERROR":2}}}},"TpStateSetRequest":{"fields":{"contextId":{"type":"string","id":1},"entries":{"rule":"repeated","type":"TpStateEntry","id":2}}},"TpStateSetResponse":{"fields":{"addresses":{"rule":"repeated","type":"string","id":1},"status":{"type":"Status","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"AUTHORIZATION_ERROR":2}}}},"TpStateDeleteRequest":{"fields":{"contextId":{"type":"string","id":1},"addresses":{"rule":"repeated","type":"string","id":2}}},"TpStateDeleteResponse":{"fields":{"addresses":{"rule":"repeated","type":"string","id":1},"status":{"type":"Status","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"AUTHORIZATION_ERROR":2}}}},"TpReceiptAddDataRequest":{"fields":{"contextId":{"type":"string","id":1},"data":{"type":"bytes","id":3}}},"TpReceiptAddDataResponse":{"fields":{"status":{"type":"Status","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"ERROR":2}}}},"TpEventAddRequest":{"fields":{"contextId":{"type":"string","id":1},"event":{"type":"Event","id":2}}},"TpEventAddResponse":{"fields":{"status":{"type":"Status","id":2}},"nested":{"Status":{"values":{"STATUS_UNSET":0,"OK":1,"ERROR":2}}}},"MessageList":{"fields":{"messages":{"rule":"repeated","type":"Message","id":1}}},"Message":{"fields":{"messageType":{"type":"MessageType","id":1},"correlationId":{"type":"string","id":2},"content":{"type":"bytes","id":3}},"nested":{"MessageType":{"values":{"DEFAULT":0,"TP_REGISTER_REQUEST":1,"TP_REGISTER_RESPONSE":2,"TP_UNREGISTER_REQUEST":3,"TP_UNREGISTER_RESPONSE":4,"TP_PROCESS_REQUEST":5,"TP_PROCESS_RESPONSE":6,"TP_STATE_GET_REQUEST":7,"TP_STATE_GET_RESPONSE":8,"TP_STATE_SET_REQUEST":9,"TP_STATE_SET_RESPONSE":10,"TP_STATE_DELETE_REQUEST":11,"TP_STATE_DELETE_RESPONSE":12,"TP_RECEIPT_ADD_DATA_REQUEST":13,"TP_RECEIPT_ADD_DATA_RESPONSE":14,"TP_EVENT_ADD_REQUEST":15,"TP_EVENT_ADD_RESPONSE":16,"CLIENT_BATCH_SUBMIT_REQUEST":100,"CLIENT_BATCH_SUBMIT_RESPONSE":101,"CLIENT_BLOCK_LIST_REQUEST":102,"CLIENT_BLOCK_LIST_RESPONSE":103,"CLIENT_BLOCK_GET_BY_ID_REQUEST":104,"CLIENT_BLOCK_GET_RESPONSE":105,"CLIENT_BATCH_LIST_REQUEST":106,"CLIENT_BATCH_LIST_RESPONSE":107,"CLIENT_BATCH_GET_REQUEST":108,"CLIENT_BATCH_GET_RESPONSE":109,"CLIENT_TRANSACTION_LIST_REQUEST":110,"CLIENT_TRANSACTION_LIST_RESPONSE":111,"CLIENT_TRANSACTION_GET_REQUEST":112,"CLIENT_TRANSACTION_GET_RESPONSE":113,"CLIENT_STATE_CURRENT_REQUEST":114,"CLIENT_STATE_CURRENT_RESPONSE":115,"CLIENT_STATE_LIST_REQUEST":116,"CLIENT_STATE_LIST_RESPONSE":117,"CLIENT_STATE_GET_REQUEST":118,"CLIENT_STATE_GET_RESPONSE":119,"CLIENT_BATCH_STATUS_REQUEST":120,"CLIENT_BATCH_STATUS_RESPONSE":121,"CLIENT_RECEIPT_GET_REQUEST":122,"CLIENT_RECEIPT_GET_RESPONSE":123,"CLIENT_BLOCK_GET_BY_NUM_REQUEST":124,"CLIENT_PEERS_GET_REQUEST":125,"CLIENT_PEERS_GET_RESPONSE":126,"CLIENT_BLOCK_GET_BY_TRANSACTION_ID_REQUEST":127,"CLIENT_BLOCK_GET_BY_BATCH_ID_REQUEST":128,"CLIENT_EVENTS_SUBSCRIBE_REQUEST":500,"CLIENT_EVENTS_SUBSCRIBE_RESPONSE":501,"CLIENT_EVENTS_UNSUBSCRIBE_REQUEST":502,"CLIENT_EVENTS_UNSUBSCRIBE_RESPONSE":503,"CLIENT_EVENTS":504,"CLIENT_EVENTS_GET_REQUEST":505,"CLIENT_EVENTS_GET_RESPONSE":506,"GOSSIP_MESSAGE":200,"GOSSIP_REGISTER":201,"GOSSIP_UNREGISTER":202,"GOSSIP_BLOCK_REQUEST":205,"GOSSIP_BLOCK_RESPONSE":206,"GOSSIP_BATCH_BY_BATCH_ID_REQUEST":207,"GOSSIP_BATCH_BY_TRANSACTION_ID_REQUEST":208,"GOSSIP_BATCH_RESPONSE":209,"GOSSIP_GET_PEERS_REQUEST":210,"GOSSIP_GET_PEERS_RESPONSE":211,"NETWORK_ACK":300,"NETWORK_CONNECT":301,"NETWORK_DISCONNECT":302,"AUTHORIZATION_CONNECTION_RESPONSE":600,"AUTHORIZATION_VIOLATION":601,"AUTHORIZATION_TRUST_REQUEST":602,"AUTHORIZATION_TRUST_RESPONSE":603,"AUTHORIZATION_CHALLENGE_REQUEST":604,"AUTHORIZATION_CHALLENGE_RESPONSE":605,"AUTHORIZATION_CHALLENGE_SUBMIT":606,"AUTHORIZATION_CHALLENGE_RESULT":607,"PING_REQUEST":700,"PING_RESPONSE":701}}}}}}
 
 /***/ }),
-/* 211 */
+/* 210 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44489,22 +44516,22 @@ module.exports = {
 
 
 /***/ }),
+/* 211 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = __webpack_require__(212)(__webpack_require__(216))
+
+
+/***/ }),
 /* 212 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-module.exports = __webpack_require__(213)(__webpack_require__(217))
-
-
-/***/ }),
-/* 213 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var assert = __webpack_require__(214)
-var der = __webpack_require__(215)
+var assert = __webpack_require__(213)
+var der = __webpack_require__(214)
 var messages = __webpack_require__(103)
 
 function initCompressedValue (value, defaultValue) {
@@ -44750,7 +44777,7 @@ module.exports = function (secp256k1) {
 
 
 /***/ }),
-/* 214 */
+/* 213 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44802,13 +44829,13 @@ exports.isNumberInInterval = function (number, x, y, message) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3).Buffer))
 
 /***/ }),
-/* 215 */
+/* 214 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 var Buffer = __webpack_require__(0).Buffer
-var bip66 = __webpack_require__(216)
+var bip66 = __webpack_require__(215)
 
 var EC_PRIVKEY_EXPORT_DER_COMPRESSED = Buffer.from([
   // begin
@@ -45002,7 +45029,7 @@ exports.signatureImportLax = function (sig) {
 
 
 /***/ }),
-/* 216 */
+/* 215 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Reference https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki
@@ -45121,7 +45148,7 @@ module.exports = {
 
 
 /***/ }),
-/* 217 */
+/* 216 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -45391,7 +45418,7 @@ exports.ecdhUnsafe = function (publicKey, privateKey, compressed) {
 
 
 /***/ }),
-/* 218 */
+/* 217 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -45790,16 +45817,18 @@ const addTableInvPublicUsuario = (invitaciones, user)=>{
 
 const addTableCochesInvitado = (parent, coches)=>{
    $(parent).empty();
+   console.log("coches que llegan: ", coches)
    $(parent).append(`<tr>
                         <th>Propietario</th>
                         <th>Matricula</th>
                         <th>Modelo</th>
                         <th>Registrado el</th>
+                        <th>Con invitacion</th>
                       <tr>`)
    
-   var coche = {propietario:null, matricula:null, modelo:null, registrado:null}
-   for (let i =0; i<coches.length; i++){
-    var asset = coches[i].asset.split(',')
+   var coche = {propietario:null, matricula:null, modelo:null, registrado:null, invitacion:null}
+   for (let i =0; i<coches.assets.length; i++){
+    var asset = coches.assets[i].asset.split(',')
     for (let j = 0; j<asset.length; j++){
       var fields = asset[j].split(':')
       switch(fields[0]){
@@ -45815,6 +45844,8 @@ const addTableCochesInvitado = (parent, coches)=>{
         case "registrado_el":
           coche.registrado = fields[1]
           break;
+        case "Invitacion":
+          coche.invitacion = fields[1]
       }
     }
     $(parent).append(`<tr>
@@ -45822,6 +45853,7 @@ const addTableCochesInvitado = (parent, coches)=>{
                         <td>${coche.matricula}</td>
                         <td>${coche.modelo}</td>
                         <td>${coche.registrado}</td>
+                        <td>${coche.invitacion}</td>
                       <tr>`)
    }
 }

@@ -198,7 +198,9 @@
         <div class="form-group">
           <input type="text" id="modelRC" placeholder="Introduce el modelo del coche" class="form-control"required>
         </div>
-        <button type="submit" id="createCocheRC" class="btn btn-success col-sm-12" >Registrar coche</button>
+        <button type="submit" id="createCocheRC" class="btn btn-success col-sm-12" style="margin-bottom: 10px;">Registrar coche</button>
+        <hr>
+        <button type="submit" id="volverRC" class="btn btn-primary col-sm-12" >Volver</button>
       </div>
 
       <div id="mainUser" style="display:none" class="col-sm-12"> 
@@ -244,8 +246,13 @@
           <hr>
           <button type="submit" id="createCocheMI" class="btn">Registrar coche</button>
           <button type="submit" id="solicitarMI" class="btn">Solicitar Invitacion</button>
+          <button type="submit" id="verInvitacionesInv" class="btn">Invitaciones</button>
+          <button type="submit" id="verCochesInv" class="btn">Coches</button>
         </div>
         <div class="col-sm-9 main-content">
+          <table class="table table-striped">
+            <tbody id="visualizacionInvitado"></tbody>
+          </table>
           <table class="table table-striped">
             <tbody id="invitacionesTableSol"></tbody>
           </table>
