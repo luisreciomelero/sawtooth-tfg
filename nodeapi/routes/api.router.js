@@ -6,7 +6,7 @@ router.get('/luis/invitations/:position', controller.getRandomInvitation);
 router.get('/luis/NumInvitations/', controller.numInvitations);
 router.get('/luis/NumUsers/', controller.numUsers);
 router.get('/luis/users/:address', controller.getUser)
-router.get('/luis/invitation/:prefix', controller.getInvitation)
+router.get('/luis/invitation/:prefix', controller.getInvitationPub)
 router.get('/luis/user/:asset', controller.getAddressUser)
 router.get('/luis/car/:asset', controller.getAddressCoche)
 router.get('/luis/user/rol/:address', controller.getUserRol)

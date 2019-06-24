@@ -103,7 +103,7 @@ exports.getUser = function(req,res,next){
 }
 
 
-exports.getInvitation = function(req,res,next){
+exports.getInvitationPub = function(req,res,next){
   fetch('http://rest-api:8008/state?address=1a733501', {
     method: 'GET',
     headers: {

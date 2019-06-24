@@ -30589,7 +30589,9 @@ const {
   eliminarInvitacionAdmin,
   addDataDiv,
   addTableInvitacionesSolicitadas,
-  addTableCochesInvitado
+  addTableCochesInvitado,
+  addTableInvitacionesRegistradas,
+  addTableInvitacionesPub
 }=__webpack_require__(217)
 
 // Application Object
@@ -30667,7 +30669,7 @@ const getNumUsers = () =>{
           })
 }
 
-const getInvitation= (prefix) =>{
+const getInvitationAdj= (prefix) =>{
 
   return fetch(`${API_NODE}/luis/invitation/${prefix}`)
           .then(function(response) {
@@ -30827,7 +30829,7 @@ const mostrarMain = (rol, user, invitaciones=null, inviEdit=null)=>{
       .then(function(invitacionesSolAddress){
         console.log('invitacionesSolAddress', invitacionesSolAddress)
         for (let i =0; i<invitacionesSolAddress.length; i++){
-          invitacionesSolicitadas.getInvitation(invitacionesSolAddress[i])
+          invitacionesSolicitadas.getInvitation(invitacionesSolAddress[i], '#visualizacionInvitado')
 
           //data = getDataInvSol(invitacionesSolicitadas[i])
           //addDataTableInvSolMI(data)
@@ -30930,12 +30932,31 @@ const getAssetInv = (address, cb)=> {
   })
 }
 
-invitacionesSolicitadas.getInvitation = function(address) {
+invitacionesSolicitadas.getInvitationPub = function(address, parent) {
+
   getAssetInv(address, ({ asset }) =>{
     this.assets.push(asset[0])
     console.log("asset recuperado: ", asset, "con address: ", address)
     console.log("assets: ", this.assets)
-    addTableInvitacionesSolicitadas('#visualizacionInvitado',this.assets)
+    addTableInvitacionesPub(parent,this.assets)
+  }) 
+}
+
+invitacionesSolicitadas.getInvitation = function(address, parent) {
+  getAssetInv(address, ({ asset }) =>{
+    this.assets.push(asset[0])
+    console.log("asset recuperado: ", asset, "con address: ", address)
+    console.log("assets: ", this.assets)
+    addTableInvitacionesSolicitadas(parent,this.assets)
+  }) 
+}
+
+invitacionesSolicitadas.getInvitationReg = function(address, parent) {
+  getAssetInv(address, ({ asset }) =>{
+    this.assets.push(asset[0])
+    console.log("asset recuperado: ", asset, "con address: ", address)
+    console.log("assets: ", this.assets)
+    addTableInvitacionesRegistradas(parent,this.assets)
   }) 
 }
 
@@ -31545,8 +31566,9 @@ $('#createCocheRC').on('click', function () {
   const randomInvSol = getRandomNumber(invitacionesSolicitadas.assets.length)
   let assetInvRandom = invitacionesSolicitadas.assets[randomInvSol]
   let invAddress = assetInvRandom.asset.split('address:')[1]
-
-  eliminarInvSol(invAddress, assetInvRandom.asset.split(',address:')[0])
+  var nuevoAssetInv =[assetInvRandom.asset.split(',address:')[0], matricula, propietario] 
+  console.log("NUEVO ASSET INVITACION:", nuevoAssetInv.join())
+  eliminarInvSol(invAddress, nuevoAssetInv.join())
   console.log('Sacamos address de inv: ', invAddress)
   invAddress = addCategory("Invitacion", invAddress)
   
@@ -31589,7 +31611,7 @@ $('#createCocheMI').on('click', function () {
 
 $('#publicarInv').on('click', function () {
   comprobarPrivateKey()
-  $('#numInv').val()
+  
   if (user.numInvitaciones==0){
     alert("No le quedan invitaciones al usuario")
     return; 
@@ -31632,7 +31654,8 @@ $('#publicarInv').on('click', function () {
       });
     })
   }
-  
+  $('#numInv').val('')
+  $('#numInv').attr('placeholder', 'Numero de invitaciones')
 })
 const getNuevoAssetInvitacion=(invitationSplit)=>{
 
@@ -31908,8 +31931,51 @@ $('#verInvitacionesInv').on('click', function(){
       .then(function(invitacionesSolAddress){
         console.log('invitacionesSolAddress', invitacionesSolAddress)
         for (let i =0; i<invitacionesSolAddress.length; i++){
-          invitacionesSolicitadas.getInvitation(invitacionesSolAddress[i])}
-        }) 
+          invitacionesSolicitadas.getInvitation(invitacionesSolAddress[i], '#visualizacionInvitado')
+        }
+      }) 
+})
+
+
+
+$('#verInvitacionesPubUsuario').on('click', function(){
+  $('#visualizacionVecino').empty()
+  invitacionesSolicitadas.assets = []
+  getAddressesInvitations(user.owner).then(function(invitacionesPub){
+        console.log('entramos')
+        console.log("RECIBIMOS COMO DIRECCIONES: ", invitacionesPub)
+        for (var i=0; i<invitacionesPub.length; i++){
+          invitacionesSolicitadas.getInvitationPub(invitacionesPub[i], '#visualizacionVecino')
+        }
+      })
+
+
+})
+
+$('#verInvitacionesSolUsuario').on('click', function(){
+  $('#visualizacionVecino').empty()
+  invitacionesSolicitadas.assets = []
+  getAddressesInvitationsAssigned(user.owner)
+      .then(function(invitacionesSolAddress){
+        console.log('invitacionesSolAddress', invitacionesSolAddress)
+        for (let i =0; i<invitacionesSolAddress.length; i++){
+          invitacionesSolicitadas.getInvitation(invitacionesSolAddress[i], '#visualizacionVecino')
+        }
+      })
+})
+
+$('#verInvitacionesRegUsuario').on('click', function(){
+  $('#visualizacionVecino').empty()
+  invitacionesSolicitadas.assets = []
+  getAddressesInvitationsAssignedCar(user.owner)
+  .then(function(invitacionesReg){
+          console.log('entramos en addCar')
+          for (var i=0; i<invitacionesReg.length; i++){
+            console.log('INVITACIONES REGISTRADAS: ', invitacionesReg)
+            invitacionesSolicitadas.getInvitationReg(invitacionesReg[i], '#visualizacionVecino')
+          }
+        })
+
 })
 
 $('#logout').on('click', function(){
@@ -31924,6 +31990,9 @@ $('#logout').on('click', function(){
   $('#logout').attr('style', 'display:none')
   $('#editarInvitacion').attr('style', 'display:none')
   $('#invitacionesTableSol').empty()
+  $('#visualizacionVecino').empty()
+  $('#visualizacionInvitado').empty()
+  $('#visualizacion').empty()
   invitacionesSolicitadas.assets= []
   
 })
@@ -45620,7 +45689,7 @@ const addTableInvitaciones = (parent, invitaciones, claseFila) => {
 
 const deleteOptionAdmin = () =>{
   
-    var opciones = ["none:Select Role...","Invitado:Invitado", "Vecino:Vecino"]
+    var opciones = ["none:Roles...","Invitado:Invitado", "Vecino:Vecino"]
   
     console.log("opciones: ", opciones)
     $("#roles").empty();
@@ -45765,6 +45834,36 @@ const eliminarInvitacionAdmin =(invitacionEditar, user, refresh)=>{
 
 }
 
+const addTableInvitacionesPub = (parent, invitacionesAssets)=>{
+  $(parent).empty();
+   $(parent).append(`<tr>
+                        <th>Invitacion de</th>
+                        <th>Publicada</th>
+                      <tr>`)
+   
+   var invitacionAdd = {invDe:null, publicada:null}
+   for (let i =0; i<invitacionesAssets.length; i++){
+    var asset = invitacionesAssets[i].asset.split(',')
+    for (let j = 0; j<asset.length; j++){
+      var fields = asset[j].split(':')
+      switch(fields[0]){
+        case "invitacion_de":
+          invitacionAdd.invDe = fields[1]
+          break;
+        
+        case 'timestamp':
+          invitacionAdd.publicada = fields[1]
+          break;
+       
+      }
+    }
+    $(parent).append(`<tr>
+                        <td>${invitacionAdd.invDe}</td>
+                        <td>${invitacionAdd.publicada}</td>
+                      <tr>`)
+   }
+}
+
 const addTableInvitacionesSolicitadas = (parent, invitacionesAssets) =>{
    $(parent).empty();
    $(parent).append(`<tr>
@@ -45799,8 +45898,56 @@ const addTableInvitacionesSolicitadas = (parent, invitacionesAssets) =>{
       }
     }
     $(parent).append(`<tr>
-                        <td>${invitacionAdd.invDe.substring(0,20)}</td>
-                        <td>${invitacionAdd.nuevoProp.substring(0,20)}</td>
+                        <td>${invitacionAdd.invDe.substring(0,40)}</td>
+                        <td>${invitacionAdd.nuevoProp.substring(0,40)}</td>
+                        <td>${invitacionAdd.publicada}</td>
+                        <td>${invitacionAdd.solicitada}</td>
+                        <td>${invitacionAdd.valida}</td>
+                      <tr>`)
+   }
+}
+
+const addTableInvitacionesRegistradas = (parent, invitacionesAssets) =>{
+   $(parent).empty();
+   $(parent).append(`<tr>
+                        <th>Invitacion de</th>
+                        <th>Nuevo propietario</th>
+                        <th>Matricula del coche</th>
+                        <th>Publicada</th>
+                        <th>Solicitada</th>
+                        <th>Valida</th>
+                      <tr>`)
+   
+   var invitacionAdd = {invDe:null, nuevoProp:null, publicada:null, solicitada:null, valida:null, matricula:null}
+   for (let i =0; i<invitacionesAssets.length; i++){
+    var asset = invitacionesAssets[i].asset.split(',')
+    for (let j = 0; j<asset.length; j++){
+      var fields = asset[j].split(':')
+      switch(fields[0]){
+        case "invitacionPublicadaPor":
+          invitacionAdd.invDe = fields[1]
+          break;
+        case "nuevoPropietario":
+          invitacionAdd.nuevoProp = fields[1]
+          break;
+        case 'publicada':
+          invitacionAdd.publicada = fields[1]
+          break;
+        case "solicitada":
+          invitacionAdd.solicitada = fields[1]
+          break;
+        case "valida":
+          invitacionAdd.valida = fields[1]
+          break;
+        case "matricula":
+          invitacionAdd.matricula = fields[1]
+          break;
+      }
+    }
+    $(parent).append(`<tr>
+                        <td>${invitacionAdd.invDe.substring(0,40)}</td>
+                        <td>${invitacionAdd.nuevoProp.substring(0,40)}</td>
+                        <td>${invitacionAdd.matricula}</td>
                         <td>${invitacionAdd.publicada}</td>
                         <td>${invitacionAdd.solicitada}</td>
                         <td>${invitacionAdd.valida}</td>
@@ -45878,7 +46025,10 @@ module.exports = {
   eliminarInvitacionAdmin,
   addDataDiv,
   addTableInvitacionesSolicitadas,
-  addTableCochesInvitado
+  addTableCochesInvitado,
+  addTableInvitacionesRegistradas,
+  addTableInvitacionesPub
+
 }
 
 

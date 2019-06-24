@@ -196,7 +196,7 @@ const addTableInvitaciones = (parent, invitaciones, claseFila) => {
 
 const deleteOptionAdmin = () =>{
   
-    var opciones = ["none:Select Role...","Invitado:Invitado", "Vecino:Vecino"]
+    var opciones = ["none:Roles...","Invitado:Invitado", "Vecino:Vecino"]
   
     console.log("opciones: ", opciones)
     $("#roles").empty();
@@ -341,6 +341,36 @@ const eliminarInvitacionAdmin =(invitacionEditar, user, refresh)=>{
 
 }
 
+const addTableInvitacionesPub = (parent, invitacionesAssets)=>{
+  $(parent).empty();
+   $(parent).append(`<tr>
+                        <th>Invitacion de</th>
+                        <th>Publicada</th>
+                      <tr>`)
+   
+   var invitacionAdd = {invDe:null, publicada:null}
+   for (let i =0; i<invitacionesAssets.length; i++){
+    var asset = invitacionesAssets[i].asset.split(',')
+    for (let j = 0; j<asset.length; j++){
+      var fields = asset[j].split(':')
+      switch(fields[0]){
+        case "invitacion_de":
+          invitacionAdd.invDe = fields[1]
+          break;
+        
+        case 'timestamp':
+          invitacionAdd.publicada = fields[1]
+          break;
+       
+      }
+    }
+    $(parent).append(`<tr>
+                        <td>${invitacionAdd.invDe}</td>
+                        <td>${invitacionAdd.publicada}</td>
+                      <tr>`)
+   }
+}
+
 const addTableInvitacionesSolicitadas = (parent, invitacionesAssets) =>{
    $(parent).empty();
    $(parent).append(`<tr>
@@ -375,8 +405,56 @@ const addTableInvitacionesSolicitadas = (parent, invitacionesAssets) =>{
       }
     }
     $(parent).append(`<tr>
-                        <td>${invitacionAdd.invDe.substring(0,20)}</td>
-                        <td>${invitacionAdd.nuevoProp.substring(0,20)}</td>
+                        <td>${invitacionAdd.invDe.substring(0,40)}</td>
+                        <td>${invitacionAdd.nuevoProp.substring(0,40)}</td>
+                        <td>${invitacionAdd.publicada}</td>
+                        <td>${invitacionAdd.solicitada}</td>
+                        <td>${invitacionAdd.valida}</td>
+                      <tr>`)
+   }
+}
+
+const addTableInvitacionesRegistradas = (parent, invitacionesAssets) =>{
+   $(parent).empty();
+   $(parent).append(`<tr>
+                        <th>Invitacion de</th>
+                        <th>Nuevo propietario</th>
+                        <th>Matricula del coche</th>
+                        <th>Publicada</th>
+                        <th>Solicitada</th>
+                        <th>Valida</th>
+                      <tr>`)
+   
+   var invitacionAdd = {invDe:null, nuevoProp:null, publicada:null, solicitada:null, valida:null, matricula:null}
+   for (let i =0; i<invitacionesAssets.length; i++){
+    var asset = invitacionesAssets[i].asset.split(',')
+    for (let j = 0; j<asset.length; j++){
+      var fields = asset[j].split(':')
+      switch(fields[0]){
+        case "invitacionPublicadaPor":
+          invitacionAdd.invDe = fields[1]
+          break;
+        case "nuevoPropietario":
+          invitacionAdd.nuevoProp = fields[1]
+          break;
+        case 'publicada':
+          invitacionAdd.publicada = fields[1]
+          break;
+        case "solicitada":
+          invitacionAdd.solicitada = fields[1]
+          break;
+        case "valida":
+          invitacionAdd.valida = fields[1]
+          break;
+        case "matricula":
+          invitacionAdd.matricula = fields[1]
+          break;
+      }
+    }
+    $(parent).append(`<tr>
+                        <td>${invitacionAdd.invDe.substring(0,40)}</td>
+                        <td>${invitacionAdd.nuevoProp.substring(0,40)}</td>
+                        <td>${invitacionAdd.matricula}</td>
                         <td>${invitacionAdd.publicada}</td>
                         <td>${invitacionAdd.solicitada}</td>
                         <td>${invitacionAdd.valida}</td>
@@ -454,5 +532,8 @@ module.exports = {
   eliminarInvitacionAdmin,
   addDataDiv,
   addTableInvitacionesSolicitadas,
-  addTableCochesInvitado
+  addTableCochesInvitado,
+  addTableInvitacionesRegistradas,
+  addTableInvitacionesPub
+
 }

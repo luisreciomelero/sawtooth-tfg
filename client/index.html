@@ -141,34 +141,34 @@
   <div id="sesion"> </div>
 
       <div id="register" class="col-sm-5" style="display:none">  
-        <h3>New User</h3>
+        <h3>Nuevo Usuario</h3>
         <hr>
         <div class="form-group">
-          <input type="text" id="nameInputR" placeholder="Enter your complete name (*)" class="form-control" required>
+          <input type="text" id="nameInputR" placeholder="Introduzca su nombre completo (*)" class="form-control" required>
         </div>
         <div class="form-group">
-          <input type="text" id="dniInputR" placeholder="Enter your DNI (*)" class="form-control"required>
+          <input type="text" id="dniInputR" placeholder="Introduzca su DNI (*)" class="form-control"required>
         </div>
         <div class="form-group">
-          <input type="text" id="emailInputR" placeholder="Enter your email (*)" class="form-control" required>
+          <input type="text" id="emailInputR" placeholder="Introduzca su email (*)" class="form-control" required>
         </div>
         <div class="form-group">
-          <input type="text" id="passInputR" placeholder="Enter a password (*)" class="form-control" required> 
+          <input type="password" id="passInputR" placeholder="Introduzca su  password (*)" class="form-control" required> 
         </div>
         <div class="form-group">
-          <input type="number" id="tfnInputR" placeholder="Enter your phone number (*)" class="form-control" required>
+          <input type="number" id="tfnInputR" placeholder="Introduzca su numero de telefono (*)" class="form-control" required>
         </div>
         <div class="form-group text-left">
-          <label class="text-left">Select Role (*)</label>
+          <label class="text-left">Selecciona rol (*)</label>
           <select  id="roles" name="roleSelect" class="form-control" required>
             <option></option>
-            <option value="none" selected>Select Role...</option>
+            <option value="none" selected>Roles</option>
             <option value="Invitado">Invitado</option>
             <option value="Vecino">Vecino</option>
             <option value='Admin' id="AdminOp">Admin</option>
           </select>
         </div>   
-        <button type="submit" id="registerUser" class="btn btn-success col-sm-12" style="margin-bottom: 10px;">Register</button>
+        <button type="submit" id="registerUser" class="btn btn-success col-sm-12" style="margin-bottom: 10px;">Registrarse</button>
         <hr style="margin: 10px 0px; clear: both;">
         <button type="submit" id="volverLogin" class="btn btn-primary col-sm-12">Volver</button>
       </div>
@@ -207,6 +207,13 @@
         <div class="menu col-sm-3">
           <h4>Vecino</h4>
           <div id="datosUser"></div>
+          
+          <hr>
+          <div>
+            <button type="submit" id="verInvitacionesPubUsuario" class="btn">Invitaciones Publicadas</button>
+            <button type="submit" id="verInvitacionesSolUsuario" class="btn">Invitaciones Solicitadas</button>
+            <button type="submit" id="verInvitacionesRegUsuario" class="btn">Invitaciones Registradas</button>
+          </div>
           <hr>
           <div id="publicarInvitacionMU">
             <div class="form-group">
@@ -215,12 +222,10 @@
             <button type="submit" id="publicarInv" class="btn btn-success">Publicar</button>
           </div>
         </div>
+        
         <div class="col-sm-9 main-content">
           <table class="table table-striped">
-            <tbody id="invitacionesPublicadasMU"></tbody>
-          </table>
-          <table class="table table-striped">
-            <tbody id="invitacionesAdjudicadasMU"></tbody>
+            <tbody id="visualizacionVecino"></tbody>
           </table>
         </div> 
       </div>
